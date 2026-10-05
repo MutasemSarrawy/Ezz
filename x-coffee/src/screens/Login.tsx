@@ -26,12 +26,12 @@ import { useStore } from '../state/store';
 import { colors, font, radius } from '../theme';
 
 export default function Login() {
-  const { go, setSession } = useStore();
+  const { reset, setSession, t, lang, setLang, isRTL } = useStore();
   const insets = useSafeAreaInsets();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
-  const [errors, setErrors] = useState<{ id?: string; pw?: string }>({});
+  const [errors, setErrors] = useState<{ id?: 'errIdEmpty' | 'errIdInvalid'; pw?: 'errPw' }>({});
   const [busy, setBusy] = useState(false);
   const [bioReady, setBioReady] = useState(false);
   const [bioEnabled, setBioEnabled] = useState(false);
@@ -45,7 +45,7 @@ export default function Login() {
 
   const finish = (s: { identifier: string; name: string }) => {
     setSession(s);
-    go('home');
+    reset('home');
   };
 
   const submit = async () => {
@@ -57,9 +57,9 @@ export default function Login() {
       const s = await signIn(identifier, password);
       await saveSession(s);
       if (bioReady && !bioEnabled) {
-        Alert.alert('Faster next time?', 'Use Face ID / fingerprint or your device passkey to sign in.', [
-          { text: 'Not now', onPress: () => finish(s) },
-          { text: 'Enable', onPress: async () => { await setBiometricEnabled(true); finish(s); } },
+        Alert.alert(t('bioOfferTitle'), t('bioOfferBody'), [
+          { text: t('notNow'), onPress: () => finish(s) },
+          { text: t('enable'), onPress: async () => { await setBiometricEnabled(true); finish(s); } },
         ]);
       } else {
         finish(s);
@@ -70,9 +70,9 @@ export default function Login() {
   };
 
   const biometric = async () => {
-    if (!bioReady) return Alert.alert('Not available', 'Set up Face ID, fingerprint or a screen lock on this device first.');
-    if (!bioEnabled) return Alert.alert('Not enabled yet', 'Sign in once with your password, then choose “Enable”.');
-    const s = await signInWithBiometrics();
+    if (!bioReady) return Alert.alert(t('bioUnavailableTitle'), t('bioUnavailableBody'));
+    if (!bioEnabled) return Alert.alert(t('bioNotEnabledTitle'), t('bioNotEnabledBody'));
+    const s = await signInWithBiometrics(t('bioPrompt'), t('usePassword'));
     if (s) finish(s);
   };
 
@@ -82,17 +82,27 @@ export default function Login() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[s.body, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}
       >
-        <XLogo size={64} />
-        <Text style={s.title}>Welcome back</Text>
-        <Text style={s.sub}>Sign in to order ahead and skip the line.</Text>
+        <View style={s.topRow}>
+          <XLogo size={64} />
+          <Pressable
+            testID="lang-toggle"
+            onPress={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+            style={s.langBtn}
+            accessibilityLabel={lang === 'ar' ? 'English' : 'العربية'}
+          >
+            <Text style={s.langText}>{lang === 'ar' ? 'English' : 'العربية'}</Text>
+          </Pressable>
+        </View>
+        <Text style={s.title}>{t('welcome')}</Text>
+        <Text style={s.sub}>{t('signInSub')}</Text>
 
         <View style={s.field}>
-          <Text style={s.label}>Email or mobile number</Text>
+          <Text style={s.label}>{t('idLabel')}</Text>
           <TextInput
             testID="identifier"
             value={identifier}
             onChangeText={setIdentifier}
-            placeholder="you@email.com or +962 7…"
+            placeholder={t('idPlaceholder')}
             placeholderTextColor={colors.inkSoft}
             autoCapitalize="none"
             autoCorrect={false}
@@ -101,11 +111,11 @@ export default function Login() {
             autoComplete="username"
             style={[s.input, errors.id && s.inputErr]}
           />
-          {errors.id && <Text style={s.err}>{errors.id}</Text>}
+          {errors.id && <Text style={s.err}>{t(errors.id)}</Text>}
         </View>
 
         <View style={s.field}>
-          <Text style={s.label}>Password</Text>
+          <Text style={s.label}>{t('pwLabel')}</Text>
           <View>
             <TextInput
               testID="password"
@@ -117,24 +127,24 @@ export default function Login() {
               textContentType="password"
               autoComplete="password"
               onSubmitEditing={submit}
-              style={[s.input, { paddingRight: 64 }, errors.pw && s.inputErr]}
+              style={[s.input, isRTL ? { paddingLeft: 72 } : { paddingRight: 72 }, errors.pw && s.inputErr]}
             />
-            <Pressable onPress={() => setShow((v) => !v)} hitSlop={10} style={s.eye} accessibilityLabel={show ? 'Hide password' : 'Show password'}>
-              <Text style={s.eyeText}>{show ? 'Hide' : 'Show'}</Text>
+            <Pressable onPress={() => setShow((v) => !v)} hitSlop={10} style={[s.eye, isRTL ? { left: 16 } : { right: 16 }]} accessibilityLabel={show ? t('hide') : t('show')}>
+              <Text style={s.eyeText}>{show ? t('hide') : t('show')}</Text>
             </Pressable>
           </View>
-          {errors.pw && <Text style={s.err}>{errors.pw}</Text>}
+          {errors.pw && <Text style={s.err}>{t(errors.pw)}</Text>}
         </View>
 
-        <Button testID="signin" label="Sign in" onPress={submit} loading={busy} style={{ marginTop: 8 }} />
+        <Button testID="signin" label={t('signIn')} onPress={submit} loading={busy} style={{ marginTop: 8 }} />
 
         <View style={s.divider}>
-          <View style={s.line} /><Text style={s.or}>or</Text><View style={s.line} />
+          <View style={s.line} /><Text style={s.or}>{t('or')}</Text><View style={s.line} />
         </View>
 
-        <Button testID="biometric" variant="secondary" label="🔐  Passkey / biometric" onPress={biometric} />
+        <Button testID="biometric" variant="secondary" label={`🔐  ${t('biometric')}`} onPress={biometric} />
 
-        <Button testID="guest" variant="ghost" label="Skip for now" onPress={() => go('home')} style={{ marginTop: 8 }} />
+        <Button testID="guest" variant="ghost" label={t('skip')} onPress={() => reset('home')} style={{ marginTop: 8 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -142,18 +152,21 @@ export default function Login() {
 
 const s = StyleSheet.create({
   body: { paddingHorizontal: 24, gap: 6 },
-  title: { ...font.title, color: colors.ink, marginTop: 24 },
-  sub: { ...font.body, color: colors.inkSoft, marginBottom: 20 },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  langBtn: { minHeight: 44, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1.5, borderColor: colors.line, justifyContent: 'center' },
+  langText: { fontWeight: '700', color: colors.ink, fontSize: 15 },
+  title: { ...font.title, color: colors.ink, marginTop: 24, textAlign: 'auto' },
+  sub: { ...font.body, color: colors.inkSoft, marginBottom: 20, textAlign: 'auto' },
   field: { marginBottom: 14 },
-  label: { ...font.label, color: colors.inkSoft, marginBottom: 6 },
+  label: { ...font.label, color: colors.inkSoft, marginBottom: 6, textAlign: 'auto' },
   // 16px minimum stops iOS from zooming into the field on focus
   input: {
     minHeight: 52, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1.5,
-    borderColor: colors.line, paddingHorizontal: 16, fontSize: 16, color: colors.ink,
+    borderColor: colors.line, paddingHorizontal: 16, fontSize: 16, color: colors.ink, textAlign: 'auto',
   },
   inputErr: { borderColor: colors.danger },
-  err: { color: colors.danger, fontSize: 13, marginTop: 6 },
-  eye: { position: 'absolute', right: 16, top: 0, bottom: 0, justifyContent: 'center' },
+  err: { color: colors.danger, fontSize: 13, marginTop: 6, textAlign: 'auto' },
+  eye: { position: 'absolute', top: 0, bottom: 0, justifyContent: 'center' },
   eyeText: { color: colors.accent, fontWeight: '700' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 18 },
   line: { flex: 1, height: 1, backgroundColor: colors.line },

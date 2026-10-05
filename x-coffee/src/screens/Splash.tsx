@@ -2,9 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { XLogo } from '../components/ui';
 import { colors } from '../theme';
+import { useStore } from '../state/store';
 
 /** Shows the brand for ~1.8 s before the app continues to login. */
 export default function Splash({ onDone }: { onDone: () => void }) {
+  const { t } = useStore();
   const scale = useRef(new Animated.Value(0.8)).current;
   const fade = useRef(new Animated.Value(0)).current;
   const word = useRef(new Animated.Value(0)).current;
@@ -26,7 +28,7 @@ export default function Splash({ onDone }: { onDone: () => void }) {
         <XLogo size={120} />
       </Animated.View>
       <Animated.View style={{ opacity: word, transform: [{ translateY: word.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}>
-        <Text style={s.name}>COFFEE HOUSE</Text>
+        <Text style={s.name}>{t('tagline')}</Text>
       </Animated.View>
     </View>
   );

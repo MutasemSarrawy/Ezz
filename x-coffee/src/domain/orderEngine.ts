@@ -1,16 +1,18 @@
 import {
   MAX_ACCURACY_METERS,
   NEARBY_METERS,
-  SHOP_LOCATION,
   estimateTravelSeconds,
   haversineMeters,
   secondsUntilStart,
 } from './pickup';
-import type { LatLng, Order, TrackingMode, TravelMode } from './types';
+import type { Currency, LatLng, Order, TrackingMode, TravelMode } from './types';
+import { roundMoney } from './market';
 
 type NewPickup = {
   id: string;
   lines: Order['lines'];
+  currency: Currency;
+  shop: LatLng;
   prepSeconds: number;
   location: LatLng;
   tracking: TrackingMode;
@@ -20,13 +22,15 @@ type NewPickup = {
 
 export function createPickupOrder(input: NewPickup): Order {
   const { location, now } = input;
-  const distanceMeters = haversineMeters(location, SHOP_LOCATION);
+  const distanceMeters = haversineMeters(location, input.shop);
   const etaSeconds = estimateTravelSeconds(distanceMeters, input.travel);
   const order: Order = {
     id: input.id,
     lines: input.lines,
-    total: round2(input.lines.reduce((s, l) => s + l.price * l.qty, 0)),
+    total: roundMoney(input.lines.reduce((s, l) => s + l.unitPrice * l.qty, 0), input.currency),
+    currency: input.currency,
     fulfilment: 'pickup',
+    shop: input.shop,
     status: 'waiting',
     createdAt: now,
     prepSeconds: input.prepSeconds,
@@ -54,7 +58,7 @@ export function applyLocation(
   if (order.tracking !== 'live' || order.status !== 'waiting') return order;
   if (accuracyMeters !== undefined && accuracyMeters > MAX_ACCURACY_METERS) return order;
 
-  const distanceMeters = haversineMeters(location, SHOP_LOCATION);
+  const distanceMeters = haversineMeters(location, order.shop);
   const etaSeconds = estimateTravelSeconds(distanceMeters, order.travel);
   const next: Order = {
     ...order,
@@ -115,5 +119,3 @@ function startPreparing(
 ): Order {
   return { ...order, status: 'preparing', preparingAt: now, startReason: reason };
 }
-
-const round2 = (n: number) => Math.round(n * 100) / 100;

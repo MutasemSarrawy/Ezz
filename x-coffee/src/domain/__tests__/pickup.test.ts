@@ -10,26 +10,31 @@ import {
 } from '../orderEngine';
 import {
   SAFETY_BUFFER_SECONDS,
-  SHOP_LOCATION,
   estimatePrepSeconds,
   estimateTravelSeconds,
   haversineMeters,
   secondsUntilStart,
 } from '../pickup';
 import type { LatLng } from '../types';
+import { MARKETS, formatMoney, roundMoney } from '../market';
+import { choiceKey, defaultChoice, describeChoice, unitPrepSeconds, unitPrice } from '../options';
+
+const SHOP_LOCATION = MARKETS.JO.branch.location;
 
 const p = (id: string) => PRODUCTS.find((x) => x.id === id)!;
 const metersNorth = (m: number): LatLng => ({
   lat: SHOP_LOCATION.lat + m / 111_195,
   lng: SHOP_LOCATION.lng,
 });
-const lines = [{ productId: 'latte', name: 'Caffè Latte', qty: 1, price: 4 }];
+const lines = [{ key: 'latte', name: { en: 'Caffè Latte', ar: 'لاتيه' }, details: { en: '', ar: '' }, qty: 1, unitPrice: 2.9 }];
 const T0 = 1_000_000;
 
 function order(distanceM: number, tracking: 'once' | 'live', prepSeconds = 170) {
   return createPickupOrder({
     id: 'o1',
     lines,
+    currency: 'JOD',
+    shop: SHOP_LOCATION,
     prepSeconds,
     location: metersNorth(distanceM),
     tracking,
@@ -49,15 +54,15 @@ describe('estimates', () => {
     );
   });
   it('prep time grows with items but less than linearly', () => {
-    const one = estimatePrepSeconds([{ product: p('latte'), qty: 1 }]);
-    const two = estimatePrepSeconds([{ product: p('latte'), qty: 2 }]);
+    const one = estimatePrepSeconds([{ prepSeconds: p('latte').prepSeconds, qty: 1 }]);
+    const two = estimatePrepSeconds([{ prepSeconds: p('latte').prepSeconds, qty: 2 }]);
     expect(two).toBeGreaterThan(one);
     expect(two).toBeLessThan(one * 2);
     expect(estimatePrepSeconds([])).toBe(0);
   });
   it('queue backlog adds to prep time', () => {
-    const base = estimatePrepSeconds([{ product: p('latte'), qty: 1 }]);
-    expect(estimatePrepSeconds([{ product: p('latte'), qty: 1 }], 120)).toBe(base + 120);
+    const base = estimatePrepSeconds([{ prepSeconds: p('latte').prepSeconds, qty: 1 }]);
+    expect(estimatePrepSeconds([{ prepSeconds: p('latte').prepSeconds, qty: 1 }], 120)).toBe(base + 120);
   });
   it('never starts in the past', () => {
     expect(secondsUntilStart(10, 200)).toBe(0);
@@ -147,5 +152,31 @@ describe('pickup order lifecycle', () => {
     const ready = tick(started, T0 + 15_000);
     expect(ready.status).toBe('ready');
     expect(cancelOrder(ready).status).toBe('ready');
+  });
+});
+
+describe('markets and options', () => {
+  it('formats JOD with 3 decimals and SAR with 2, per language', () => {
+    expect(formatMoney(2.9, 'JOD', 'en')).toBe('2.900 JD');
+    expect(formatMoney(18, 'SAR', 'ar')).toBe('18.00 ر.س');
+    expect(roundMoney(1.23456, 'JOD')).toBe(1.235);
+  });
+  it('options change price and prep time', () => {
+    const latte = p('latte');
+    const base = defaultChoice(latte);
+    expect(base).toMatchObject({ size: 'M', milk: 'full', shots: 0 });
+    const fancy = { ...base, size: 'L' as const, milk: 'oat' as const, shots: 2 };
+    expect(unitPrice(latte, fancy, 'SAR')).toBe(18 + 4 + 3 + 2 * 3);
+    expect(unitPrepSeconds(latte, fancy)).toBeGreaterThan(unitPrepSeconds(latte, base));
+  });
+  it('identical configurations share a basket key, different ones do not', () => {
+    const c = defaultChoice(p('latte'));
+    expect(choiceKey('latte', c)).toBe(choiceKey('latte', { ...c }));
+    expect(choiceKey('latte', c)).not.toBe(choiceKey('latte', { ...c, milk: 'oat' }));
+  });
+  it('describes choices in both languages', () => {
+    const c = { ...defaultChoice(p('latte')), milk: 'oat' as const, shots: 1 };
+    expect(describeChoice(c, 'en')).toBe('Medium · Oat · +1 shot');
+    expect(describeChoice(c, 'ar')).toContain('شوفان');
   });
 });

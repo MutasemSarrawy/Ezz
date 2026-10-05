@@ -10,6 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { colors, font, radius } from '../theme';
+import { useStore } from '../state/store';
 
 type BtnProps = {
   label: string;
@@ -97,17 +98,46 @@ export function Segmented<T extends string>({
   );
 }
 
-export function Stepper({ qty, onAdd, onRemove }: { qty: number; onAdd: () => void; onRemove: () => void }) {
+export function Stepper({ qty, onAdd, onRemove, min = 0 }: { qty: number; onAdd: () => void; onRemove: () => void; min?: number }) {
+  const { t } = useStore();
   return (
     <View style={s.stepper}>
-      <Pressable accessibilityLabel="Remove one" hitSlop={8} onPress={onRemove} style={s.stepBtn}>
+      <Pressable accessibilityLabel={t('removeOne')} hitSlop={8} onPress={onRemove} disabled={qty <= min} style={[s.stepBtn, qty <= min && { opacity: 0.35 }]}>
         <Text style={s.stepGlyph}>−</Text>
       </Pressable>
       <Text style={s.stepQty}>{qty}</Text>
-      <Pressable accessibilityLabel="Add one" hitSlop={8} onPress={onAdd} style={s.stepBtn}>
+      <Pressable accessibilityLabel={t('addOne')} hitSlop={8} onPress={onAdd} style={s.stepBtn}>
         <Text style={s.stepGlyph}>+</Text>
       </Pressable>
     </View>
+  );
+}
+
+/** Top bar with a back arrow that points the right way in Arabic. */
+export function Header({ title, top, right }: { title: string; top: number; right?: React.ReactNode }) {
+  const { back, t, isRTL } = useStore();
+  return (
+    <View style={[s.header, { paddingTop: top + 8 }]}>
+      <Pressable onPress={back} hitSlop={12} accessibilityLabel={t('back')} style={s.backBtn}>
+        <Text style={s.backGlyph}>{isRTL ? '›' : '‹'}</Text>
+      </Pressable>
+      <Text style={[s.headerTitle, { flex: 1 }]} numberOfLines={1}>{title}</Text>
+      {right}
+    </View>
+  );
+}
+
+export function Chip({ label, sub, selected, onPress }: { label: string; sub?: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={({ pressed }) => [s.chip, selected && s.chipOn, pressed && { opacity: 0.85 }]}
+    >
+      <Text style={[s.chipText, selected && { color: colors.onBrand }]}>{label}</Text>
+      {sub ? <Text style={[s.chipSub, selected && { color: colors.accentSoft }]}>{sub}</Text> : null}
+    </Pressable>
   );
 }
 
@@ -136,6 +166,14 @@ const s = StyleSheet.create({
   segItem: { flex: 1, minHeight: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
   segOn: { backgroundColor: colors.brand },
   segText: { ...font.body, fontWeight: '700', color: colors.ink },
+  header: { paddingHorizontal: 16, paddingBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  backGlyph: { fontSize: 36, lineHeight: 38, color: colors.ink },
+  headerTitle: { ...font.title, color: colors.ink, textAlign: 'auto' },
+  chip: { minHeight: 44, paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
+  chipOn: { backgroundColor: colors.brand, borderColor: colors.brand },
+  chipText: { fontSize: 15, fontWeight: '700', color: colors.ink },
+  chipSub: { fontSize: 12, color: colors.inkSoft, marginTop: 1 },
   stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.pill },
   stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stepGlyph: { fontSize: 22, fontWeight: '700', color: colors.ink },

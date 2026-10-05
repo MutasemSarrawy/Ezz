@@ -1,6 +1,8 @@
 # X Coffee House — mobile app (Expo / React Native)
 
-Flow: **Splash (logo)** → **Login (optional)** → **Menu** → **Order** → **Pickup tracking**.
+Flow: **Splash (logo)** → **Login (optional)** → **Menu** → **Product details** → **Order** → **Pickup tracking**.
+
+Languages: English and Arabic (right-to-left). Countries: Jordan (JOD, 3 decimals) and Saudi Arabia (SAR) — switch with the flag button on the menu.
 A **Barista console** (chef button, top-right of the menu) shows the shop's side.
 
 ## Run
@@ -27,7 +29,7 @@ True WebAuthn passkeys need the backend; the current button uses device biometri
 
 ## What is mocked / needs your input
 - `src/services/orderService.ts`: in-memory backend. Implement the `OrderService` interface against the real system and run `orderEngine` server-side so baristas are notified even if the customer's phone sleeps.
-- `SHOP_LOCATION` in `src/domain/pickup.ts` is a placeholder — set the real coordinates.
+- Branch coordinates in `src/domain/market.ts` (Amman, Riyadh) and all prices in `src/domain/menu.ts` / `options.ts` are placeholders.
 - ETA is a straight-line estimate; swap in a routing API (Google/Mapbox) for traffic-aware times.
 - Live tracking runs while the app is open (foreground). Tracking while the app is backgrounded needs background-location permission + `expo-task-manager`.
 - Product photos in `src/domain/menu.ts` are placeholder stock URLs; swap in the shop's own.

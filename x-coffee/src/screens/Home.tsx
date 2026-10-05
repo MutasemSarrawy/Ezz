@@ -11,22 +11,19 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { CATEGORIES, PRODUCTS } from '../domain/menu';
+import { defaultChoice } from '../domain/options';
 import type { CategoryId, Product } from '../domain/types';
 import { ProductImage, Stepper } from '../components/ui';
-import { money, useStore } from '../state/store';
+import { useStore } from '../state/store';
 import { colors, font, radius, shadow } from '../theme';
 
 export default function Home() {
-  const { go, session, count, subtotal, qtyOf, add, remove, activeOrder } = useStore();
+  const { go, t, lang, isRTL, money, market, session, count, subtotal, qtyOf, addLine, removeOne, openProduct, activeOrder } = useStore();
   const insets = useSafeAreaInsets();
   const list = useRef<SectionList<Product>>(null);
   const [active, setActive] = useState<CategoryId>('coffee');
   const sections = useMemo(
-    () =>
-      CATEGORIES.map((c) => ({
-        ...c,
-        data: PRODUCTS.filter((p) => p.category === c.id),
-      })),
+    () => CATEGORIES.map((c) => ({ ...c, data: PRODUCTS.filter((p) => p.category === c.id) })),
     [],
   );
 
@@ -41,17 +38,20 @@ export default function Home() {
     list.current?.scrollToLocation({ sectionIndex: idx, itemIndex: 0, viewOffset: 8 });
   };
 
-  const hasLive = activeOrder && (activeOrder.status === 'waiting' || activeOrder.status === 'preparing' || activeOrder.status === 'ready');
+  const live = activeOrder && ['waiting', 'preparing', 'ready'].includes(activeOrder.status) ? activeOrder : undefined;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ paddingTop: insets.top + 8, backgroundColor: colors.bg }}>
         <View style={s.header}>
-          <View>
-            <Text style={s.hello}>{session ? `Hi, ${session.name}` : 'Good to see you'}</Text>
-            <Text style={s.title}>What are you having?</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={s.hello}>{session ? t('hello', { name: session.name }) : t('helloGuest')}</Text>
+            <Text style={s.title}>{t('homeTitle')}</Text>
           </View>
-          <Pressable onPress={() => go('barista')} accessibilityLabel="Barista console" style={s.baristaBtn}>
+          <Pressable testID="settings" onPress={() => go('settings')} accessibilityLabel={t('settings')} style={s.iconBtn}>
+            <Text style={{ fontSize: 18 }}>{market.flag}</Text>
+          </Pressable>
+          <Pressable onPress={() => go('barista')} accessibilityLabel={t('baristaConsole')} style={s.iconBtn}>
             <Text style={{ fontSize: 18 }}>👨‍🍳</Text>
           </Pressable>
         </View>
@@ -68,19 +68,18 @@ export default function Home() {
                 style={[s.chip, on && s.chipOn]}
               >
                 <Text style={{ fontSize: 16 }}>{c.emoji}</Text>
-                <Text style={[s.chipText, on && { color: colors.onBrand }]}>{c.name}</Text>
+                <Text style={[s.chipText, on && { color: colors.onBrand }]}>{c.name[lang]}</Text>
               </Pressable>
             );
           })}
         </ScrollView>
 
-        {hasLive && (
+        {live && (
           <Pressable onPress={() => go('tracking')} style={s.banner}>
             <Text style={s.bannerText}>
-              Order {activeOrder!.id} ·{' '}
-              {activeOrder!.status === 'waiting' ? 'Waiting for you to get closer' : activeOrder!.status === 'preparing' ? 'Being prepared' : 'Ready for pickup'}
+              {live.id} · {live.status === 'waiting' ? t('bannerWaiting') : live.status === 'preparing' ? t('bannerPreparing') : t('bannerReady')}
             </Text>
-            <Text style={s.bannerText}>View ›</Text>
+            <Text style={s.bannerText}>{t('view')}</Text>
           </Pressable>
         )}
       </View>
@@ -95,14 +94,21 @@ export default function Home() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 120 }}
         onScrollToIndexFailed={() => {}}
         renderSectionHeader={({ section }) => (
-          <Text style={s.sectionTitle}>{section.emoji}  {section.name}</Text>
+          <Text style={s.sectionTitle}>{section.emoji}  {section.name[lang]}</Text>
         )}
         renderItem={({ item }) => (
           <ProductCard
             product={item}
             qty={qtyOf(item.id)}
-            onAdd={() => { Haptics.selectionAsync().catch(() => {}); add(item); }}
-            onRemove={() => remove(item)}
+            rtl={isRTL}
+            name={item.name[lang]}
+            description={item.description[lang]}
+            price={money(item.price[market.currency])}
+            popular={t('popular')}
+            addLabel={t('add', { name: item.name[lang] })}
+            onOpen={() => openProduct(item.id)}
+            onAdd={() => { Haptics.selectionAsync().catch(() => {}); addLine(item, defaultChoice(item)); }}
+            onRemove={() => removeOne(item)}
           />
         )}
       />
@@ -110,11 +116,11 @@ export default function Home() {
       <Pressable
         testID="order-fab"
         accessibilityRole="button"
-        accessibilityLabel={`Order, ${count} items`}
+        accessibilityLabel={t('orderItems', { n: count })}
         onPress={() => go('order')}
-        style={({ pressed }) => [s.fab, { bottom: insets.bottom + 20 }, pressed && { transform: [{ scale: 0.97 }] }]}
+        style={({ pressed }) => [s.fab, { bottom: insets.bottom + 20 }, isRTL ? { left: 16 } : { right: 16 }, pressed && { transform: [{ scale: 0.97 }] }]}
       >
-        <Text style={s.fabText}>🛍  Order</Text>
+        <Text style={s.fabText}>🛍  {t('order')}</Text>
         {count > 0 && (
           <View style={s.fabBadge}>
             <Text style={s.fabBadgeText}>{count} · {money(subtotal)}</Text>
@@ -125,55 +131,60 @@ export default function Home() {
   );
 }
 
-function ProductCard({ product, qty, onAdd, onRemove }: { product: Product; qty: number; onAdd: () => void; onRemove: () => void }) {
+type CardProps = {
+  product: Product; qty: number; rtl: boolean; name: string; description: string; price: string; popular: string; addLabel: string;
+  onOpen: () => void; onAdd: () => void; onRemove: () => void;
+};
+
+function ProductCard({ product, qty, rtl, name, description, price, popular, addLabel, onOpen, onAdd, onRemove }: CardProps) {
   const emoji = CATEGORIES.find((c) => c.id === product.category)?.emoji;
   return (
-    <View style={s.card}>
+    <Pressable testID={`card-${product.id}`} onPress={onOpen} accessibilityRole="button" accessibilityLabel={name} style={({ pressed }) => [s.card, pressed && { opacity: 0.95 }]}>
       <ProductImage uri={product.image} emoji={emoji} style={s.cardImg} />
       {product.popular && (
-        <View style={s.tag}><Text style={s.tagText}>★ Popular</Text></View>
+        <View style={[s.tag, rtl ? { right: 12 } : { left: 12 }]}><Text style={s.tagText}>{popular}</Text></View>
       )}
       <View style={s.cardBody}>
         <View style={{ flex: 1 }}>
-          <Text style={s.name}>{product.name}</Text>
-          <Text style={s.desc} numberOfLines={2}>{product.description}</Text>
-          <Text style={s.price}>{money(product.price)}</Text>
+          <Text style={s.name}>{name}</Text>
+          <Text style={s.desc} numberOfLines={2}>{description}</Text>
+          <Text style={s.price}>{price}</Text>
         </View>
         {qty === 0 ? (
-          <Pressable accessibilityLabel={`Add ${product.name}`} onPress={onAdd} style={s.addBtn}>
+          <Pressable accessibilityLabel={addLabel} onPress={onAdd} style={s.addBtn}>
             <Text style={s.addGlyph}>+</Text>
           </Pressable>
         ) : (
           <Stepper qty={qty} onAdd={onAdd} onRemove={onRemove} />
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 const s = StyleSheet.create({
-  header: { paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 12 },
-  hello: { ...font.label, color: colors.inkSoft },
-  title: { ...font.title, color: colors.ink },
-  baristaBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  header: { paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 12 },
+  hello: { ...font.label, color: colors.inkSoft, textAlign: 'auto' },
+  title: { ...font.title, color: colors.ink, textAlign: 'auto' },
+  iconBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   chips: { paddingHorizontal: 16, gap: 8, paddingBottom: 12 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 16, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line },
   chipOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   chipText: { ...font.body, fontWeight: '700', color: colors.ink },
   banner: { marginHorizontal: 16, marginBottom: 8, padding: 12, borderRadius: radius.md, backgroundColor: colors.accentSoft, flexDirection: 'row', justifyContent: 'space-between' },
   bannerText: { color: colors.ink, fontWeight: '700', fontSize: 14 },
-  sectionTitle: { ...font.h2, color: colors.ink, marginTop: 20, marginBottom: 12 },
+  sectionTitle: { ...font.h2, color: colors.ink, marginTop: 20, marginBottom: 12, textAlign: 'auto' },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, marginBottom: 16, overflow: 'hidden', ...shadow },
   cardImg: { height: 190, width: '100%' },
-  tag: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.brand, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  tag: { position: 'absolute', top: 12, backgroundColor: colors.brand, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   tagText: { color: colors.onBrand, fontSize: 12, fontWeight: '700' },
   cardBody: { padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  name: { ...font.h2, color: colors.ink },
-  desc: { color: colors.inkSoft, marginTop: 2, lineHeight: 20 },
-  price: { marginTop: 8, fontWeight: '800', fontSize: 17, color: colors.accent },
+  name: { ...font.h2, color: colors.ink, textAlign: 'auto' },
+  desc: { color: colors.inkSoft, marginTop: 2, lineHeight: 20, textAlign: 'auto' },
+  price: { marginTop: 8, fontWeight: '800', fontSize: 17, color: colors.accent, textAlign: 'auto' },
   addBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
   addGlyph: { color: colors.onBrand, fontSize: 28, lineHeight: 30, fontWeight: '500' },
-  fab: { position: 'absolute', right: 16, minHeight: 60, borderRadius: radius.pill, backgroundColor: colors.brand, paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center', gap: 10, ...shadow },
+  fab: { position: 'absolute', minHeight: 60, borderRadius: radius.pill, backgroundColor: colors.brand, paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center', gap: 10, ...shadow },
   fabText: { color: colors.onBrand, fontSize: 17, fontWeight: '800' },
   fabBadge: { backgroundColor: colors.accent, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
   fabBadgeText: { color: colors.onBrand, fontWeight: '800', fontSize: 13 },

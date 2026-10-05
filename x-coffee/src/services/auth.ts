@@ -9,15 +9,15 @@ const BIOMETRIC_KEY = 'x.biometricEnabled';
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const isPhone = (v: string) => /^\+?[0-9\s-]{7,15}$/.test(v);
 
-export function validateIdentifier(raw: string): string | null {
+export function validateIdentifier(raw: string): 'errIdEmpty' | 'errIdInvalid' | null {
   const v = raw.trim();
-  if (!v) return 'Enter your email or mobile number';
-  if (!isEmail(v) && !isPhone(v)) return 'Enter a valid email or mobile number';
+  if (!v) return 'errIdEmpty';
+  if (!isEmail(v) && !isPhone(v)) return 'errIdInvalid';
   return null;
 }
 
-export function validatePassword(v: string): string | null {
-  return v.length >= 6 ? null : 'Password must be at least 6 characters';
+export function validatePassword(v: string): 'errPw' | null {
+  return v.length >= 6 ? null : 'errPw';
 }
 
 /**
@@ -61,11 +61,8 @@ export async function setBiometricEnabled(on: boolean) {
 }
 
 /** Prompts Face ID / fingerprint / device passkey-unlock, then restores the saved session. */
-export async function signInWithBiometrics(): Promise<Session | null> {
-  const res = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Sign in to X',
-    cancelLabel: 'Use password',
-  });
+export async function signInWithBiometrics(promptMessage: string, cancelLabel: string): Promise<Session | null> {
+  const res = await LocalAuthentication.authenticateAsync({ promptMessage, cancelLabel });
   if (!res.success) return null;
   try {
     const raw = await SecureStore.getItemAsync(SESSION_KEY);

@@ -1,22 +1,42 @@
 export type LatLng = { lat: number; lng: number };
 
-export type CategoryId = 'coffee' | 'iced' | 'tea' | 'bakery' | 'dessert';
+export type Lang = 'en' | 'ar';
+export type Localized = Record<Lang, string>;
 
-export type Category = { id: CategoryId; name: string; emoji: string };
+export type Currency = 'JOD' | 'SAR';
+export type MarketId = 'JO' | 'SA';
+
+export type CategoryId = 'coffee' | 'iced' | 'tea' | 'bakery' | 'dessert';
+export type Category = { id: CategoryId; name: Localized; emoji: string };
+
+export type OptionGroupId = 'size' | 'milk' | 'sugar' | 'shots' | 'syrup' | 'warm';
 
 export type Product = {
   id: string;
-  name: string;
-  description: string;
-  price: number;
+  name: Localized;
+  description: Localized;
+  /** Base price (smallest size) per currency. */
+  price: Record<Currency, number>;
   category: CategoryId;
   image: string;
-  /** Barista time to make one unit, in seconds. */
+  /** Barista time to make one unit with default options, in seconds. */
   prepSeconds: number;
+  options: OptionGroupId[];
   popular?: boolean;
 };
 
-export type CartLine = { product: Product; qty: number };
+/** A customer's choices for one product. Keys follow the product's option groups. */
+export type Choice = {
+  size?: 'S' | 'M' | 'L';
+  milk?: 'full' | 'skim' | 'oat' | 'almond' | 'lactose_free';
+  sugar?: 'none' | 'less' | 'normal' | 'extra';
+  shots?: number; // extra espresso shots, 0..3
+  syrup?: 'none' | 'vanilla' | 'caramel' | 'hazelnut';
+  warm?: boolean;
+  notes?: string;
+};
+
+export type CartLine = { key: string; product: Product; choice: Choice; qty: number };
 
 export type FulfilmentMode = 'pickup' | 'delivery';
 export type TravelMode = 'driving' | 'walking';
@@ -30,11 +50,21 @@ export type OrderStatus =
   | 'picked_up'
   | 'cancelled';
 
+export type OrderLine = {
+  key: string;
+  name: Localized;
+  details: Localized;
+  qty: number;
+  unitPrice: number;
+};
+
 export type Order = {
   id: string;
-  lines: { productId: string; name: string; qty: number; price: number }[];
+  lines: OrderLine[];
   total: number;
+  currency: Currency;
   fulfilment: 'pickup';
+  shop: LatLng;
   status: OrderStatus;
   createdAt: number;
   prepSeconds: number;

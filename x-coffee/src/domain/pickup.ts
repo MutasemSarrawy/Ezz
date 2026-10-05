@@ -1,10 +1,4 @@
-import type { CartLine, LatLng, TravelMode } from './types';
-
-/**
- * Coffee house location. PLACEHOLDER — replace with the real branch coordinates
- * (ideally loaded per-branch from the backend).
- */
-export const SHOP_LOCATION: LatLng = { lat: 31.9539, lng: 35.9106 };
+import type { LatLng, TravelMode } from './types';
 
 /** Start preparing this many seconds *before* the computed latest-start so the drink is ready on arrival, not late. */
 export const SAFETY_BUFFER_SECONDS = 45;
@@ -47,10 +41,13 @@ export function estimateTravelSeconds(
  * line takes full time, everything else adds 60% of its time. Repeat units of
  * the same drink cost 60% too. `queueSeconds` is the barista backlog.
  */
-export function estimatePrepSeconds(lines: CartLine[], queueSeconds = 0): number {
-  const units = lines.flatMap(({ product, qty }) =>
+export function estimatePrepSeconds(
+  lines: { prepSeconds: number; qty: number }[],
+  queueSeconds = 0,
+): number {
+  const units = lines.flatMap(({ prepSeconds, qty }) =>
     Array.from({ length: qty }, (_, i) => ({
-      secs: product.prepSeconds,
+      secs: prepSeconds,
       repeat: i > 0,
     })),
   );

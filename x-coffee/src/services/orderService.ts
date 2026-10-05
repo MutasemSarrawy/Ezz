@@ -6,7 +6,7 @@ import {
   markPickedUp,
   tick,
 } from '../domain/orderEngine';
-import type { LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
+import type { Currency, LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
 
 /**
  * The seam between the customer app and the coffee house's system.
@@ -19,6 +19,8 @@ import type { LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
 export interface OrderService {
   placePickup(input: {
     lines: Order['lines'];
+    currency: Currency;
+    shop: LatLng;
     prepSeconds: number;
     location: LatLng;
     tracking: TrackingMode;
