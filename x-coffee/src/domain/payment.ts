@@ -7,6 +7,8 @@ export type OrderPayment = {
   /** Amount charged (or to collect at the counter), after the points discount. */
   amount: number;
   subtotal: number;
+  /** 0 for pickup. */
+  deliveryFee?: number;
   pointsRedeemed: number;
   discount: number;
   cardLast4?: string;

@@ -18,6 +18,7 @@ import EditProfile from './src/screens/EditProfile';
 import History from './src/screens/History';
 import Favourites from './src/screens/Favourites';
 import Wallet from './src/screens/Wallet';
+import AddressScreen from './src/screens/Address';
 
 function Router() {
   const { route, reset, back, isRTL, session } = useStore();
@@ -46,6 +47,7 @@ function Router() {
       case 'history': return <History />;
       case 'favourites': return <Favourites />;
       case 'wallet': return <Wallet />;
+      case 'address': return <AddressScreen />;
       case 'tracking': return <Tracking />;
       case 'barista': return <Barista />;
       case 'settings': return <Settings />;

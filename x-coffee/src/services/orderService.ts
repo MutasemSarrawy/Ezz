@@ -1,4 +1,7 @@
 import {
+  advance,
+  createDeliveryOrder,
+  handToDriver,
   applyLocation,
   cancelOrder,
   createPickupOrder,
@@ -6,7 +9,8 @@ import {
   markPickedUp,
   tick,
 } from '../domain/orderEngine';
-import type { Currency, LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
+import type { Currency, DeliveryInfo, LatLng, Localized, Order, TrackingMode, TravelMode } from '../domain/types';
+import type { Address } from '../domain/delivery';
 import type { OrderPayment } from '../domain/payment';
 import { getJSON, setJSON } from './prefs';
 
@@ -26,11 +30,27 @@ export interface OrderService {
     currency: Currency;
     payment: OrderPayment;
     shop: LatLng;
+    branchName: Localized;
     prepSeconds: number;
     location: LatLng;
     tracking: TrackingMode;
     travel: TravelMode;
   }): Promise<Order>;
+  placeDelivery(input: {
+    lines: Order['lines'];
+    currency: Currency;
+    payment: OrderPayment;
+    shop: LatLng;
+    branchName: Localized;
+    prepSeconds: number;
+    address: Address;
+    distanceMeters: number;
+    delivery: Omit<DeliveryInfo, 'address' | 'driver' | 'outAt' | 'deliveredAt'>;
+  }): Promise<Order>;
+  /** Barista gives the bag to the driver. */
+  handToDriver(orderId: string): void;
+  /** Test tool: skip ahead in time for one order. */
+  skipAhead(orderId: string, seconds: number): void;
   sendLocation(orderId: string, loc: LatLng, accuracy?: number): void;
   arrived(orderId: string): void;
   cancel(orderId: string): void;
@@ -68,6 +88,20 @@ class MockOrderService implements OrderService {
     this.ensureTimer();
     this.emit(true);
     return order;
+  }
+
+  async placeDelivery(input: Parameters<OrderService['placeDelivery']>[0]) {
+    await new Promise((r) => setTimeout(r, 300));
+    const order = createDeliveryOrder({ id: `X-${++this.seq}`, ...input, now: Date.now() });
+    this.orders.set(order.id, order);
+    this.ensureTimer();
+    this.emit(true);
+    return order;
+  }
+
+  handToDriver(id: string) { this.update(id, (o) => handToDriver(o, Date.now())); }
+  skipAhead(id: string, seconds: number) {
+    this.update(id, (o) => tick(advance(o, seconds), Date.now()));
   }
 
   sendLocation(id: string, loc: LatLng, accuracy?: number) {
@@ -116,7 +150,7 @@ class MockOrderService implements OrderService {
   }
 
   private hasActive() {
-    for (const o of this.orders.values()) if (o.status === 'waiting' || o.status === 'preparing') return true;
+    for (const o of this.orders.values()) if (o.status === 'waiting' || o.status === 'preparing' || o.status === 'ready' || o.status === 'out_for_delivery') return true;
     return false;
   }
 

@@ -19,7 +19,7 @@ import type { LatLng } from '../types';
 import { MARKETS, formatMoney, roundMoney } from '../market';
 import { choiceKey, defaultChoice, describeChoice, unitPrepSeconds, unitPrice } from '../options';
 
-const SHOP_LOCATION = MARKETS.JO.branch.location;
+const SHOP_LOCATION = MARKETS.JO.branches[0].location;
 
 const p = (id: string) => PRODUCTS.find((x) => x.id === id)!;
 const metersNorth = (m: number): LatLng => ({
@@ -34,6 +34,7 @@ function order(distanceM: number, tracking: 'once' | 'live', prepSeconds = 170) 
     id: 'o1',
     lines,
     currency: 'JOD',
+    branchName: { en: 'Amman', ar: 'عمّان' },
     payment: { method: 'counter', status: 'pay_at_counter', amount: 2.9, subtotal: 2.9, pointsRedeemed: 0, discount: 0 },
     shop: SHOP_LOCATION,
     prepSeconds,
@@ -179,5 +180,51 @@ describe('markets and options', () => {
     const c = { ...defaultChoice(p('latte')), milk: 'oat' as const, shots: 1 };
     expect(describeChoice(c, 'en')).toBe('Medium · Oat · +1 shot');
     expect(describeChoice(c, 'ar')).toContain('شوفان');
+  });
+});
+
+import { advance, createDeliveryOrder, handToDriver } from '../orderEngine';
+import { DRIVER_HANDOFF_SECONDS } from '../delivery';
+
+describe('delivery order lifecycle', () => {
+  const address = { id: 'a', label: 'home' as const, location: metersNorth(3000), area: 'A', street: 'S', building: '1' };
+  const make = (courier: 'own' | 'partner') =>
+    createDeliveryOrder({
+      id: 'X-7', lines, currency: 'JOD', shop: SHOP_LOCATION, branchName: { en: 'Amman', ar: 'عمّان' },
+      payment: { method: 'counter', status: 'pay_at_counter', amount: 3.65, subtotal: 2.9, deliveryFee: 0.75, pointsRedeemed: 0, discount: 0 },
+      prepSeconds: 100, address, distanceMeters: 3000,
+      delivery: { fee: 0.75, courier, partner: courier === 'partner' ? 'Talabat' : undefined, travelSeconds: 600, etaMinMinutes: 15, etaMaxMinutes: 20 },
+      now: T0,
+    });
+
+  it('starts preparing immediately, then ready, out, delivered', () => {
+    let o = make('own');
+    expect(o.status).toBe('preparing');
+    o = tick(o, T0 + 100_000);
+    expect(o.status).toBe('ready');
+    o = tick(o, T0 + 100_000 + DRIVER_HANDOFF_SECONDS * 1000);
+    expect(o.status).toBe('out_for_delivery');
+    expect(o.delivery?.driver?.vehicle).toBe('Motorbike');
+    const out = o.delivery!.outAt!;
+    expect(tick(o, out + 599_000).status).toBe('out_for_delivery');
+    o = tick(o, out + 600_000);
+    expect(o.status).toBe('delivered');
+  });
+
+  it('barista can hand over early; partner courier is named', () => {
+    let o = tick(make('partner'), T0 + 100_000);
+    o = handToDriver(o, T0 + 101_000);
+    expect(o.status).toBe('out_for_delivery');
+    expect(o.delivery?.driver?.name.en).toBe('Talabat courier');
+  });
+
+  it('delivery orders cannot be marked picked up', () => {
+    const ready = tick(make('own'), T0 + 100_000);
+    expect(markPickedUp(ready).status).toBe('ready');
+  });
+
+  it('advance moves time forward for test tools', () => {
+    const o = advance(make('own'), 100);
+    expect(tick(o, T0).status).toBe('ready');
   });
 });

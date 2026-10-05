@@ -1,4 +1,5 @@
 import type { OrderPayment } from './payment';
+import type { Address, Courier } from './delivery';
 
 export type LatLng = { lat: number; lng: number };
 
@@ -49,8 +50,23 @@ export type OrderStatus =
   | 'waiting' // placed, barista not yet notified — customer still on the way
   | 'preparing'
   | 'ready'
-  | 'picked_up'
+  | 'out_for_delivery' // delivery only
+  | 'picked_up' // pickup only: customer collected it
+  | 'delivered' // delivery only
   | 'cancelled';
+
+export type DeliveryInfo = {
+  address: Address;
+  fee: number;
+  courier: Courier;
+  partner?: string;
+  travelSeconds: number;
+  etaMinMinutes: number;
+  etaMaxMinutes: number;
+  driver?: { name: Localized; vehicle: string };
+  outAt?: number;
+  deliveredAt?: number;
+};
 
 export type OrderLine = {
   key: string;
@@ -74,8 +90,10 @@ export type Order = {
   /** Paid amount / redeemed points returned after a cancellation. */
   refunded?: boolean;
   currency: Currency;
-  fulfilment: 'pickup';
+  fulfilment: FulfilmentMode;
   shop: LatLng;
+  branchName: Localized;
+  delivery?: DeliveryInfo;
   status: OrderStatus;
   createdAt: number;
   prepSeconds: number;

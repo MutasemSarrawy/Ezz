@@ -46,7 +46,7 @@ export default function Home() {
     ...favourites.flatMap((id) => { const p = productById(id); return p ? [{ key: `fav-${id}`, product: p, choice: defaultChoice(p) }] : []; }),
   ].slice(0, 10);
 
-  const live = activeOrder && ['waiting', 'preparing', 'ready'].includes(activeOrder.status) ? activeOrder : undefined;
+  const live = activeOrder && ['waiting', 'preparing', 'ready', 'out_for_delivery'].includes(activeOrder.status) ? activeOrder : undefined;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -85,7 +85,7 @@ export default function Home() {
         {live && (
           <Pressable onPress={() => go('tracking')} style={s.banner}>
             <Text style={s.bannerText}>
-              {live.id} · {live.status === 'waiting' ? t('bannerWaiting') : live.status === 'preparing' ? t('bannerPreparing') : t('bannerReady')}
+              {live.id} · {live.status === 'waiting' ? t('bannerWaiting') : live.status === 'preparing' ? t('bannerPreparing') : live.status === 'out_for_delivery' ? t('bannerOut') : t('bannerReady')}
             </Text>
             <Text style={s.bannerText}>{t('view')}</Text>
           </Pressable>

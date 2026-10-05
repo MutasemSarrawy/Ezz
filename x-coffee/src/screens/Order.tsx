@@ -11,6 +11,7 @@ import {
   secondsUntilStart,
 } from '../domain/pickup';
 import type { FulfilmentMode, LatLng, TrackingMode, TravelMode } from '../domain/types';
+import { LABELS, formatAddress, nearestBranch, quoteDelivery } from '../domain/delivery';
 import { getCurrentLocation, requestLocationPermission } from '../services/location';
 import { orderService } from '../services/orderService';
 import { useStore } from '../state/store';
@@ -19,9 +20,8 @@ import { colors, font, radius } from '../theme';
 type Preview = { location: LatLng; distance: number };
 
 export default function Order() {
-  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, linePrice, setPendingPickup } = useStore();
+  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, linePrice, setPendingOrder, fulfilment: mode, setFulfilment: setMode, addresses, removeAddress, selectedAddressId, setSelectedAddressId } = useStore();
   const insets = useSafeAreaInsets();
-  const [mode, setMode] = useState<FulfilmentMode>('pickup');
   const [travel, setTravel] = useState<TravelMode>('driving');
   const [tracking, setTracking] = useState<TrackingMode>('live');
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -29,7 +29,9 @@ export default function Order() {
   const scroller = useRef<ScrollView>(null);
   const [permError, setPermError] = useState<'denied' | 'blocked' | 'failed' | null>(null);
 
-  const shop = market.branch.location;
+  // Pickup uses the branch nearest the customer once we know where they are.
+  const branch = preview ? nearestBranch(market, preview.location) : market.branches[0];
+  const shop = branch.location;
   const prep = useMemo(
     () => estimatePrepSeconds(lines.map((l) => ({ prepSeconds: unitPrepSeconds(l.product, l.choice), qty: l.qty })), orderService.queueSeconds()),
     [lines],
@@ -67,9 +69,21 @@ export default function Order() {
     showTiming({ lat: shop.lat + 3000 / 111_195, lng: shop.lng });
   };
 
+  const address = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
+  const quote = useMemo(
+    () => (address ? quoteDelivery(market, address.location, subtotal, prep) : null),
+    [address, market, subtotal, prep],
+  );
+  const canDeliver = !!quote && quote.ok && quote.belowMinimumBy === 0;
+
   const toCheckout = () => {
-    if (!fresh) return;
-    setPendingPickup({ location: fresh.location, tracking, travel, prepSeconds: fresh.prep });
+    if (mode === 'pickup') {
+      if (!fresh) return;
+      setPendingOrder({ kind: 'pickup', location: fresh.location, tracking, travel, prepSeconds: fresh.prep, branch });
+    } else {
+      if (!address || !quote || !quote.ok || !canDeliver) return;
+      setPendingOrder({ kind: 'delivery', address, quote, prepSeconds: prep });
+    }
     go('checkout');
   };
 
@@ -115,16 +129,77 @@ export default function Order() {
         </View>
 
         {mode === 'delivery' ? (
-          <View style={s.card}>
-            <Text style={s.h2}>{t('deliveryTitle')}</Text>
-            <Text style={s.muted}>{t('deliveryBody')}</Text>
-          </View>
+          !empty && (
+            <>
+              <View style={s.card}>
+                <Text style={s.h2}>{t('deliverTo')}</Text>
+                {addresses.map((a) => {
+                  const on = a.id === address?.id;
+                  return (
+                    <Pressable
+                      key={a.id}
+                      testID={`address-${a.label}`}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      onPress={() => setSelectedAddressId(a.id)}
+                      style={[s.option, on && s.optionOn]}
+                    >
+                      <View style={[s.radio, on && s.radioOn]}>{on && <View style={s.radioDot} />}</View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.itemName}>{LABELS[a.label].icon} {LABELS[a.label][lang]}</Text>
+                        <Text style={s.muted}>{formatAddress(a, lang)}</Text>
+                      </View>
+                      <Pressable onPress={() => removeAddress(a.id)} hitSlop={8} accessibilityLabel={t('remove')}>
+                        <Text style={s.remove}>✕</Text>
+                      </Pressable>
+                    </Pressable>
+                  );
+                })}
+                <Button
+                  testID="add-address"
+                  variant={addresses.length ? 'ghost' : 'primary'}
+                  label={addresses.length ? t('addNewAddress') : t('addAddress')}
+                  onPress={() => go('address')}
+                />
+              </View>
+
+              {quote && !quote.ok && (
+                <View style={s.warn}>
+                  <Text style={s.warnText}>{t('outOfRange', { km: (quote.distanceMeters / 1000).toFixed(1) })}</Text>
+                </View>
+              )}
+              {quote && quote.ok && (
+                <View style={[s.card, { backgroundColor: colors.brand }]} testID="delivery-quote">
+                  <Text style={[s.label, { color: colors.accentSoft }]}>
+                    {quote.courier === 'own' ? `🛵  ${t('deliveredByOwn')}` : `🚚  ${t('deliveredByPartner', { partner: quote.partner ?? '' })}`}
+                  </Text>
+                  <Text style={[s.bigValue, { fontSize: 24 }]}>{t('arrivesIn', { min: quote.etaMinMinutes, max: quote.etaMaxMinutes })}</Text>
+                  <View style={s.quoteRow}>
+                    <Text style={[s.muted, { color: colors.accentSoft }]}>{t('deliveryFee')}</Text>
+                    <Text style={s.quoteFee}>
+                      {quote.free ? `${t('free')}  ` : ''}
+                      {quote.free ? <Text style={s.strike}>{money(quote.fullFee)}</Text> : money(quote.fee)}
+                    </Text>
+                  </View>
+                  <Text style={[s.muted, { color: colors.accentSoft }]}>
+                    {t('fromBranch', { branch: quote.branch.name[lang], km: (quote.distanceMeters / 1000).toFixed(1) })}
+                  </Text>
+                  {!quote.free && <Text style={[s.muted, { color: colors.accentSoft }]}>{t('freeAboveHint', { amount: money(market.delivery.freeAbove) })}</Text>}
+                </View>
+              )}
+              {quote && quote.ok && quote.belowMinimumBy > 0 && (
+                <View style={s.warn}>
+                  <Text style={s.warnText}>{t('minOrderShort', { amount: money(quote.belowMinimumBy), min: money(market.delivery.minOrder) })}</Text>
+                </View>
+              )}
+            </>
+          )
         ) : (
           !empty && (
             <>
               <View style={s.card}>
                 <Text style={s.h2}>{t('howGettingHere')}</Text>
-                <Text style={s.muted}>📍 {t('pickupFrom', { branch: market.branch.name[lang] })}</Text>
+                <Text style={s.muted}>📍 {t('pickupFrom', { branch: branch.name[lang] })}</Text>
                 <Segmented
                   value={travel}
                   onChange={setTravel}
@@ -183,13 +258,13 @@ export default function Order() {
       <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
         <View>
           <Text style={s.muted}>{t('total')}</Text>
-          <Text style={s.total}>{money(subtotal)}</Text>
+          <Text style={s.total}>{money(subtotal + (mode === 'delivery' && quote?.ok ? quote.fee : 0))}</Text>
         </View>
         <Button
           testID="place-order"
-          label={mode === 'delivery' ? t('deliverySoon') : fresh ? t('continueToPayment') : t('shareToContinue')}
-          onPress={toCheckout}
-          disabled={empty || mode === 'delivery' || !fresh}
+          label={mode === 'delivery' ? (address ? t('continueToPayment') : t('addAddress')) : fresh ? t('continueToPayment') : t('shareToContinue')}
+          onPress={mode === 'delivery' && !address ? () => go('address') : toCheckout}
+          disabled={empty || (mode === 'pickup' ? !fresh : !!address && !canDeliver)}
           style={{ flex: 1 }}
         />
       </View>
@@ -239,5 +314,9 @@ const s = StyleSheet.create({
   timingNote: { color: colors.onBrand, fontSize: 16, fontWeight: '600', lineHeight: 22, textAlign: 'auto' },
   refresh: { color: colors.accent, fontWeight: '700', paddingVertical: 4, textAlign: 'auto' },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 20, padding: 16, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line },
+  quoteRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  quoteFee: { color: colors.onBrand, fontWeight: '800', fontSize: 16 },
+  strike: { textDecorationLine: 'line-through', color: colors.accentSoft, fontWeight: '400' },
+  remove: { color: colors.inkSoft, fontSize: 16, paddingHorizontal: 4 },
   total: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'auto' },
 });

@@ -30,7 +30,7 @@ export default function Settings() {
                 <Chip
                   key={id}
                   label={`${m.flag}  ${m.name[lang]}`}
-                  sub={`${m.currency} · ${m.branch.name[lang]}`}
+                  sub={`${m.currency} · ${m.branches.map((b) => b.name[lang]).join(', ')}`}
                   selected={market.id === id}
                   onPress={() => setMarket(id)}
                 />

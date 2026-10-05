@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { MARKETS, formatMoney, roundMoney, type Market } from '../domain/market';
 import { choiceKey, unitPrice } from '../domain/options';
-import type { CartLine, Choice, Currency, Lang, LatLng, MarketId, Order, Product, TrackingMode, TravelMode } from '../domain/types';
+import type { CartLine, Choice, Currency, FulfilmentMode, Lang, LatLng, MarketId, Order, Product, TrackingMode, TravelMode } from '../domain/types';
 import { pointsEarned } from '../domain/loyalty';
 import { minutes, translate, type StringKey } from '../i18n/strings';
 import { orderService } from '../services/orderService';
@@ -17,13 +17,17 @@ import { watchLocation } from '../services/location';
 import { getJSON, getPref, setJSON, setPref } from '../services/prefs';
 import { clearSession, isBiometricEnabled, loadSession, saveSession, type Session } from '../services/auth';
 import { uid, type LedgerEntry, type Profile, type SavedCard, type SavedDrink } from '../domain/account';
+import type { Address, DeliveryQuote } from '../domain/delivery';
+import type { Branch } from '../domain/market';
 
 export type Route =
   | 'splash' | 'login' | 'signup' | 'home' | 'product' | 'order' | 'checkout' | 'tracking' | 'barista' | 'settings'
-  | 'profile' | 'editProfile' | 'history' | 'favourites' | 'wallet';
+  | 'profile' | 'editProfile' | 'history' | 'favourites' | 'wallet' | 'address';
 
 /** Pickup details chosen on the Order screen, carried into Checkout. */
-export type PendingPickup = { location: LatLng; tracking: TrackingMode; travel: TravelMode; prepSeconds: number };
+export type PendingPickup = { kind: 'pickup'; location: LatLng; tracking: TrackingMode; travel: TravelMode; prepSeconds: number; branch: Branch };
+export type PendingDelivery = { kind: 'delivery'; address: Address; quote: Extract<DeliveryQuote, { ok: true }>; prepSeconds: number };
+export type PendingOrder = PendingPickup | PendingDelivery;
 
 type Store = {
   route: Route;
@@ -66,8 +70,17 @@ type Store = {
   activeOrder: Order | undefined;
   setActiveOrderId: (id: string | null) => void;
 
-  pendingPickup: PendingPickup | null;
-  setPendingPickup: (p: PendingPickup | null) => void;
+  /** Pickup or delivery, kept while the customer moves between Order, Address and Checkout. */
+  fulfilment: FulfilmentMode;
+  setFulfilment: (m: FulfilmentMode) => void;
+  pendingOrder: PendingOrder | null;
+  setPendingOrder: (p: PendingOrder | null) => void;
+
+  addresses: Address[];
+  saveAddress: (a: Address) => void;
+  removeAddress: (id: string) => void;
+  selectedAddressId: string | null;
+  setSelectedAddressId: (id: string | null) => void;
 
   /** Loyalty points balance (shared across countries). */
   points: number;
@@ -99,7 +112,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeId, setActiveOrderId] = useState<string | null>(null);
-  const [pendingPickup, setPendingPickup] = useState<PendingPickup | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+  const [fulfilment, setFulfilment] = useState<FulfilmentMode>('pickup');
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [points, setPoints] = useState(0);
   const [wallet, setWallet] = useState<Record<Currency, number>>({ JOD: 0, SAR: 0 });
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
@@ -127,6 +143,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setFavourites(await getJSON('x.favourites', []));
       setSavedDrinks(await getJSON('x.savedDrinks', []));
       setSavedCards(await getJSON('x.savedCards', []));
+      const addr = await getJSON<Address[]>('x.addresses', []);
+      setAddresses(addr);
+      if (addr[0]) setSelectedAddressId((cur) => cur ?? addr[0].id);
     })();
   }, []);
 
@@ -175,6 +194,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setSavedCards((cs) => { const n = cs.filter((x) => x.id !== id); setJSON('x.savedCards', n); return n; });
   }, []);
 
+  const saveAddress = useCallback((a: Address) => {
+    setAddresses((as) => {
+      const n = as.some((x) => x.id === a.id) ? as.map((x) => (x.id === a.id ? a : x)) : [a, ...as];
+      setJSON('x.addresses', n);
+      return n;
+    });
+    setSelectedAddressId(a.id);
+  }, []);
+  const removeAddress = useCallback((id: string) => {
+    setAddresses((as) => { const n = as.filter((x) => x.id !== id); setJSON('x.addresses', n); return n; });
+    setSelectedAddressId((cur) => (cur === id ? null : cur));
+  }, []);
+
   const updateProfile = useCallback((p: Profile) => {
     setSession((s) => {
       const n = { identifier: s?.identifier ?? p.phone ?? p.email ?? p.name, ...s, ...p };
@@ -192,8 +224,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // picked up, and return wallet money / redeemed points if it is cancelled.
   useEffect(() => {
     for (const o of orders) {
-      if (o.status === 'picked_up' && o.pointsEarned === undefined) {
-        const earned = pointsEarned(o.payment.amount, o.currency);
+      if ((o.status === 'picked_up' || o.status === 'delivered') && o.pointsEarned === undefined) {
+        // points are earned on items, not on the delivery fee
+        const earned = pointsEarned(o.payment.amount - (o.payment.deliveryFee ?? 0), o.currency);
         addPoints(earned, 'earn', o.id);
         orderService.annotate(o.id, { pointsEarned: earned });
       }
@@ -296,8 +329,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       orders,
       activeOrder,
       setActiveOrderId,
-      pendingPickup,
-      setPendingPickup,
+      fulfilment,
+      setFulfilment,
+      pendingOrder,
+      setPendingOrder,
+      addresses,
+      saveAddress,
+      removeAddress,
+      selectedAddressId,
+      setSelectedAddressId,
       points,
       addPoints,
       wallet,
@@ -312,7 +352,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addCard,
       removeCard,
     };
-  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, pendingPickup, points, addPoints, wallet, addWallet, ledger, favourites, toggleFavourite, savedDrinks, saveDrink, removeSavedDrink, savedCards, addCard, removeCard, updateProfile, signOut]);
+  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, fulfilment, pendingOrder, addresses, saveAddress, removeAddress, selectedAddressId, points, addPoints, wallet, addWallet, ledger, favourites, toggleFavourite, savedDrinks, saveDrink, removeSavedDrink, savedCards, addCard, removeCard, updateProfile, signOut]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

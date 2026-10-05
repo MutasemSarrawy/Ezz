@@ -12,7 +12,9 @@ const STATUS: Record<Order['status'], { key: StringKey; color: string }> = {
   waiting: { key: 'stWaiting', color: colors.inkSoft },
   preparing: { key: 'stPreparing', color: colors.accent },
   ready: { key: 'stReady', color: colors.success },
+  out_for_delivery: { key: 'stOut', color: colors.accent },
   picked_up: { key: 'stPicked', color: colors.success },
+  delivered: { key: 'stDelivered', color: colors.success },
   cancelled: { key: 'stCancelled', color: colors.danger },
 };
 
@@ -53,12 +55,12 @@ export default function History() {
         }
         renderItem={({ item: o }) => {
           const st = STATUS[o.status];
-          const active = o.status === 'waiting' || o.status === 'preparing' || o.status === 'ready';
+          const active = ['waiting', 'preparing', 'ready', 'out_for_delivery'].includes(o.status);
           return (
             <View style={s.card} testID={`history-${o.id}`}>
               <View style={s.head}>
                 <View style={{ flex: 1 }}>
-                  <Text style={s.id}>{o.id}</Text>
+                  <Text style={s.id}>{o.id} · {o.fulfilment === 'delivery' ? '🛵' : '🏪'}</Text>
                   <Text style={s.muted}>{when(o.createdAt)}</Text>
                 </View>
                 <View style={[s.pill, { borderColor: st.color }]}>

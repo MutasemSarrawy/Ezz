@@ -26,7 +26,9 @@ const APPLE = Platform.OS === 'ios' ? '\uF8FF' : '🍎';
 const BRAND_LABEL = { visa: 'VISA', mastercard: 'Mastercard', mada: 'mada', unknown: '' } as const;
 
 export default function Checkout() {
-  const { t, money, market, session, lines, count, subtotal, linePrice, pendingPickup, points, addPoints, wallet, addWallet, savedCards, addCard, clear, reset, go, setActiveOrderId, setPendingPickup } = useStore();
+  const { t, money, market, session, lines, count, subtotal, linePrice, pendingOrder, points, addPoints, wallet, addWallet, savedCards, addCard, clear, reset, go, setActiveOrderId, setPendingOrder } = useStore();
+  const isDelivery = pendingOrder?.kind === 'delivery';
+  const deliveryFee = pendingOrder?.kind === 'delivery' ? pendingOrder.quote.fee : 0;
   const insets = useSafeAreaInsets();
   const cur = market.currency;
 
@@ -48,18 +50,19 @@ export default function Checkout() {
 
   const redemption = useMemo(() => bestRedemption(points, subtotal, cur), [points, subtotal, cur]);
   const discount = usePoints ? redemption.discount : 0;
-  const total = roundMoney(Math.max(0, subtotal - discount), cur);
-  const earn = pointsEarned(total, cur);
+  // Points discount applies to items only; the delivery fee is always paid.
+  const total = roundMoney(Math.max(0, subtotal - discount) + deliveryFee, cur);
+  const earn = pointsEarned(total - deliveryFee, cur);
   const walletShort = method === 'wallet' && wallet[cur] < total;
   const topUps = cur === 'JOD' ? [5, 10, 20] : [25, 50, 100];
   const brand = detectBrand(card.number);
 
   const methodLabel = (m: PaymentMethod) =>
-    m === 'apple_pay' ? t('applePay') : m === 'google_pay' ? t('googlePay') : m === 'card' ? t('card') : m === 'wallet' ? t('walletMethod') : t('counter');
+    m === 'apple_pay' ? t('applePay') : m === 'google_pay' ? t('googlePay') : m === 'card' ? t('card') : m === 'wallet' ? t('walletMethod') : isDelivery ? t('cod') : t('counter');
 
   const submit = async () => {
     setProblem(null);
-    if (!pendingPickup) return setProblem(t('noPickup'));
+    if (!pendingOrder) return setProblem(t('noPickup'));
     if (method === 'card' && !savedCard) {
       const e = validateCard(card);
       setErrors(e);
@@ -69,7 +72,7 @@ export default function Checkout() {
 
     setBusy(true);
     try {
-      const base = { subtotal, amount: total, pointsRedeemed: usePoints ? redemption.points : 0, discount };
+      const base = { subtotal, deliveryFee, amount: total, pointsRedeemed: usePoints ? redemption.points : 0, discount };
       let payment: OrderPayment;
       if (method === 'counter') {
         payment = { ...base, method, status: 'pay_at_counter' };
@@ -100,8 +103,7 @@ export default function Checkout() {
         }
       }
 
-      const order = await orderService.placePickup({
-        lines: lines.map((l) => ({
+      const orderLines = lines.map((l) => ({
           key: l.key,
           productId: l.product.id,
           choice: l.choice,
@@ -109,17 +111,43 @@ export default function Checkout() {
           details: { en: describeChoice(l.choice, 'en'), ar: describeChoice(l.choice, 'ar') },
           qty: l.qty,
           unitPrice: linePrice(l),
-        })),
-        currency: cur,
-        payment,
-        shop: market.branch.location,
-        ...pendingPickup,
-      });
+        }));
+      const order =
+        pendingOrder.kind === 'pickup'
+          ? await orderService.placePickup({
+              lines: orderLines,
+              currency: cur,
+              payment,
+              shop: pendingOrder.branch.location,
+              branchName: pendingOrder.branch.name,
+              location: pendingOrder.location,
+              tracking: pendingOrder.tracking,
+              travel: pendingOrder.travel,
+              prepSeconds: pendingOrder.prepSeconds,
+            })
+          : await orderService.placeDelivery({
+              lines: orderLines,
+              currency: cur,
+              payment,
+              shop: pendingOrder.quote.branch.location,
+              branchName: pendingOrder.quote.branch.name,
+              prepSeconds: pendingOrder.prepSeconds,
+              address: pendingOrder.address,
+              distanceMeters: pendingOrder.quote.distanceMeters,
+              delivery: {
+                fee: pendingOrder.quote.fee,
+                courier: pendingOrder.quote.courier,
+                partner: pendingOrder.quote.partner,
+                travelSeconds: pendingOrder.quote.travelSeconds,
+                etaMinMinutes: pendingOrder.quote.etaMinMinutes,
+                etaMaxMinutes: pendingOrder.quote.etaMaxMinutes,
+              },
+            });
       if (payment.pointsRedeemed) addPoints(-payment.pointsRedeemed, 'redeem', order.id);
       if (method === 'wallet') addWallet(cur, -total, 'payment', order.id);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       setActiveOrderId(order.id);
-      setPendingPickup(null);
+      setPendingOrder(null);
       clear();
       reset('home');
       go('tracking');
@@ -131,7 +159,7 @@ export default function Checkout() {
   };
 
   const cta =
-    method === 'counter' ? t('placeCounter', { amount: money(total) })
+    method === 'counter' ? (isDelivery ? t('placeCod', { amount: money(total) }) : t('placeCounter', { amount: money(total) }))
     : method === 'wallet' ? t('payWithWallet', { amount: money(total) })
     : method === 'apple_pay' ? `${APPLE} ${t('pay', { amount: money(total) })}`
     : t('pay', { amount: money(total) });
@@ -144,6 +172,7 @@ export default function Checkout() {
         <View style={s.card}>
           <Row label={`${t('subtotal')} · ${t('items', { n: count })}`} value={money(subtotal)} />
           {discount > 0 && <Row label={t('pointsDiscount')} value={`− ${money(discount)}`} accent />}
+          {isDelivery && <Row label={t('deliveryFee')} value={deliveryFee ? money(deliveryFee) : t('free')} />}
           <View style={s.divider} />
           <Row label={t('total')} value={money(total)} strong />
         </View>
@@ -245,7 +274,14 @@ export default function Checkout() {
               </View>
             </View>
           )}
-          <MethodRow id="counter" selected={method === 'counter'} onPress={() => pickMethod('counter')} title={t('counter')} sub={t('counterBody')} icon="🏪" />
+          <MethodRow
+            id="counter"
+            selected={method === 'counter'}
+            onPress={() => pickMethod('counter')}
+            title={isDelivery ? t('cod') : t('counter')}
+            sub={isDelivery ? t('codBody') : t('counterBody')}
+            icon={isDelivery ? '💵' : '🏪'}
+          />
         </View>
 
         {notice && <Text style={[s.small, { color: colors.success }]}>{notice}</Text>}

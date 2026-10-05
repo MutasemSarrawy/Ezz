@@ -5,7 +5,8 @@ import {
   haversineMeters,
   secondsUntilStart,
 } from './pickup';
-import type { Currency, LatLng, Order, TrackingMode, TravelMode } from './types';
+import type { Currency, DeliveryInfo, LatLng, Localized, Order, TrackingMode, TravelMode } from './types';
+import { DRIVER_HANDOFF_SECONDS, type Address } from './delivery';
 import type { OrderPayment } from './payment';
 
 type NewPickup = {
@@ -14,6 +15,7 @@ type NewPickup = {
   currency: Currency;
   payment: OrderPayment;
   shop: LatLng;
+  branchName: Localized;
   prepSeconds: number;
   location: LatLng;
   tracking: TrackingMode;
@@ -33,6 +35,7 @@ export function createPickupOrder(input: NewPickup): Order {
     currency: input.currency,
     fulfilment: 'pickup',
     shop: input.shop,
+    branchName: input.branchName,
     status: 'waiting',
     createdAt: now,
     prepSeconds: input.prepSeconds,
@@ -80,6 +83,67 @@ export function customerArrived(order: Order, now: number): Order {
   return startPreparing(order, now, 'customer_arrived');
 }
 
+type NewDelivery = {
+  id: string;
+  lines: Order['lines'];
+  currency: Currency;
+  payment: OrderPayment;
+  shop: LatLng;
+  branchName: Localized;
+  prepSeconds: number;
+  address: Address;
+  distanceMeters: number;
+  delivery: Omit<DeliveryInfo, 'address' | 'driver' | 'outAt' | 'deliveredAt'>;
+  now: number;
+};
+
+/** Delivery orders go straight to the barista: there is no arrival to time. */
+export function createDeliveryOrder(input: NewDelivery): Order {
+  const { now } = input;
+  return {
+    id: input.id,
+    lines: input.lines,
+    total: input.payment.amount,
+    payment: input.payment,
+    currency: input.currency,
+    fulfilment: 'delivery',
+    shop: input.shop,
+    branchName: input.branchName,
+    delivery: { ...input.delivery, address: input.address },
+    status: 'preparing',
+    createdAt: now,
+    prepSeconds: input.prepSeconds,
+    travel: 'driving',
+    tracking: 'once',
+    etaSeconds: input.prepSeconds + DRIVER_HANDOFF_SECONDS + input.delivery.travelSeconds,
+    distanceMeters: input.distanceMeters,
+    lastLocation: input.address.location,
+    lastLocationAt: now,
+    startAt: now,
+    preparingAt: now,
+    startReason: 'immediate',
+  };
+}
+
+const DRIVERS: Localized[] = [
+  { en: 'Omar', ar: 'عمر' }, { en: 'Yousef', ar: 'يوسف' }, { en: 'Khaled', ar: 'خالد' }, { en: 'Ahmad', ar: 'أحمد' },
+];
+
+function goOut(order: Order, now: number): Order {
+  const d = order.delivery!;
+  const seed = Number(order.id.replace(/\D/g, '')) || 0;
+  const driver =
+    d.courier === 'own'
+      ? { name: DRIVERS[seed % DRIVERS.length], vehicle: 'Motorbike' }
+      : { name: { en: `${d.partner} courier`, ar: `مندوب ${d.partner}` }, vehicle: d.partner ?? '' };
+  return { ...order, status: 'out_for_delivery', delivery: { ...d, driver, outAt: now } };
+}
+
+/** Barista hands the bag to the driver before the automatic hand-off time. */
+export function handToDriver(order: Order, now: number): Order {
+  return order.fulfilment === 'delivery' && order.status === 'ready' ? goOut(order, now) : order;
+}
+
 /** Time-based progression. Call about once a second. */
 export function tick(order: Order, now: number): Order {
   if (order.status === 'waiting') return evaluate(order, now, 'on_time');
@@ -90,11 +154,35 @@ export function tick(order: Order, now: number): Order {
   ) {
     return { ...order, status: 'ready', readyAt: now };
   }
+  if (order.fulfilment === 'delivery' && order.delivery) {
+    if (order.status === 'ready' && order.readyAt !== undefined && now >= order.readyAt + DRIVER_HANDOFF_SECONDS * 1000) {
+      return goOut(order, now);
+    }
+    const out = order.delivery.outAt;
+    if (order.status === 'out_for_delivery' && out !== undefined && now >= out + order.delivery.travelSeconds * 1000) {
+      return { ...order, status: 'delivered', delivery: { ...order.delivery, deliveredAt: now } };
+    }
+  }
   return order;
 }
 
 export function markPickedUp(order: Order): Order {
-  return order.status === 'ready' ? { ...order, status: 'picked_up' } : order;
+  return order.status === 'ready' && order.fulfilment === 'pickup' ? { ...order, status: 'picked_up' } : order;
+}
+
+/** Test tool: pretend `seconds` have passed by moving every timestamp back. */
+export function advance(order: Order, seconds: number): Order {
+  const ms = seconds * 1000;
+  const back = (t?: number) => (t === undefined ? t : t - ms);
+  return {
+    ...order,
+    createdAt: order.createdAt - ms,
+    startAt: order.startAt - ms,
+    lastLocationAt: order.lastLocationAt - ms,
+    preparingAt: back(order.preparingAt),
+    readyAt: back(order.readyAt),
+    delivery: order.delivery && { ...order.delivery, outAt: back(order.delivery.outAt) },
+  };
 }
 
 export function cancelOrder(order: Order): Order {

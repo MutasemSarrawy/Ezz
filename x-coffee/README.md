@@ -27,6 +27,14 @@ True WebAuthn passkeys need the backend; the current button uses device biometri
    - "I'm here" starts the order immediately in either mode.
 4. After `Prep` seconds the order becomes **Ready**.
 
+## Delivery
+- Saved addresses (Home / Work / Other) with GPS pin, area, street, building, floor, apartment and driver directions.
+- Zones per country in `src/domain/market.ts` (`delivery`): own drivers up to 5 km (JO) / 6 km (SA), a partner (Talabat / Jahez first in list) up to 15 / 20 km, nothing beyond.
+- Fee: base + per km beyond 2 km, partner surcharge, free above 15 JD / 75 SAR, minimum order 3 JD / 15 SAR. All placeholders.
+- Delivery orders start preparing immediately → ready → driver collects (auto after 90 s, or barista taps "Hand to driver") → on the way (live progress) → delivered. Cash on delivery available.
+- Branches: the code supports any number per country and always uses the nearest one (pickup and delivery). The list has one placeholder branch per country.
+- Not yet: map pin picker (needs a Google Maps API key) and the partner APIs (Talabat/Careem/Jahez); `orderService.placeDelivery` is where hand-off to a partner goes.
+
 ## Accounts and profile
 - Sign up with mobile number + 6-digit SMS code (Jordan +962 7X, Saudi +966 5X). Mock code: `123456`. Plug a real SMS provider into `requestOtp` / `verifyOtp` in `src/services/auth.ts`.
 - Profile: edit name/email, order history with "Order again", favourites (♡ items and saved drinks with exact options), saved cards, wallet top-up, points and wallet history, sign out.

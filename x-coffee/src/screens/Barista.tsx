@@ -4,21 +4,22 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Button, Header } from '../components/ui';
 import type { Order } from '../domain/types';
+import { formatAddress } from '../domain/delivery';
 import type { StringKey } from '../i18n/strings';
 import { orderService } from '../services/orderService';
 import { useStore } from '../state/store';
 import { colors, font, radius } from '../theme';
 
 const LABEL: Record<Order['status'], StringKey> = {
-  waiting: 'sWaiting', preparing: 'sPreparing', ready: 'sReady', picked_up: 'sDone', cancelled: 'sCancelled',
+  waiting: 'sWaiting', preparing: 'sPreparing', ready: 'sReady', out_for_delivery: 'sOut', picked_up: 'sDone', delivered: 'sDelivered', cancelled: 'sCancelled',
 };
 const TINT: Record<Order['status'], string> = {
-  waiting: colors.inkSoft, preparing: colors.accent, ready: colors.success, picked_up: colors.line, cancelled: colors.danger,
+  waiting: colors.inkSoft, preparing: colors.accent, ready: colors.success, out_for_delivery: colors.inkSoft, picked_up: colors.line, delivered: colors.line, cancelled: colors.danger,
 };
 const REASON: Record<NonNullable<Order['startReason']>, StringKey> = {
   on_time: 'bOnTime', live_eta: 'bLiveEta', nearby: 'bNearby', customer_arrived: 'bArrived', immediate: 'bImmediate',
 };
-const RANK: Record<Order['status'], number> = { preparing: 0, waiting: 1, ready: 2, picked_up: 3, cancelled: 4 };
+const RANK: Record<Order['status'], number> = { preparing: 0, waiting: 1, ready: 2, out_for_delivery: 3, picked_up: 4, delivered: 4, cancelled: 5 };
 
 /**
  * Stand-in for the coffee house's staff app. In production this is a separate
@@ -55,26 +56,40 @@ export default function Barista() {
           return (
             <View style={[s.card, isRTL ? { borderRightWidth: 6, borderRightColor: TINT[o.status] } : { borderLeftWidth: 6, borderLeftColor: TINT[o.status] }]}>
               <View style={s.head}>
-                <Text style={s.id}>{o.id}</Text>
+                <Text style={s.id}>{o.id} <Text style={s.kind}>· {o.fulfilment === 'delivery' ? `🛵 ${t('bDelivery')}` : `🏪 ${t('bPickup')}`}</Text></Text>
                 <Text style={[s.status, { color: TINT[o.status] }]}>{t(LABEL[o.status])}</Text>
               </View>
-              <Text style={[s.pay, o.payment.status === 'paid' ? { color: colors.success } : { color: colors.danger }]}>
-                {o.payment.status === 'paid' ? `✓ ${t('paid')} · ${money(o.total, o.currency)}` : `⚠ ${t('collect', { amount: money(o.total, o.currency) })}`}
-              </Text>
+              {(() => {
+                // cash orders count as paid once handed over
+                const settled = o.payment.status === 'paid' || o.status === 'picked_up' || o.status === 'delivered';
+                return (
+                  <Text style={[s.pay, { color: settled ? colors.success : colors.danger }]}>
+                    {settled ? `✓ ${t('paid')} · ${money(o.total, o.currency)}` : `⚠ ${t('collect', { amount: money(o.total, o.currency) })}`}
+                  </Text>
+                );
+              })()}
               {o.lines.map((l) => (
                 <View key={l.key}>
                   <Text style={s.line}>{l.qty} × {l.name[lang]}</Text>
                   {l.details[lang] ? <Text style={s.details}>{l.details[lang]}</Text> : null}
                 </View>
               ))}
-              <Text style={s.meta}>
-                {(o.distanceMeters / 1000).toFixed(1)} km · {t(o.travel)} · {o.tracking === 'live' ? t('liveLocation') : t('sharedOnce')}
-              </Text>
+              {o.delivery ? (
+                <Text style={s.meta}>
+                  {(o.distanceMeters / 1000).toFixed(1)} km · {o.delivery.courier === 'own' ? t('deliveredByOwn') : t('deliveredByPartner', { partner: o.delivery.partner ?? '' })}
+                  {'\n'}{formatAddress(o.delivery.address, lang)}
+                </Text>
+              ) : (
+                <Text style={s.meta}>
+                  {(o.distanceMeters / 1000).toFixed(1)} km · {t(o.travel)} · {o.tracking === 'live' ? t('liveLocation') : t('sharedOnce')}
+                </Text>
+              )}
               {o.status === 'waiting' && (
                 <Text style={s.meta}>{t('startMeta', { start: mins(startIn), prep: mins(o.prepSeconds), eta: mins(o.etaSeconds) })}</Text>
               )}
-              {o.status === 'preparing' && o.startReason && <Text style={s.meta}>{t(REASON[o.startReason])}</Text>}
-              {o.status === 'ready' && <Button label={t('handedOver')} onPress={() => orderService.markPickedUp(o.id)} />}
+              {o.status === 'preparing' && o.fulfilment === 'pickup' && o.startReason && <Text style={s.meta}>{t(REASON[o.startReason])}</Text>}
+              {o.status === 'ready' && o.fulfilment === 'pickup' && <Button label={t('handedOver')} onPress={() => orderService.markPickedUp(o.id)} />}
+              {o.status === 'ready' && o.fulfilment === 'delivery' && <Button testID={`hand-${o.id}`} label={`🛵 ${t('handToDriver')}`} onPress={() => orderService.handToDriver(o.id)} />}
             </View>
           );
         }}
@@ -89,6 +104,7 @@ const s = StyleSheet.create({
   head: { flexDirection: 'row', justifyContent: 'space-between' },
   id: { ...font.h2, color: colors.ink },
   status: { ...font.label },
+  kind: { fontSize: 13, fontWeight: '700', color: colors.inkSoft },
   line: { ...font.body, color: colors.ink, fontWeight: '600', textAlign: 'auto' },
   details: { fontSize: 14, color: colors.accent, textAlign: 'auto' },
   pay: { ...font.label, textAlign: 'auto' },
