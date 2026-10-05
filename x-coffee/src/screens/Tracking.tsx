@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/ui';
 import { SHOP_LOCATION, formatMinutes } from '../domain/pickup';
@@ -102,17 +102,22 @@ export default function Tracking() {
         <Button
           variant="ghost"
           label="Cancel order"
-          onPress={() => Alert.alert('Cancel this order?', undefined, [
-            { text: 'Keep it', style: 'cancel' },
-            { text: 'Cancel order', style: 'destructive', onPress: () => orderService.cancel(o.id) },
-          ])}
+          onPress={() =>
+            // Alert has no buttons on web, so cancel directly there
+            Platform.OS === 'web'
+              ? orderService.cancel(o.id)
+              : Alert.alert('Cancel this order?', undefined, [
+                  { text: 'Keep it', style: 'cancel' },
+                  { text: 'Cancel order', style: 'destructive', onPress: () => orderService.cancel(o.id) },
+                ])
+          }
         />
       )}
       {o.status === 'ready' && <Button label="I've picked it up" onPress={() => orderService.markPickedUp(o.id)} />}
       {finished && <Button label="Back to menu" onPress={leave} />}
       {!finished && <Button variant="secondary" label="Back to menu" onPress={() => go('home')} />}
 
-      {__DEV__ && o.tracking === 'live' && o.status === 'waiting' && (
+      {(__DEV__ || Platform.OS === 'web') && o.tracking === 'live' && o.status === 'waiting' && (
         <View style={s.dev}>
           <Text style={s.devTitle}>TEST TOOLS · simulate live location</Text>
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>

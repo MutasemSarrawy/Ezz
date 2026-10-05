@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Segmented, Stepper } from '../components/ui';
 import {
@@ -55,6 +55,15 @@ export default function Order() {
     } finally {
       setLocating(false);
     }
+  };
+
+  // Web preview can't read GPS inside the sandbox, so offer a fixed point 3 km from the shop.
+  const useDemoLocation = () => {
+    setPermError(null);
+    const location = { lat: SHOP_LOCATION.lat + 3000 / 111_195, lng: SHOP_LOCATION.lng };
+    const distance = haversineMeters(location, SHOP_LOCATION);
+    setPreview({ location, distance, eta: estimateTravelSeconds(distance, travel), prep });
+    setTimeout(() => scroller.current?.scrollToEnd({ animated: true }), 150);
   };
 
   const place = async () => {
@@ -166,6 +175,9 @@ export default function Order() {
                     loading={locating}
                     style={{ marginTop: 8 }}
                   />
+                )}
+                {!fresh && Platform.OS === 'web' && (
+                  <Button variant="secondary" label="Use demo location (3 km away)" onPress={useDemoLocation} />
                 )}
                 {permError && (
                   <View style={s.warn}>
