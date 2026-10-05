@@ -141,6 +141,19 @@ export function Chip({ label, sub, selected, onPress }: { label: string; sub?: s
   );
 }
 
+/** Tappable settings-style row with a direction-aware chevron. */
+export function ListRow({ icon, title, value, onPress, danger, testID }: { icon: string; title: string; value?: string; onPress: () => void; danger?: boolean; testID?: string }) {
+  const { isRTL } = useStore();
+  return (
+    <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [s.listRow, pressed && { backgroundColor: colors.surfaceAlt }]}>
+      <Text style={s.listIcon}>{icon}</Text>
+      <Text style={[s.listTitle, danger && { color: colors.danger }]}>{title}</Text>
+      {value ? <Text style={s.listValue}>{value}</Text> : null}
+      {!danger && <Text style={s.chevron}>{isRTL ? '‹' : '›'}</Text>}
+    </Pressable>
+  );
+}
+
 export function XLogo({ size = 96 }: { size?: number }) {
   return (
     <View
@@ -174,6 +187,11 @@ const s = StyleSheet.create({
   chipOn: { backgroundColor: colors.brand, borderColor: colors.brand },
   chipText: { fontSize: 15, fontWeight: '700', color: colors.ink },
   chipSub: { fontSize: 12, color: colors.inkSoft, marginTop: 1 },
+  listRow: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, paddingHorizontal: 16 },
+  listIcon: { fontSize: 20, width: 28, textAlign: 'center' },
+  listTitle: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.ink, textAlign: 'auto' },
+  listValue: { fontSize: 14, color: colors.inkSoft },
+  chevron: { fontSize: 24, color: colors.inkSoft },
   stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt, borderRadius: radius.pill },
   stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stepGlyph: { fontSize: 22, fontWeight: '700', color: colors.ink },

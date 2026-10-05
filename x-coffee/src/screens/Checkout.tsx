@@ -26,14 +26,19 @@ const APPLE = Platform.OS === 'ios' ? '\uF8FF' : '🍎';
 const BRAND_LABEL = { visa: 'VISA', mastercard: 'Mastercard', mada: 'mada', unknown: '' } as const;
 
 export default function Checkout() {
-  const { t, money, market, lines, count, subtotal, linePrice, pendingPickup, points, addPoints, wallet, addWallet, clear, reset, go, setActiveOrderId, setPendingPickup } = useStore();
+  const { t, money, market, session, lines, count, subtotal, linePrice, pendingPickup, points, addPoints, wallet, addWallet, savedCards, addCard, clear, reset, go, setActiveOrderId, setPendingPickup } = useStore();
   const insets = useSafeAreaInsets();
   const cur = market.currency;
 
   // Show the wallet that belongs to the platform; the web preview shows both.
   const walletPays: PaymentMethod[] =
     Platform.OS === 'ios' ? ['apple_pay'] : Platform.OS === 'android' ? ['google_pay'] : ['apple_pay', 'google_pay'];
-  const [method, setMethod] = useState<PaymentMethod>(walletPays[0]);
+  const [method, setMethod] = useState<PaymentMethod>(savedCards.length ? 'card' : walletPays[0]);
+  /** Selected saved card, or null to enter a new card. */
+  const [savedCardId, setSavedCardId] = useState<string | null>(savedCards[0]?.id ?? null);
+  const [saveNewCard, setSaveNewCard] = useState(true);
+  const savedCard = method === 'card' ? savedCards.find((c) => c.id === savedCardId) : undefined;
+  const pickMethod = (m: PaymentMethod, cardId: string | null = null) => { setMethod(m); setSavedCardId(cardId); };
   const [usePoints, setUsePoints] = useState(false);
   const [card, setCard] = useState<CardInput>({ number: '', expiry: '', cvv: '', name: '' });
   const [errors, setErrors] = useState<CardErrors>({});
@@ -55,7 +60,7 @@ export default function Checkout() {
   const submit = async () => {
     setProblem(null);
     if (!pendingPickup) return setProblem(t('noPickup'));
-    if (method === 'card') {
+    if (method === 'card' && !savedCard) {
       const e = validateCard(card);
       setErrors(e);
       if (Object.keys(e).length) return;
@@ -69,14 +74,15 @@ export default function Checkout() {
       if (method === 'counter') {
         payment = { ...base, method, status: 'pay_at_counter' };
       } else if (method === 'wallet') {
-        addWallet(cur, -total);
         payment = { ...base, method, status: 'paid', reference: `wallet_${Date.now()}` };
       } else {
         const res = await paymentService.charge({
           amount: total,
           currency: cur,
           method,
-          card: method === 'card' ? card : undefined,
+          card: method === 'card' && !savedCard ? card : undefined,
+          saveCard: method === 'card' && !savedCard && saveNewCard,
+          token: savedCard?.token,
           description: `X Coffee House · ${count} items`,
         });
         if (!res.ok) {
@@ -84,13 +90,21 @@ export default function Checkout() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
           return;
         }
-        payment = { ...base, method, status: 'paid', reference: res.reference, cardLast4: res.cardLast4, cardBrand: res.cardBrand };
+        payment = {
+          ...base, method, status: 'paid', reference: res.reference,
+          cardLast4: res.cardLast4 ?? savedCard?.last4,
+          cardBrand: res.cardBrand ?? savedCard?.brand,
+        };
+        if (res.token && res.cardLast4 && res.cardBrand) {
+          addCard({ token: res.token, brand: res.cardBrand, last4: res.cardLast4, expiry: card.expiry, holder: card.name.trim() });
+        }
       }
-      if (payment.pointsRedeemed) addPoints(-payment.pointsRedeemed);
 
       const order = await orderService.placePickup({
         lines: lines.map((l) => ({
           key: l.key,
+          productId: l.product.id,
+          choice: l.choice,
           name: l.product.name,
           details: { en: describeChoice(l.choice, 'en'), ar: describeChoice(l.choice, 'ar') },
           qty: l.qty,
@@ -101,6 +115,8 @@ export default function Checkout() {
         shop: market.branch.location,
         ...pendingPickup,
       });
+      if (payment.pointsRedeemed) addPoints(-payment.pointsRedeemed, 'redeem', order.id);
+      if (method === 'wallet') addWallet(cur, -total, 'payment', order.id);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       setActiveOrderId(order.id);
       setPendingPickup(null);
@@ -160,10 +176,28 @@ export default function Checkout() {
         <View style={s.card}>
           <Text style={s.h2}>{t('payWith')}</Text>
           {walletPays.map((m) => (
-            <MethodRow key={m} id={m} selected={method === m} onPress={() => setMethod(m)} title={methodLabel(m)} icon={m === 'apple_pay' ? APPLE : 'G'} />
+            <MethodRow key={m} id={m} selected={method === m} onPress={() => pickMethod(m)} title={methodLabel(m)} icon={m === 'apple_pay' ? APPLE : 'G'} />
           ))}
-          <MethodRow id="card" selected={method === 'card'} onPress={() => setMethod('card')} title={t('card')} sub={cur === 'SAR' ? t('cardBrands') : t('cardBrandsJO')} icon="💳" />
-          {method === 'card' && (
+          {savedCards.map((c) => (
+            <MethodRow
+              key={c.id}
+              id={`saved-${c.last4}`}
+              selected={method === 'card' && savedCardId === c.id}
+              onPress={() => pickMethod('card', c.id)}
+              title={`${BRAND_LABEL[c.brand] || t('card')} •••• ${c.last4}`}
+              sub={`${c.holder} · ${c.expiry}`}
+              icon="💳"
+            />
+          ))}
+          <MethodRow
+            id="card"
+            selected={method === 'card' && !savedCard}
+            onPress={() => pickMethod('card')}
+            title={savedCards.length ? t('newCard') : t('card')}
+            sub={cur === 'SAR' ? t('cardBrands') : t('cardBrandsJO')}
+            icon="💳"
+          />
+          {method === 'card' && !savedCard && (
             <View style={s.form}>
               <Field
                 label={t('cardNumber')}
@@ -185,11 +219,17 @@ export default function Checkout() {
                 </View>
               </View>
               <Field label={t('nameOnCard')} value={card.name} onChange={(v) => setCard((c) => ({ ...c, name: v }))} error={errors.name && t(errors.name)} placeholder="Mutasem S." autoComplete="cc-name" testID="card-name" />
+              {session && (
+                <View style={s.toggleRow}>
+                  <Text style={[s.itemName, { flex: 1, fontWeight: '600' }]}>{t('saveCard')}</Text>
+                  <Switch value={saveNewCard} onValueChange={setSaveNewCard} trackColor={{ true: colors.accent, false: colors.line }} thumbColor={colors.surface} />
+                </View>
+              )}
               <Text style={s.small}>🔒 {t('securedBy')}</Text>
               <Text style={s.small}>{t('testCards', { ok: TEST_CARDS.success, bad: TEST_CARDS.declined, mada: TEST_CARDS.mada })}</Text>
             </View>
           )}
-          <MethodRow id="wallet" selected={method === 'wallet'} onPress={() => setMethod('wallet')} title={t('walletMethod')} sub={t('walletBalance', { amount: money(wallet[cur]) })} icon="👛" />
+          <MethodRow id="wallet" selected={method === 'wallet'} onPress={() => pickMethod('wallet')} title={t('walletMethod')} sub={t('walletBalance', { amount: money(wallet[cur]) })} icon="👛" />
           {method === 'wallet' && walletShort && (
             <View style={s.form}>
               <Text style={s.muted}>{t('walletShort', { amount: money(wallet[cur]) })}</Text>
@@ -199,13 +239,13 @@ export default function Checkout() {
                     key={a}
                     label={`${t('topUp')} ${money(a)}`}
                     selected={false}
-                    onPress={() => { addWallet(cur, a); setNotice(t('toppedUp', { amount: money(a) })); }}
+                    onPress={() => { addWallet(cur, a, 'topup'); setNotice(t('toppedUp', { amount: money(a) })); }}
                   />
                 ))}
               </View>
             </View>
           )}
-          <MethodRow id="counter" selected={method === 'counter'} onPress={() => setMethod('counter')} title={t('counter')} sub={t('counterBody')} icon="🏪" />
+          <MethodRow id="counter" selected={method === 'counter'} onPress={() => pickMethod('counter')} title={t('counter')} sub={t('counterBody')} icon="🏪" />
         </View>
 
         {notice && <Text style={[s.small, { color: colors.success }]}>{notice}</Text>}

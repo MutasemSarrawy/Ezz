@@ -11,14 +11,16 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { CATEGORIES, PRODUCTS } from '../domain/menu';
-import { defaultChoice } from '../domain/options';
+import { defaultChoice, describeChoice, unitPrice } from '../domain/options';
+import { initials } from '../domain/account';
+import { productById } from '../domain/menu';
 import type { CategoryId, Product } from '../domain/types';
 import { ProductImage, Stepper } from '../components/ui';
 import { useStore } from '../state/store';
 import { colors, font, radius, shadow } from '../theme';
 
 export default function Home() {
-  const { go, t, lang, isRTL, money, market, session, count, subtotal, qtyOf, addLine, removeOne, openProduct, activeOrder } = useStore();
+  const { go, t, lang, isRTL, money, market, session, count, subtotal, qtyOf, addLine, removeOne, openProduct, activeOrder, savedDrinks, favourites } = useStore();
   const insets = useSafeAreaInsets();
   const list = useRef<SectionList<Product>>(null);
   const [active, setActive] = useState<CategoryId>('coffee');
@@ -38,6 +40,12 @@ export default function Home() {
     list.current?.scrollToLocation({ sectionIndex: idx, itemIndex: 0, viewOffset: 8 });
   };
 
+  // Saved drinks first (exact options), then favourite items with default options.
+  const quick = [
+    ...savedDrinks.flatMap((d) => { const p = productById(d.productId); return p ? [{ key: d.id, product: p, choice: d.choice }] : []; }),
+    ...favourites.flatMap((id) => { const p = productById(id); return p ? [{ key: `fav-${id}`, product: p, choice: defaultChoice(p) }] : []; }),
+  ].slice(0, 10);
+
   const live = activeOrder && ['waiting', 'preparing', 'ready'].includes(activeOrder.status) ? activeOrder : undefined;
 
   return (
@@ -51,8 +59,8 @@ export default function Home() {
           <Pressable testID="settings" onPress={() => go('settings')} accessibilityLabel={t('settings')} style={s.iconBtn}>
             <Text style={{ fontSize: 18 }}>{market.flag}</Text>
           </Pressable>
-          <Pressable onPress={() => go('barista')} accessibilityLabel={t('baristaConsole')} style={s.iconBtn}>
-            <Text style={{ fontSize: 18 }}>👨‍🍳</Text>
+          <Pressable testID="profile" onPress={() => go('profile')} accessibilityLabel={t('profile')} style={[s.iconBtn, session && { backgroundColor: colors.brand }]}>
+            <Text style={[{ fontSize: 16, fontWeight: '800' }, session ? { color: colors.onBrand } : { fontSize: 18 }]}>{session ? initials(session.name) : '👤'}</Text>
           </Pressable>
         </View>
 
@@ -93,6 +101,31 @@ export default function Home() {
         viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 120 }}
         onScrollToIndexFailed={() => {}}
+        ListHeaderComponent={
+          quick.length ? (
+            <View style={{ gap: 10, marginTop: 8 }}>
+              <Text style={s.sectionTitle}>♡  {t('yourFavourites')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+                {quick.map((q) => (
+                  <View key={q.key} style={s.quick}>
+                    <Text style={s.quickName} numberOfLines={1}>{q.product.name[lang]}</Text>
+                    <Text style={s.quickSub} numberOfLines={1}>{describeChoice(q.choice, lang) || ' '}</Text>
+                    <View style={s.quickRow}>
+                      <Text style={s.quickPrice}>{money(unitPrice(q.product, q.choice, market.currency))}</Text>
+                      <Pressable
+                        accessibilityLabel={t('add', { name: q.product.name[lang] })}
+                        onPress={() => { Haptics.selectionAsync().catch(() => {}); addLine(q.product, q.choice); }}
+                        style={s.quickAdd}
+                      >
+                        <Text style={s.quickAddGlyph}>+</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          ) : null
+        }
         renderSectionHeader={({ section }) => (
           <Text style={s.sectionTitle}>{section.emoji}  {section.name[lang]}</Text>
         )}
@@ -174,6 +207,13 @@ const s = StyleSheet.create({
   banner: { marginHorizontal: 16, marginBottom: 8, padding: 12, borderRadius: radius.md, backgroundColor: colors.accentSoft, flexDirection: 'row', justifyContent: 'space-between' },
   bannerText: { color: colors.ink, fontWeight: '700', fontSize: 14 },
   sectionTitle: { ...font.h2, color: colors.ink, marginTop: 20, marginBottom: 12, textAlign: 'auto' },
+  quick: { width: 170, backgroundColor: colors.surface, borderRadius: radius.md, padding: 12, gap: 2, borderWidth: 1, borderColor: colors.line },
+  quickName: { fontWeight: '800', color: colors.ink, fontSize: 15, textAlign: 'auto' },
+  quickSub: { color: colors.inkSoft, fontSize: 12, textAlign: 'auto' },
+  quickRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
+  quickPrice: { color: colors.accent, fontWeight: '800' },
+  quickAdd: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  quickAddGlyph: { color: colors.onBrand, fontSize: 20, lineHeight: 22 },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, marginBottom: 16, overflow: 'hidden', ...shadow },
   cardImg: { height: 190, width: '100%' },
   tag: { position: 'absolute', top: 12, backgroundColor: colors.brand, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },

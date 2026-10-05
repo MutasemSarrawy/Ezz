@@ -26,7 +26,7 @@ import { useStore } from '../state/store';
 import { colors, font, radius } from '../theme';
 
 export default function Login() {
-  const { reset, setSession, t, lang, setLang, isRTL } = useStore();
+  const { go, reset, setSession, t, lang, setLang, isRTL } = useStore();
   const insets = useSafeAreaInsets();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -39,8 +39,16 @@ export default function Login() {
   useEffect(() => {
     (async () => {
       setBioReady(await biometricAvailable());
-      setBioEnabled(await isBiometricEnabled());
+      const ready = await biometricAvailable();
+      const enabled = await isBiometricEnabled();
+      setBioEnabled(enabled);
+      // Returning users who turned on biometrics get the prompt straight away.
+      if (ready && enabled) {
+        const s = await signInWithBiometrics(t('bioPrompt'), t('usePassword'));
+        if (s) { setSession(s); reset('home'); }
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const finish = (s: { identifier: string; name: string }) => {
@@ -144,6 +152,13 @@ export default function Login() {
 
         <Button testID="biometric" variant="secondary" label={`🔐  ${t('biometric')}`} onPress={biometric} />
 
+        <View style={s.signupRow}>
+          <Text style={s.or}>{t('newHere')}</Text>
+          <Pressable testID="to-signup" onPress={() => go('signup')} hitSlop={8}>
+            <Text style={s.signupLink}>{t('createAccount')}</Text>
+          </Pressable>
+        </View>
+
         <Button testID="guest" variant="ghost" label={t('skip')} onPress={() => reset('home')} style={{ marginTop: 8 }} />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -171,4 +186,6 @@ const s = StyleSheet.create({
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 18 },
   line: { flex: 1, height: 1, backgroundColor: colors.line },
   or: { color: colors.inkSoft },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 14 },
+  signupLink: { color: colors.accent, fontWeight: '800', fontSize: 16 },
 });

@@ -54,6 +54,9 @@ export type OrderStatus =
 
 export type OrderLine = {
   key: string;
+  /** Kept so the order can be repeated from history. */
+  productId: string;
+  choice: Choice;
   name: Localized;
   details: Localized;
   qty: number;

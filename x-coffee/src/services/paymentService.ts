@@ -6,13 +6,17 @@ export type ChargeRequest = {
   amount: number;
   currency: Currency;
   method: Exclude<PaymentMethod, 'counter' | 'wallet'>;
-  /** Only for method 'card'. A real provider gets a token from its SDK instead. */
+  /** New card (method 'card'). A real provider collects this in its own SDK UI. */
   card?: { number: string; expiry: string; cvv: string; name: string };
+  /** Ask the provider to keep the new card and return a reusable token. */
+  saveCard?: boolean;
+  /** Saved card token (method 'card'). */
+  token?: string;
   description: string;
 };
 
 export type ChargeResult =
-  | { ok: true; reference: string; cardLast4?: string; cardBrand?: CardBrand }
+  | { ok: true; reference: string; cardLast4?: string; cardBrand?: CardBrand; token?: string }
   | { ok: false; error: 'declined' | 'cancelled' | 'network' };
 
 /**
@@ -39,7 +43,8 @@ class MockPaymentService implements PaymentService {
     if (req.method !== 'card' || !req.card) return { ok: true, reference };
     const n = digitsOnly(req.card.number);
     if (n === digitsOnly(TEST_CARDS.declined)) return { ok: false, error: 'declined' };
-    return { ok: true, reference, cardLast4: n.slice(-4), cardBrand: detectBrand(n) };
+    const token = req.saveCard ? `tok_${Math.random().toString(36).slice(2, 12)}` : undefined;
+    return { ok: true, reference, cardLast4: n.slice(-4), cardBrand: detectBrand(n), token };
   }
 }
 

@@ -14,10 +14,13 @@ import { pointsEarned } from '../domain/loyalty';
 import { minutes, translate, type StringKey } from '../i18n/strings';
 import { orderService } from '../services/orderService';
 import { watchLocation } from '../services/location';
-import { getPref, setPref } from '../services/prefs';
-import type { Session } from '../services/auth';
+import { getJSON, getPref, setJSON, setPref } from '../services/prefs';
+import { clearSession, isBiometricEnabled, loadSession, saveSession, type Session } from '../services/auth';
+import { uid, type LedgerEntry, type Profile, type SavedCard, type SavedDrink } from '../domain/account';
 
-export type Route = 'splash' | 'login' | 'home' | 'product' | 'order' | 'checkout' | 'tracking' | 'barista' | 'settings';
+export type Route =
+  | 'splash' | 'login' | 'signup' | 'home' | 'product' | 'order' | 'checkout' | 'tracking' | 'barista' | 'settings'
+  | 'profile' | 'editProfile' | 'history' | 'favourites' | 'wallet';
 
 /** Pickup details chosen on the Order screen, carried into Checkout. */
 export type PendingPickup = { location: LatLng; tracking: TrackingMode; travel: TravelMode; prepSeconds: number };
@@ -35,6 +38,8 @@ type Store = {
 
   session: Session | null;
   setSession: (s: Session | null) => void;
+  updateProfile: (p: Profile) => void;
+  signOut: () => void;
 
   lang: Lang;
   setLang: (l: Lang) => void;
@@ -66,10 +71,21 @@ type Store = {
 
   /** Loyalty points balance (shared across countries). */
   points: number;
-  addPoints: (delta: number) => void;
+  addPoints: (delta: number, kind: LedgerEntry['kind'], orderId?: string) => void;
   /** Prepaid wallet balance per currency. */
   wallet: Record<Currency, number>;
-  addWallet: (currency: Currency, delta: number) => void;
+  addWallet: (currency: Currency, delta: number, kind: LedgerEntry['kind'], orderId?: string) => void;
+  /** Wallet and points movements, newest first. */
+  ledger: LedgerEntry[];
+
+  favourites: string[];
+  toggleFavourite: (productId: string) => void;
+  savedDrinks: SavedDrink[];
+  saveDrink: (productId: string, choice: Choice) => void;
+  removeSavedDrink: (id: string) => void;
+  savedCards: SavedCard[];
+  addCard: (c: Omit<SavedCard, 'id'>) => void;
+  removeCard: (id: string) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -86,6 +102,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [pendingPickup, setPendingPickup] = useState<PendingPickup | null>(null);
   const [points, setPoints] = useState(0);
   const [wallet, setWallet] = useState<Record<Currency, number>>({ JOD: 0, SAR: 0 });
+  const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  const [favourites, setFavourites] = useState<string[]>([]);
+  const [savedDrinks, setSavedDrinks] = useState<SavedDrink[]>([]);
+  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
 
   useEffect(() => orderService.subscribe(setOrders), []);
   useEffect(() => {
@@ -100,18 +120,72 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const w = JSON.parse((await getPref('x.wallet')) ?? 'null');
         if (w && typeof w.JOD === 'number' && typeof w.SAR === 'number') setWallet(w);
       } catch {}
+      // Stay signed in between launches, unless the user chose a biometric unlock.
+      const saved = await loadSession();
+      if (saved && !(await isBiometricEnabled())) setSession((cur) => cur ?? saved);
+      setLedger(await getJSON('x.ledger', []));
+      setFavourites(await getJSON('x.favourites', []));
+      setSavedDrinks(await getJSON('x.savedDrinks', []));
+      setSavedCards(await getJSON('x.savedCards', []));
     })();
   }, []);
 
-  const addPoints = useCallback((d: number) => {
-    setPoints((p) => { const n = Math.max(0, p + d); setPref('x.points', String(n)); return n; });
+  const record = useCallback((e: Omit<LedgerEntry, 'id' | 'at'>) => {
+    setLedger((l) => { const n = [{ ...e, id: uid('tx'), at: Date.now() }, ...l].slice(0, 200); setJSON('x.ledger', n); return n; });
   }, []);
-  const addWallet = useCallback((cur: Currency, d: number) => {
+  const addPoints = useCallback((d: number, kind: LedgerEntry['kind'], orderId?: string) => {
+    if (!d) return;
+    setPoints((p) => { const n = Math.max(0, p + d); setPref('x.points', String(n)); return n; });
+    record({ kind, amount: d, unit: 'points', orderId });
+  }, [record]);
+  const addWallet = useCallback((cur: Currency, d: number, kind: LedgerEntry['kind'], orderId?: string) => {
+    if (!d) return;
     setWallet((w) => {
       const n = { ...w, [cur]: roundMoney(Math.max(0, w[cur] + d), cur) };
       setPref('x.wallet', JSON.stringify(n));
       return n;
     });
+    record({ kind, amount: roundMoney(d, cur), unit: cur, orderId });
+  }, [record]);
+
+  const toggleFavourite = useCallback((id: string) => {
+    setFavourites((f) => { const n = f.includes(id) ? f.filter((x) => x !== id) : [id, ...f]; setJSON('x.favourites', n); return n; });
+  }, []);
+  const saveDrink = useCallback((productId: string, choice: Choice) => {
+    setSavedDrinks((d) => {
+      const key = choiceKey(productId, choice);
+      if (d.some((x) => choiceKey(x.productId, x.choice) === key)) return d;
+      const n = [{ id: uid('drink'), productId, choice }, ...d].slice(0, 30);
+      setJSON('x.savedDrinks', n);
+      return n;
+    });
+  }, []);
+  const removeSavedDrink = useCallback((id: string) => {
+    setSavedDrinks((d) => { const n = d.filter((x) => x.id !== id); setJSON('x.savedDrinks', n); return n; });
+  }, []);
+  const addCard = useCallback((c: Omit<SavedCard, 'id'>) => {
+    setSavedCards((cs) => {
+      if (cs.some((x) => x.last4 === c.last4 && x.expiry === c.expiry && x.brand === c.brand)) return cs;
+      const n = [...cs, { ...c, id: uid('card') }];
+      setJSON('x.savedCards', n);
+      return n;
+    });
+  }, []);
+  const removeCard = useCallback((id: string) => {
+    setSavedCards((cs) => { const n = cs.filter((x) => x.id !== id); setJSON('x.savedCards', n); return n; });
+  }, []);
+
+  const updateProfile = useCallback((p: Profile) => {
+    setSession((s) => {
+      const n = { identifier: s?.identifier ?? p.phone ?? p.email ?? p.name, ...s, ...p };
+      saveSession(n);
+      return n;
+    });
+  }, []);
+  const signOut = useCallback(() => {
+    setSession(null);
+    clearSession();
+    setHistory(['login']);
   }, []);
 
   // Bookkeeping the backend will own later: credit points once an order is
@@ -120,12 +194,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     for (const o of orders) {
       if (o.status === 'picked_up' && o.pointsEarned === undefined) {
         const earned = pointsEarned(o.payment.amount, o.currency);
-        addPoints(earned);
+        addPoints(earned, 'earn', o.id);
         orderService.annotate(o.id, { pointsEarned: earned });
       }
       if (o.status === 'cancelled' && !o.refunded) {
-        if (o.payment.pointsRedeemed) addPoints(o.payment.pointsRedeemed);
-        if (o.payment.method === 'wallet') addWallet(o.currency, o.payment.amount);
+        if (o.payment.pointsRedeemed) addPoints(o.payment.pointsRedeemed, 'restore', o.id);
+        if (o.payment.method === 'wallet') addWallet(o.currency, o.payment.amount, 'refund', o.id);
         orderService.annotate(o.id, { refunded: true });
       }
     }
@@ -200,6 +274,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       productId,
       session,
       setSession,
+      updateProfile,
+      signOut,
       lang,
       setLang,
       isRTL: lang === 'ar',
@@ -226,8 +302,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addPoints,
       wallet,
       addWallet,
+      ledger,
+      favourites,
+      toggleFavourite,
+      savedDrinks,
+      saveDrink,
+      removeSavedDrink,
+      savedCards,
+      addCard,
+      removeCard,
     };
-  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, pendingPickup, points, addPoints, wallet, addWallet]);
+  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, pendingPickup, points, addPoints, wallet, addWallet, ledger, favourites, toggleFavourite, savedDrinks, saveDrink, removeSavedDrink, savedCards, addCard, removeCard, updateProfile, signOut]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

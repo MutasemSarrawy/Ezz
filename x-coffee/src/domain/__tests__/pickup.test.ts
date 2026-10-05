@@ -26,7 +26,7 @@ const metersNorth = (m: number): LatLng => ({
   lat: SHOP_LOCATION.lat + m / 111_195,
   lng: SHOP_LOCATION.lng,
 });
-const lines = [{ key: 'latte', name: { en: 'Caffè Latte', ar: 'لاتيه' }, details: { en: '', ar: '' }, qty: 1, unitPrice: 2.9 }];
+const lines = [{ key: 'latte', productId: 'latte', choice: {}, name: { en: 'Caffè Latte', ar: 'لاتيه' }, details: { en: '', ar: '' }, qty: 1, unitPrice: 2.9 }];
 const T0 = 1_000_000;
 
 function order(distanceM: number, tracking: 'once' | 'live', prepSeconds = 170) {

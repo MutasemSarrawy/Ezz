@@ -8,6 +8,9 @@ import {
 } from '../domain/orderEngine';
 import type { Currency, LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
 import type { OrderPayment } from '../domain/payment';
+import { getJSON, setJSON } from './prefs';
+
+const STORE_KEY = 'x.orders';
 
 /**
  * The seam between the customer app and the coffee house's system.
@@ -45,6 +48,15 @@ class MockOrderService implements OrderService {
   private timer: ReturnType<typeof setInterval> | null = null;
   private seq = 100;
 
+  constructor() {
+    // Stand-in for fetching the customer's orders from the backend.
+    getJSON<Order[]>(STORE_KEY, []).then((saved) => {
+      for (const o of saved) if (!this.orders.has(o.id)) this.orders.set(o.id, o);
+      for (const o of saved) this.seq = Math.max(this.seq, Number(o.id.replace(/\D/g, '')) || 0);
+      if (saved.length) { this.ensureTimer(); this.emit(true); }
+    });
+  }
+
   async placePickup(input: Parameters<OrderService['placePickup']>[0]) {
     await new Promise((r) => setTimeout(r, 300));
     const order = createPickupOrder({
@@ -54,7 +66,7 @@ class MockOrderService implements OrderService {
     });
     this.orders.set(order.id, order);
     this.ensureTimer();
-    this.emit();
+    this.emit(true);
     return order;
   }
 
@@ -85,7 +97,7 @@ class MockOrderService implements OrderService {
     const next = fn(cur);
     if (next !== cur) {
       this.orders.set(id, next);
-      this.emit();
+      this.emit(true);
     }
   }
 
@@ -99,7 +111,7 @@ class MockOrderService implements OrderService {
         if (next !== o) { this.orders.set(id, next); changed = true; }
       }
       // keep emitting while anything is active so countdowns on screen stay live
-      if (changed || this.hasActive()) this.emit();
+      if (changed || this.hasActive()) this.emit(changed);
     }, 1000);
   }
 
@@ -112,9 +124,11 @@ class MockOrderService implements OrderService {
     return [...this.orders.values()].sort((a, b) => b.createdAt - a.createdAt);
   }
 
-  private emit() {
+  /** `persist` only when data changed — countdown refreshes don't need a write. */
+  private emit(persist = false) {
     const snap = this.snapshot();
     this.listeners.forEach((l) => l(snap));
+    if (persist) setJSON(STORE_KEY, snap.slice(0, 50));
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { BackHandler, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,10 +12,19 @@ import Tracking from './src/screens/Tracking';
 import Barista from './src/screens/Barista';
 import Settings from './src/screens/Settings';
 import Checkout from './src/screens/Checkout';
+import SignUp from './src/screens/SignUp';
+import Profile from './src/screens/Profile';
+import EditProfile from './src/screens/EditProfile';
+import History from './src/screens/History';
+import Favourites from './src/screens/Favourites';
+import Wallet from './src/screens/Wallet';
 
 function Router() {
-  const { route, reset, back, isRTL } = useStore();
-  const done = useCallback(() => reset('login'), [reset]);
+  const { route, reset, back, isRTL, session } = useStore();
+  // Read the session through a ref so a session restored mid-splash doesn't restart the animation.
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  const done = useCallback(() => reset(sessionRef.current ? 'home' : 'login'), [reset]);
 
   // Android hardware back walks the in-app history before leaving the app.
   useEffect(() => {
@@ -31,6 +40,12 @@ function Router() {
       case 'product': return <Product />;
       case 'order': return <Order />;
       case 'checkout': return <Checkout />;
+      case 'signup': return <SignUp />;
+      case 'profile': return <Profile />;
+      case 'editProfile': return <EditProfile />;
+      case 'history': return <History />;
+      case 'favourites': return <Favourites />;
+      case 'wallet': return <Wallet />;
       case 'tracking': return <Tracking />;
       case 'barista': return <Barista />;
       case 'settings': return <Settings />;

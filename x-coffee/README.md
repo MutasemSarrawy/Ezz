@@ -27,6 +27,11 @@ True WebAuthn passkeys need the backend; the current button uses device biometri
    - "I'm here" starts the order immediately in either mode.
 4. After `Prep` seconds the order becomes **Ready**.
 
+## Accounts and profile
+- Sign up with mobile number + 6-digit SMS code (Jordan +962 7X, Saudi +966 5X). Mock code: `123456`. Plug a real SMS provider into `requestOtp` / `verifyOtp` in `src/services/auth.ts`.
+- Profile: edit name/email, order history with "Order again", favourites (♡ items and saved drinks with exact options), saved cards, wallet top-up, points and wallet history, sign out.
+- Session stays signed in between launches (SecureStore on device). Other local data uses AsyncStorage until the backend exists.
+
 ## Checkout and loyalty
 - Methods: Apple Pay (iOS) / Google Pay (Android), card (Visa, Mastercard, mada in Saudi), X Wallet, pay at counter.
 - Payments go through `src/services/paymentService.ts` (mock). Swap in the chosen provider's SDK; card data must go to the provider, never to our servers.

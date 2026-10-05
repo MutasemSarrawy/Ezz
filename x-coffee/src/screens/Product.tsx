@@ -21,7 +21,8 @@ import { useStore } from '../state/store';
 import { colors, font, radius, shadow } from '../theme';
 
 export default function ProductScreen() {
-  const { productId, back, t, lang, isRTL, market, money, mins, addLine } = useStore();
+  const { productId, back, t, lang, isRTL, market, money, mins, addLine, favourites, toggleFavourite, saveDrink, } = useStore();
+  const [justSaved, setJustSaved] = useState(false);
   const insets = useSafeAreaInsets();
   const product = productId ? productById(productId) : undefined;
   const [choice, setChoice] = useState<Choice>(() => (product ? defaultChoice(product) : {}));
@@ -31,7 +32,7 @@ export default function ProductScreen() {
   const each = useMemo(() => (product ? unitPrice(product, choice, cur) : 0), [product, choice, cur]);
   if (!product) return null;
 
-  const set = <K extends keyof Choice>(k: K, v: Choice[K]) => setChoice((c) => ({ ...c, [k]: v }));
+  const set = <K extends keyof Choice>(k: K, v: Choice[K]) => { setChoice((c) => ({ ...c, [k]: v })); setJustSaved(false); };
   const delta = (price?: Record<string, number>) => (price ? `+${money(price[cur])}` : undefined);
   const emoji = CATEGORIES.find((c) => c.id === product.category)?.emoji;
 
@@ -112,6 +113,18 @@ export default function ProductScreen() {
           >
             <Text style={s.closeGlyph}>{isRTL ? '›' : '‹'}</Text>
           </Pressable>
+          <Pressable
+            testID="fav-toggle"
+            onPress={() => { toggleFavourite(product.id); Haptics.selectionAsync().catch(() => {}); }}
+            accessibilityLabel={favourites.includes(product.id) ? t('favRemove') : t('favAdd')}
+            accessibilityState={{ selected: favourites.includes(product.id) }}
+            hitSlop={8}
+            style={[s.close, { top: insets.top + 12 }, isRTL ? { left: 16 } : { right: 16 }]}
+          >
+            <Text style={[s.heart, favourites.includes(product.id) && { color: colors.danger }]}>
+              {favourites.includes(product.id) ? '♥' : '♡'}
+            </Text>
+          </Pressable>
         </View>
 
         <View style={s.sheet}>
@@ -138,6 +151,16 @@ export default function ProductScreen() {
               multiline
             />
           </View>
+
+          {product.options.length > 0 && (
+            <Pressable
+              testID="save-drink"
+              onPress={() => { saveDrink(product.id, { ...choice, notes: choice.notes?.trim() || undefined }); setJustSaved(true); }}
+              style={s.saveDrink}
+            >
+              <Text style={s.saveDrinkText}>{justSaved ? t('drinkSaved') : `♡  ${t('saveDrink')}`}</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
 
@@ -164,6 +187,9 @@ function Group({ title, hint, children }: { title: string; hint: string; childre
 const s = StyleSheet.create({
   hero: { width: '100%', height: 320 },
   close: { position: 'absolute', width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow },
+  heart: { fontSize: 22, color: colors.ink },
+  saveDrink: { minHeight: 48, borderRadius: radius.pill, borderWidth: 1.5, borderColor: colors.accent, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  saveDrinkText: { color: colors.accent, fontWeight: '700', fontSize: 15 },
   closeGlyph: { fontSize: 30, lineHeight: 32, color: colors.ink },
   sheet: { marginTop: -28, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, gap: 22 },
   titleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 12 },

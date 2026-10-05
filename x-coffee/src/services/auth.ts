@@ -1,7 +1,12 @@
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { getPref, setPref } from './prefs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type Session = { identifier: string; name: string };
+import type { Profile } from '../domain/account';
+
+export type Session = Profile & { identifier: string };
 
 const SESSION_KEY = 'x.session';
 const BIOMETRIC_KEY = 'x.biometricEnabled';
@@ -30,14 +35,47 @@ export async function signIn(identifier: string, _password: string): Promise<Ses
   return { identifier: id, name: id.includes('@') ? id.split('@')[0] : 'Guest' };
 }
 
+// SecureStore has no web implementation; the browser preview keeps the session in local storage.
+const secureGet = (k: string) => (Platform.OS === 'web' ? getPref(k) : SecureStore.getItemAsync(k));
+const secureSet = (k: string, v: string) => (Platform.OS === 'web' ? setPref(k, v) : SecureStore.setItemAsync(k, v));
+const secureDelete = (k: string) => (Platform.OS === 'web' ? AsyncStorage.removeItem(k) : SecureStore.deleteItemAsync(k));
+
 export async function saveSession(s: Session) {
-  try { await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(s)); } catch {}
+  try { await secureSet(SESSION_KEY, JSON.stringify(s)); } catch {}
+}
+
+export async function loadSession(): Promise<Session | null> {
+  try {
+    const raw = await secureGet(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as Session) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ---- Mobile + SMS code sign-up -------------------------------------------
+
+/** The mock accepts this code. A real SMS provider (Twilio, Unifonic, Infobip…) sends a random one. */
+export const DEMO_OTP = '123456';
+export const OTP_RESEND_SECONDS = 30;
+
+/** Ask the backend to text a 6-digit code to this E.164 number. */
+export async function requestOtp(_phone: string): Promise<{ ok: true; resendIn: number }> {
+  await new Promise((r) => setTimeout(r, 600));
+  return { ok: true, resendIn: OTP_RESEND_SECONDS };
+}
+
+/** Check the code. The backend creates the account on first success and returns the session. */
+export async function verifyOtp(phone: string, code: string, name: string): Promise<Session | null> {
+  await new Promise((r) => setTimeout(r, 600));
+  if (code !== DEMO_OTP) return null;
+  return { identifier: phone, name: name.trim() || 'Guest', phone, phoneVerified: true };
 }
 
 export async function clearSession() {
   try {
-    await SecureStore.deleteItemAsync(SESSION_KEY);
-    await SecureStore.deleteItemAsync(BIOMETRIC_KEY);
+    await secureDelete(SESSION_KEY);
+    await secureDelete(BIOMETRIC_KEY);
   } catch {}
 }
 
@@ -50,13 +88,13 @@ export async function biometricAvailable(): Promise<boolean> {
 }
 
 export async function isBiometricEnabled(): Promise<boolean> {
-  try { return (await SecureStore.getItemAsync(BIOMETRIC_KEY)) === '1'; } catch { return false; }
+  try { return (await secureGet(BIOMETRIC_KEY)) === '1'; } catch { return false; }
 }
 
 export async function setBiometricEnabled(on: boolean) {
   try {
-    if (on) await SecureStore.setItemAsync(BIOMETRIC_KEY, '1');
-    else await SecureStore.deleteItemAsync(BIOMETRIC_KEY);
+    if (on) await secureSet(BIOMETRIC_KEY, '1');
+    else await secureDelete(BIOMETRIC_KEY);
   } catch {}
 }
 
@@ -65,7 +103,7 @@ export async function signInWithBiometrics(promptMessage: string, cancelLabel: s
   const res = await LocalAuthentication.authenticateAsync({ promptMessage, cancelLabel });
   if (!res.success) return null;
   try {
-    const raw = await SecureStore.getItemAsync(SESSION_KEY);
+    const raw = await secureGet(SESSION_KEY);
     return raw ? (JSON.parse(raw) as Session) : null;
   } catch {
     return null;
