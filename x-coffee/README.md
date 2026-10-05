@@ -27,6 +27,14 @@ True WebAuthn passkeys need the backend; the current button uses device biometri
    - "I'm here" starts the order immediately in either mode.
 4. After `Prep` seconds the order becomes **Ready**.
 
+## Staff app (barista tablet)
+- Profile → Staff → sign in with branch + 4-digit PIN (demo: Amman 1111, Riyadh 2222). Replace with real staff accounts on the backend.
+- Queue tabs: Make now / Coming / Ready / Done, filtered to the signed-in branch. Two or three columns on tablets; screen stays awake.
+- Chime for new orders, stronger alert + vibration when an order must be made now (pickup orders start themselves when the customer is close).
+- Actions: Start now, Mark ready, Handed to customer, Hand to driver, Cancel. Prep timer turns red when over the estimate.
+- While staff are on shift, orders only become ready when staff mark them; with no staff signed in the demo advances on its own.
+- Pause new orders: customers see the branch is busy and can't order from it until staff resume.
+
 ## Delivery
 - Saved addresses (Home / Work / Other) with GPS pin, area, street, building, floor, apartment and driver directions.
 - Zones per country in `src/domain/market.ts` (`delivery`): own drivers up to 5 km (JO) / 6 km (SA), a partner (Talabat / Jahez first in list) up to 15 / 20 km, nothing beyond.

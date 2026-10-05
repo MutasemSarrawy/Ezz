@@ -92,7 +92,10 @@ export type Order = {
   currency: Currency;
   fulfilment: FulfilmentMode;
   shop: LatLng;
+  branchId: string;
   branchName: Localized;
+  /** Shown to staff. */
+  customer?: { name: string; phone?: string };
   delivery?: DeliveryInfo;
   status: OrderStatus;
   createdAt: number;
@@ -108,5 +111,5 @@ export type Order = {
   preparingAt?: number;
   readyAt?: number;
   /** Why preparation started — shown on the barista console. */
-  startReason?: 'on_time' | 'live_eta' | 'nearby' | 'customer_arrived' | 'immediate';
+  startReason?: 'on_time' | 'live_eta' | 'nearby' | 'customer_arrived' | 'immediate' | 'staff';
 };

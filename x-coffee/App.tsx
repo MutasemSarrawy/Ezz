@@ -9,7 +9,8 @@ import Home from './src/screens/Home';
 import Product from './src/screens/Product';
 import Order from './src/screens/Order';
 import Tracking from './src/screens/Tracking';
-import Barista from './src/screens/Barista';
+import Staff from './src/screens/Staff';
+import StaffLogin from './src/screens/StaffLogin';
 import Settings from './src/screens/Settings';
 import Checkout from './src/screens/Checkout';
 import SignUp from './src/screens/SignUp';
@@ -49,7 +50,8 @@ function Router() {
       case 'wallet': return <Wallet />;
       case 'address': return <AddressScreen />;
       case 'tracking': return <Tracking />;
-      case 'barista': return <Barista />;
+      case 'barista': return <Staff />;
+      case 'staffLogin': return <StaffLogin />;
       case 'settings': return <Settings />;
     }
   })();

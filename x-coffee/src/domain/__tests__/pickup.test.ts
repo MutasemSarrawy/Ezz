@@ -34,6 +34,7 @@ function order(distanceM: number, tracking: 'once' | 'live', prepSeconds = 170) 
     id: 'o1',
     lines,
     currency: 'JOD',
+    branchId: 'amm-1',
     branchName: { en: 'Amman', ar: 'عمّان' },
     payment: { method: 'counter', status: 'pay_at_counter', amount: 2.9, subtotal: 2.9, pointsRedeemed: 0, discount: 0 },
     shop: SHOP_LOCATION,
@@ -190,7 +191,7 @@ describe('delivery order lifecycle', () => {
   const address = { id: 'a', label: 'home' as const, location: metersNorth(3000), area: 'A', street: 'S', building: '1' };
   const make = (courier: 'own' | 'partner') =>
     createDeliveryOrder({
-      id: 'X-7', lines, currency: 'JOD', shop: SHOP_LOCATION, branchName: { en: 'Amman', ar: 'عمّان' },
+      id: 'X-7', lines, currency: 'JOD', shop: SHOP_LOCATION, branchId: 'amm-1', branchName: { en: 'Amman', ar: 'عمّان' },
       payment: { method: 'counter', status: 'pay_at_counter', amount: 3.65, subtotal: 2.9, deliveryFee: 0.75, pointsRedeemed: 0, discount: 0 },
       prepSeconds: 100, address, distanceMeters: 3000,
       delivery: { fee: 0.75, courier, partner: courier === 'partner' ? 'Talabat' : undefined, travelSeconds: 600, etaMinMinutes: 15, etaMaxMinutes: 20 },
@@ -226,5 +227,24 @@ describe('delivery order lifecycle', () => {
   it('advance moves time forward for test tools', () => {
     const o = advance(make('own'), 100);
     expect(tick(o, T0).status).toBe('ready');
+  });
+});
+
+import { markReady, staffStart } from '../orderEngine';
+
+describe('staff controls', () => {
+  it('staff can start early and mark ready', () => {
+    let o = order(5000, 'once');
+    o = staffStart(o, T0 + 1000);
+    expect(o.status).toBe('preparing');
+    expect(o.startReason).toBe('staff');
+    o = markReady(o, T0 + 2000);
+    expect(o.status).toBe('ready');
+  });
+  it('with autoAdvance off, prep never auto-completes but timed start still fires', () => {
+    const o = order(5000, 'once');
+    const started = tick(o, o.startAt, false);
+    expect(started.status).toBe('preparing');
+    expect(tick(started, o.startAt + 3_600_000, false).status).toBe('preparing');
   });
 });

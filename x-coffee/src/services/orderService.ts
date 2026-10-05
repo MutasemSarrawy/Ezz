@@ -2,6 +2,8 @@ import {
   advance,
   createDeliveryOrder,
   handToDriver,
+  markReady,
+  staffStart,
   applyLocation,
   cancelOrder,
   createPickupOrder,
@@ -30,7 +32,9 @@ export interface OrderService {
     currency: Currency;
     payment: OrderPayment;
     shop: LatLng;
+    branchId: string;
     branchName: Localized;
+    customer?: Order['customer'];
     prepSeconds: number;
     location: LatLng;
     tracking: TrackingMode;
@@ -41,7 +45,9 @@ export interface OrderService {
     currency: Currency;
     payment: OrderPayment;
     shop: LatLng;
+    branchId: string;
     branchName: Localized;
+    customer?: Order['customer'];
     prepSeconds: number;
     address: Address;
     distanceMeters: number;
@@ -51,6 +57,15 @@ export interface OrderService {
   handToDriver(orderId: string): void;
   /** Test tool: skip ahead in time for one order. */
   skipAhead(orderId: string, seconds: number): void;
+  /** Staff: start an incoming order now. */
+  startNow(orderId: string): void;
+  /** Staff: order is made. */
+  markReady(orderId: string): void;
+  /** Staff on shift drive prep and hand-off themselves; otherwise the demo advances on its own. */
+  setAutoAdvance(on: boolean): void;
+  /** Staff pause a busy branch; customers can't order from it meanwhile. */
+  setBranchPaused(branchId: string, paused: boolean): void;
+  subscribePaused(listener: (paused: string[]) => void): () => void;
   sendLocation(orderId: string, loc: LatLng, accuracy?: number): void;
   arrived(orderId: string): void;
   cancel(orderId: string): void;
@@ -67,6 +82,9 @@ class MockOrderService implements OrderService {
   private listeners = new Set<(o: Order[]) => void>();
   private timer: ReturnType<typeof setInterval> | null = null;
   private seq = 100;
+  private autoAdvance = true;
+  private paused = new Set<string>();
+  private pausedListeners = new Set<(p: string[]) => void>();
 
   constructor() {
     // Stand-in for fetching the customer's orders from the backend.
@@ -97,6 +115,20 @@ class MockOrderService implements OrderService {
     this.ensureTimer();
     this.emit(true);
     return order;
+  }
+
+  startNow(id: string) { this.update(id, (o) => staffStart(o, Date.now())); }
+  markReady(id: string) { this.update(id, (o) => markReady(o, Date.now())); }
+  setAutoAdvance(on: boolean) { this.autoAdvance = on; }
+  setBranchPaused(branchId: string, paused: boolean) {
+    if (paused) this.paused.add(branchId); else this.paused.delete(branchId);
+    const list = [...this.paused];
+    this.pausedListeners.forEach((l) => l(list));
+  }
+  subscribePaused(listener: (p: string[]) => void) {
+    this.pausedListeners.add(listener);
+    listener([...this.paused]);
+    return () => { this.pausedListeners.delete(listener); };
   }
 
   handToDriver(id: string) { this.update(id, (o) => handToDriver(o, Date.now())); }
@@ -141,7 +173,7 @@ class MockOrderService implements OrderService {
       const now = Date.now();
       let changed = false;
       for (const [id, o] of this.orders) {
-        const next = tick(o, now);
+        const next = tick(o, now, this.autoAdvance);
         if (next !== o) { this.orders.set(id, next); changed = true; }
       }
       // keep emitting while anything is active so countdowns on screen stay live

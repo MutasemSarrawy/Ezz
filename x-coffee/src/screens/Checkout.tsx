@@ -103,6 +103,7 @@ export default function Checkout() {
         }
       }
 
+      const customer = session ? { name: session.name, phone: session.phone } : undefined;
       const orderLines = lines.map((l) => ({
           key: l.key,
           productId: l.product.id,
@@ -119,7 +120,9 @@ export default function Checkout() {
               currency: cur,
               payment,
               shop: pendingOrder.branch.location,
+              branchId: pendingOrder.branch.id,
               branchName: pendingOrder.branch.name,
+              customer,
               location: pendingOrder.location,
               tracking: pendingOrder.tracking,
               travel: pendingOrder.travel,
@@ -130,7 +133,9 @@ export default function Checkout() {
               currency: cur,
               payment,
               shop: pendingOrder.quote.branch.location,
+              branchId: pendingOrder.quote.branch.id,
               branchName: pendingOrder.quote.branch.name,
+              customer,
               prepSeconds: pendingOrder.prepSeconds,
               address: pendingOrder.address,
               distanceMeters: pendingOrder.quote.distanceMeters,

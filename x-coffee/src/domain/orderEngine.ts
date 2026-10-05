@@ -15,7 +15,9 @@ type NewPickup = {
   currency: Currency;
   payment: OrderPayment;
   shop: LatLng;
+  branchId: string;
   branchName: Localized;
+  customer?: Order['customer'];
   prepSeconds: number;
   location: LatLng;
   tracking: TrackingMode;
@@ -35,7 +37,9 @@ export function createPickupOrder(input: NewPickup): Order {
     currency: input.currency,
     fulfilment: 'pickup',
     shop: input.shop,
+    branchId: input.branchId,
     branchName: input.branchName,
+    customer: input.customer,
     status: 'waiting',
     createdAt: now,
     prepSeconds: input.prepSeconds,
@@ -89,7 +93,9 @@ type NewDelivery = {
   currency: Currency;
   payment: OrderPayment;
   shop: LatLng;
+  branchId: string;
   branchName: Localized;
+  customer?: Order['customer'];
   prepSeconds: number;
   address: Address;
   distanceMeters: number;
@@ -108,7 +114,9 @@ export function createDeliveryOrder(input: NewDelivery): Order {
     currency: input.currency,
     fulfilment: 'delivery',
     shop: input.shop,
+    branchId: input.branchId,
     branchName: input.branchName,
+    customer: input.customer,
     delivery: { ...input.delivery, address: input.address },
     status: 'preparing',
     createdAt: now,
@@ -144,9 +152,24 @@ export function handToDriver(order: Order, now: number): Order {
   return order.fulfilment === 'delivery' && order.status === 'ready' ? goOut(order, now) : order;
 }
 
-/** Time-based progression. Call about once a second. */
-export function tick(order: Order, now: number): Order {
+/** Staff start an incoming order early. */
+export function staffStart(order: Order, now: number): Order {
+  return order.status === 'waiting' ? startPreparing(order, now, 'staff') : order;
+}
+
+/** Barista finished making it. */
+export function markReady(order: Order, now: number): Order {
+  return order.status === 'preparing' ? { ...order, status: 'ready', readyAt: now } : order;
+}
+
+/**
+ * Time-based progression. Call about once a second.
+ * `autoAdvance` false = staff mark orders ready and hand them to drivers
+ * themselves; only the arrival-timed start stays automatic.
+ */
+export function tick(order: Order, now: number, autoAdvance = true): Order {
   if (order.status === 'waiting') return evaluate(order, now, 'on_time');
+  if (!autoAdvance && (order.status === 'preparing' || order.status === 'ready')) return order;
   if (
     order.status === 'preparing' &&
     order.preparingAt !== undefined &&

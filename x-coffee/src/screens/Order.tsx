@@ -20,7 +20,7 @@ import { colors, font, radius } from '../theme';
 type Preview = { location: LatLng; distance: number };
 
 export default function Order() {
-  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, linePrice, setPendingOrder, fulfilment: mode, setFulfilment: setMode, addresses, removeAddress, selectedAddressId, setSelectedAddressId } = useStore();
+  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, linePrice, setPendingOrder, pausedBranches, fulfilment: mode, setFulfilment: setMode, addresses, removeAddress, selectedAddressId, setSelectedAddressId } = useStore();
   const insets = useSafeAreaInsets();
   const [travel, setTravel] = useState<TravelMode>('driving');
   const [tracking, setTracking] = useState<TrackingMode>('live');
@@ -74,6 +74,7 @@ export default function Order() {
     () => (address ? quoteDelivery(market, address.location, subtotal, prep) : null),
     [address, market, subtotal, prep],
   );
+  const branchClosed = pausedBranches.includes(mode === 'delivery' && quote ? quote.branch.id : branch.id);
   const canDeliver = !!quote && quote.ok && quote.belowMinimumBy === 0;
 
   const toCheckout = () => {
@@ -95,6 +96,9 @@ export default function Order() {
       <Header title={t('yourOrder')} top={insets.top} />
 
       <ScrollView ref={scroller} contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 140, gap: 16 }}>
+        {branchClosed && (
+          <View style={s.warn} testID="branch-paused"><Text style={s.warnText}>⏸ {t('branchPaused')}</Text></View>
+        )}
         <Segmented
           value={mode}
           onChange={setMode}
@@ -264,7 +268,7 @@ export default function Order() {
           testID="place-order"
           label={mode === 'delivery' ? (address ? t('continueToPayment') : t('addAddress')) : fresh ? t('continueToPayment') : t('shareToContinue')}
           onPress={mode === 'delivery' && !address ? () => go('address') : toCheckout}
-          disabled={empty || (mode === 'pickup' ? !fresh : !!address && !canDeliver)}
+          disabled={empty || branchClosed || (mode === 'pickup' ? !fresh : !!address && !canDeliver)}
           style={{ flex: 1 }}
         />
       </View>

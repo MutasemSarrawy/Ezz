@@ -7,7 +7,7 @@ import { useStore } from '../state/store';
 import { colors, font, radius, shadow } from '../theme';
 
 export default function Profile() {
-  const { t, lang, isRTL, go, reset, session, signOut, points, wallet, market, money, orders, favourites, savedDrinks, savedCards } = useStore();
+  const { t, lang, isRTL, go, reset, session, staff, signOut, points, wallet, market, money, orders, favourites, savedDrinks, savedCards } = useStore();
   const insets = useSafeAreaInsets();
 
   return (
@@ -66,7 +66,7 @@ export default function Profile() {
         </View>
 
         <View style={s.card}>
-          <ListRow icon="👨‍🍳" title={`${t('staff')} · ${t('baristaConsole')}`} onPress={() => go('barista')} />
+          <ListRow testID="row-staff" icon="👨‍🍳" title={`${t('staff')} · ${staff ? t('baristaConsole') : t('staffLogin')}`} onPress={() => go(staff ? 'barista' : 'staffLogin')} />
         </View>
 
         {session && (

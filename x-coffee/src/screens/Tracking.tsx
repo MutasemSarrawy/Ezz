@@ -24,7 +24,7 @@ const stepIndex = (s: Order['status']) =>
   s === 'waiting' ? 1 : s === 'preparing' ? 2 : s === 'ready' || s === 'picked_up' ? 3 : 0;
 
 const REASON: Record<NonNullable<Order['startReason']>, StringKey> = {
-  live_eta: 'rLiveEta', nearby: 'rNearby', customer_arrived: 'rArrived', on_time: 'rOnTime', immediate: 'rOnTime',
+  live_eta: 'rLiveEta', nearby: 'rNearby', customer_arrived: 'rArrived', on_time: 'rOnTime', immediate: 'rOnTime', staff: 'rOnTime',
 };
 
 export default function Tracking() {

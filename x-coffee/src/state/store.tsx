@@ -16,13 +16,14 @@ import { orderService } from '../services/orderService';
 import { watchLocation } from '../services/location';
 import { getJSON, getPref, setJSON, setPref } from '../services/prefs';
 import { clearSession, isBiometricEnabled, loadSession, saveSession, type Session } from '../services/auth';
+import { loadStaffSession, staffSignOut, type StaffSession } from '../services/staffAuth';
 import { uid, type LedgerEntry, type Profile, type SavedCard, type SavedDrink } from '../domain/account';
 import type { Address, DeliveryQuote } from '../domain/delivery';
 import type { Branch } from '../domain/market';
 
 export type Route =
   | 'splash' | 'login' | 'signup' | 'home' | 'product' | 'order' | 'checkout' | 'tracking' | 'barista' | 'settings'
-  | 'profile' | 'editProfile' | 'history' | 'favourites' | 'wallet' | 'address';
+  | 'profile' | 'editProfile' | 'history' | 'favourites' | 'wallet' | 'address' | 'staffLogin';
 
 /** Pickup details chosen on the Order screen, carried into Checkout. */
 export type PendingPickup = { kind: 'pickup'; location: LatLng; tracking: TrackingMode; travel: TravelMode; prepSeconds: number; branch: Branch };
@@ -70,6 +71,12 @@ type Store = {
   activeOrder: Order | undefined;
   setActiveOrderId: (id: string | null) => void;
 
+  /** Staff signed in on this device (barista tablet). */
+  staff: StaffSession | null;
+  setStaff: (s: StaffSession | null) => void;
+  /** Branches currently not taking orders. */
+  pausedBranches: string[];
+
   /** Pickup or delivery, kept while the customer moves between Order, Address and Checkout. */
   fulfilment: FulfilmentMode;
   setFulfilment: (m: FulfilmentMode) => void;
@@ -114,6 +121,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [activeId, setActiveOrderId] = useState<string | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
   const [fulfilment, setFulfilment] = useState<FulfilmentMode>('pickup');
+  const [staff, setStaffState] = useState<StaffSession | null>(null);
+  const [pausedBranches, setPausedBranches] = useState<string[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [points, setPoints] = useState(0);
@@ -124,6 +133,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
 
   useEffect(() => orderService.subscribe(setOrders), []);
+  useEffect(() => orderService.subscribePaused(setPausedBranches), []);
+  useEffect(() => { loadStaffSession().then((s) => s && setStaffState(s)); }, []);
+  // While staff are on shift they mark orders ready themselves.
+  useEffect(() => { orderService.setAutoAdvance(!staff); }, [staff]);
+  const setStaff = useCallback((s: StaffSession | null) => {
+    setStaffState(s);
+    if (!s) staffSignOut();
+  }, []);
   useEffect(() => {
     (async () => {
       const l = await getPref('x.lang');
@@ -329,6 +346,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       orders,
       activeOrder,
       setActiveOrderId,
+      staff,
+      setStaff,
+      pausedBranches,
       fulfilment,
       setFulfilment,
       pendingOrder,
@@ -352,7 +372,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addCard,
       removeCard,
     };
-  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, fulfilment, pendingOrder, addresses, saveAddress, removeAddress, selectedAddressId, points, addPoints, wallet, addWallet, ledger, favourites, toggleFavourite, savedDrinks, saveDrink, removeSavedDrink, savedCards, addCard, removeCard, updateProfile, signOut]);
+  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, staff, setStaff, pausedBranches, fulfilment, pendingOrder, addresses, saveAddress, removeAddress, selectedAddressId, points, addPoints, wallet, addWallet, ledger, favourites, toggleFavourite, savedDrinks, saveDrink, removeSavedDrink, savedCards, addCard, removeCard, updateProfile, signOut]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
