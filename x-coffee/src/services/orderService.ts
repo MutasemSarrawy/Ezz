@@ -1,0 +1,201 @@
+import {
+  advance,
+  createDeliveryOrder,
+  handToDriver,
+  markReady,
+  staffStart,
+  applyLocation,
+  cancelOrder,
+  createPickupOrder,
+  customerArrived,
+  markPickedUp,
+  tick,
+} from '../domain/orderEngine';
+import type { Currency, DeliveryInfo, LatLng, Localized, Order, TrackingMode, TravelMode } from '../domain/types';
+import type { Address } from '../domain/delivery';
+import type { OrderPayment } from '../domain/payment';
+import { getJSON, setJSON } from './prefs';
+
+const STORE_KEY = 'x.orders';
+
+/**
+ * The seam between the customer app and the coffee house's system.
+ * `mockOrderService` below runs everything in-process so the full flow can be
+ * tried on one phone (the Barista console reads the same store). To go live,
+ * implement this interface against the real backend (REST + WebSocket/push)
+ * and run the same `orderEngine` rules server-side so the barista app is
+ * notified even if the customer's phone is asleep.
+ */
+export interface OrderService {
+  placePickup(input: {
+    lines: Order['lines'];
+    currency: Currency;
+    payment: OrderPayment;
+    shop: LatLng;
+    branchId: string;
+    branchName: Localized;
+    customer?: Order['customer'];
+    prepSeconds: number;
+    location: LatLng;
+    tracking: TrackingMode;
+    travel: TravelMode;
+  }): Promise<Order>;
+  placeDelivery(input: {
+    lines: Order['lines'];
+    currency: Currency;
+    payment: OrderPayment;
+    shop: LatLng;
+    branchId: string;
+    branchName: Localized;
+    customer?: Order['customer'];
+    prepSeconds: number;
+    address: Address;
+    distanceMeters: number;
+    delivery: Omit<DeliveryInfo, 'address' | 'driver' | 'outAt' | 'deliveredAt'>;
+  }): Promise<Order>;
+  /** Barista gives the bag to the driver. */
+  handToDriver(orderId: string): void;
+  /** Test tool: skip ahead in time for one order. */
+  skipAhead(orderId: string, seconds: number): void;
+  /** Staff: start an incoming order now. */
+  startNow(orderId: string): void;
+  /** Staff: order is made. */
+  markReady(orderId: string): void;
+  /** Staff on shift drive prep and hand-off themselves; otherwise the demo advances on its own. */
+  setAutoAdvance(on: boolean): void;
+  /** Staff pause a busy branch; customers can't order from it meanwhile. */
+  setBranchPaused(branchId: string, paused: boolean): void;
+  subscribePaused(listener: (paused: string[]) => void): () => void;
+  sendLocation(orderId: string, loc: LatLng, accuracy?: number): void;
+  arrived(orderId: string): void;
+  cancel(orderId: string): void;
+  markPickedUp(orderId: string): void;
+  /** Record bookkeeping done by the app (points credited, refund issued). */
+  annotate(orderId: string, patch: Pick<Partial<Order>, 'pointsEarned' | 'refunded'>): void;
+  /** Seconds of work already queued for baristas (feeds prep estimate). */
+  queueSeconds(): number;
+  subscribe(listener: (orders: Order[]) => void): () => void;
+}
+
+class MockOrderService implements OrderService {
+  private orders = new Map<string, Order>();
+  private listeners = new Set<(o: Order[]) => void>();
+  private timer: ReturnType<typeof setInterval> | null = null;
+  private seq = 100;
+  private autoAdvance = true;
+  private paused = new Set<string>();
+  private pausedListeners = new Set<(p: string[]) => void>();
+
+  constructor() {
+    // Stand-in for fetching the customer's orders from the backend.
+    getJSON<Order[]>(STORE_KEY, []).then((saved) => {
+      for (const o of saved) if (!this.orders.has(o.id)) this.orders.set(o.id, o);
+      for (const o of saved) this.seq = Math.max(this.seq, Number(o.id.replace(/\D/g, '')) || 0);
+      if (saved.length) { this.ensureTimer(); this.emit(true); }
+    });
+  }
+
+  async placePickup(input: Parameters<OrderService['placePickup']>[0]) {
+    await new Promise((r) => setTimeout(r, 300));
+    const order = createPickupOrder({
+      id: `X-${++this.seq}`,
+      ...input,
+      now: Date.now(),
+    });
+    this.orders.set(order.id, order);
+    this.ensureTimer();
+    this.emit(true);
+    return order;
+  }
+
+  async placeDelivery(input: Parameters<OrderService['placeDelivery']>[0]) {
+    await new Promise((r) => setTimeout(r, 300));
+    const order = createDeliveryOrder({ id: `X-${++this.seq}`, ...input, now: Date.now() });
+    this.orders.set(order.id, order);
+    this.ensureTimer();
+    this.emit(true);
+    return order;
+  }
+
+  startNow(id: string) { this.update(id, (o) => staffStart(o, Date.now())); }
+  markReady(id: string) { this.update(id, (o) => markReady(o, Date.now())); }
+  setAutoAdvance(on: boolean) { this.autoAdvance = on; }
+  setBranchPaused(branchId: string, paused: boolean) {
+    if (paused) this.paused.add(branchId); else this.paused.delete(branchId);
+    const list = [...this.paused];
+    this.pausedListeners.forEach((l) => l(list));
+  }
+  subscribePaused(listener: (p: string[]) => void) {
+    this.pausedListeners.add(listener);
+    listener([...this.paused]);
+    return () => { this.pausedListeners.delete(listener); };
+  }
+
+  handToDriver(id: string) { this.update(id, (o) => handToDriver(o, Date.now())); }
+  skipAhead(id: string, seconds: number) {
+    this.update(id, (o) => tick(advance(o, seconds), Date.now()));
+  }
+
+  sendLocation(id: string, loc: LatLng, accuracy?: number) {
+    this.update(id, (o) => applyLocation(o, loc, accuracy, Date.now()));
+  }
+  arrived(id: string) { this.update(id, (o) => customerArrived(o, Date.now())); }
+  cancel(id: string) { this.update(id, cancelOrder); }
+  markPickedUp(id: string) { this.update(id, markPickedUp); }
+  annotate(id: string, patch: Pick<Partial<Order>, 'pointsEarned' | 'refunded'>) { this.update(id, (o) => ({ ...o, ...patch })); }
+
+  queueSeconds() {
+    let secs = 0;
+    for (const o of this.orders.values()) if (o.status === 'preparing') secs += o.prepSeconds;
+    // two baristas on shift
+    return Math.round(secs / 2);
+  }
+
+  subscribe(listener: (orders: Order[]) => void) {
+    this.listeners.add(listener);
+    listener(this.snapshot());
+    return () => { this.listeners.delete(listener); };
+  }
+
+  private update(id: string, fn: (o: Order) => Order) {
+    const cur = this.orders.get(id);
+    if (!cur) return;
+    const next = fn(cur);
+    if (next !== cur) {
+      this.orders.set(id, next);
+      this.emit(true);
+    }
+  }
+
+  private ensureTimer() {
+    if (this.timer) return;
+    this.timer = setInterval(() => {
+      const now = Date.now();
+      let changed = false;
+      for (const [id, o] of this.orders) {
+        const next = tick(o, now, this.autoAdvance);
+        if (next !== o) { this.orders.set(id, next); changed = true; }
+      }
+      // keep emitting while anything is active so countdowns on screen stay live
+      if (changed || this.hasActive()) this.emit(changed);
+    }, 1000);
+  }
+
+  private hasActive() {
+    for (const o of this.orders.values()) if (o.status === 'waiting' || o.status === 'preparing' || o.status === 'ready' || o.status === 'out_for_delivery') return true;
+    return false;
+  }
+
+  private snapshot() {
+    return [...this.orders.values()].sort((a, b) => b.createdAt - a.createdAt);
+  }
+
+  /** `persist` only when data changed — countdown refreshes don't need a write. */
+  private emit(persist = false) {
+    const snap = this.snapshot();
+    this.listeners.forEach((l) => l(snap));
+    if (persist) setJSON(STORE_KEY, snap.slice(0, 50));
+  }
+}
+
+export const orderService: OrderService = new MockOrderService();

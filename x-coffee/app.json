@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "X Coffee House",
+    "slug": "x-coffee",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F7F1E8",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.example.xcoffee"
+    },
+    "android": {
+      "package": "com.example.xcoffee",
+      "adaptiveIcon": {
+        "backgroundColor": "#2A1A12",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "USE_BIOMETRIC"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "X uses your location to time your pickup order so it is fresh when you arrive."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Use Face ID to sign in to X."
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}
