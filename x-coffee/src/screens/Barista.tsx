@@ -26,7 +26,7 @@ const RANK: Record<Order['status'], number> = { preparing: 0, waiting: 1, ready:
  * so the whole pickup flow can be tried on one device.
  */
 export default function Barista() {
-  const { orders, t, lang, mins, isRTL } = useStore();
+  const { orders, t, lang, mins, isRTL, money } = useStore();
   const insets = useSafeAreaInsets();
 
   // buzz when an order flips to "make now"
@@ -58,6 +58,9 @@ export default function Barista() {
                 <Text style={s.id}>{o.id}</Text>
                 <Text style={[s.status, { color: TINT[o.status] }]}>{t(LABEL[o.status])}</Text>
               </View>
+              <Text style={[s.pay, o.payment.status === 'paid' ? { color: colors.success } : { color: colors.danger }]}>
+                {o.payment.status === 'paid' ? `✓ ${t('paid')} · ${money(o.total, o.currency)}` : `⚠ ${t('collect', { amount: money(o.total, o.currency) })}`}
+              </Text>
               {o.lines.map((l) => (
                 <View key={l.key}>
                   <Text style={s.line}>{l.qty} × {l.name[lang]}</Text>
@@ -88,5 +91,6 @@ const s = StyleSheet.create({
   status: { ...font.label },
   line: { ...font.body, color: colors.ink, fontWeight: '600', textAlign: 'auto' },
   details: { fontSize: 14, color: colors.accent, textAlign: 'auto' },
+  pay: { ...font.label, textAlign: 'auto' },
   meta: { color: colors.inkSoft, fontSize: 14, textAlign: 'auto' },
 });

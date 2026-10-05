@@ -7,6 +7,7 @@ import {
   tick,
 } from '../domain/orderEngine';
 import type { Currency, LatLng, Order, TrackingMode, TravelMode } from '../domain/types';
+import type { OrderPayment } from '../domain/payment';
 
 /**
  * The seam between the customer app and the coffee house's system.
@@ -20,6 +21,7 @@ export interface OrderService {
   placePickup(input: {
     lines: Order['lines'];
     currency: Currency;
+    payment: OrderPayment;
     shop: LatLng;
     prepSeconds: number;
     location: LatLng;
@@ -30,6 +32,8 @@ export interface OrderService {
   arrived(orderId: string): void;
   cancel(orderId: string): void;
   markPickedUp(orderId: string): void;
+  /** Record bookkeeping done by the app (points credited, refund issued). */
+  annotate(orderId: string, patch: Pick<Partial<Order>, 'pointsEarned' | 'refunded'>): void;
   /** Seconds of work already queued for baristas (feeds prep estimate). */
   queueSeconds(): number;
   subscribe(listener: (orders: Order[]) => void): () => void;
@@ -60,6 +64,7 @@ class MockOrderService implements OrderService {
   arrived(id: string) { this.update(id, (o) => customerArrived(o, Date.now())); }
   cancel(id: string) { this.update(id, cancelOrder); }
   markPickedUp(id: string) { this.update(id, markPickedUp); }
+  annotate(id: string, patch: Pick<Partial<Order>, 'pointsEarned' | 'refunded'>) { this.update(id, (o) => ({ ...o, ...patch })); }
 
   queueSeconds() {
     let secs = 0;

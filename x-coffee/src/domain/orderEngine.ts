@@ -6,12 +6,13 @@ import {
   secondsUntilStart,
 } from './pickup';
 import type { Currency, LatLng, Order, TrackingMode, TravelMode } from './types';
-import { roundMoney } from './market';
+import type { OrderPayment } from './payment';
 
 type NewPickup = {
   id: string;
   lines: Order['lines'];
   currency: Currency;
+  payment: OrderPayment;
   shop: LatLng;
   prepSeconds: number;
   location: LatLng;
@@ -27,7 +28,8 @@ export function createPickupOrder(input: NewPickup): Order {
   const order: Order = {
     id: input.id,
     lines: input.lines,
-    total: roundMoney(input.lines.reduce((s, l) => s + l.unitPrice * l.qty, 0), input.currency),
+    total: input.payment.amount,
+    payment: input.payment,
     currency: input.currency,
     fulfilment: 'pickup',
     shop: input.shop,

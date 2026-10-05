@@ -1,6 +1,6 @@
 # X Coffee House — mobile app (Expo / React Native)
 
-Flow: **Splash (logo)** → **Login (optional)** → **Menu** → **Product details** → **Order** → **Pickup tracking**.
+Flow: **Splash (logo)** → **Login (optional)** → **Menu** → **Product details** → **Order** → **Checkout** → **Pickup tracking**.
 
 Languages: English and Arabic (right-to-left). Countries: Jordan (JOD, 3 decimals) and Saudi Arabia (SAR) — switch with the flag button on the menu.
 A **Barista console** (chef button, top-right of the menu) shows the shop's side.
@@ -26,6 +26,12 @@ True WebAuthn passkeys need the backend; the current button uses device biometri
    - **Live location**: every fix (≥25 m or 15 s) re-projects the start time. Within 150 m the barista is notified immediately. Fixes less accurate than 100 m are ignored.
    - "I'm here" starts the order immediately in either mode.
 4. After `Prep` seconds the order becomes **Ready**.
+
+## Checkout and loyalty
+- Methods: Apple Pay (iOS) / Google Pay (Android), card (Visa, Mastercard, mada in Saudi), X Wallet, pay at counter.
+- Payments go through `src/services/paymentService.ts` (mock). Swap in the chosen provider's SDK; card data must go to the provider, never to our servers.
+- Test cards: `4242 4242 4242 4242` succeeds, `4000 0000 0000 0002` is declined, `4406 4700 0000 0008` shows as mada.
+- Points (`src/domain/loyalty.ts`): ~5% back. Jordan 10 pts per JD, 100 pts = 0.500 JD. Saudi 2 pts per SAR, 100 pts = 2.50 SAR. Earned on the amount paid once the order is picked up; redeemed in steps of 100. Cancelling returns redeemed points and wallet money.
 
 ## What is mocked / needs your input
 - `src/services/orderService.ts`: in-memory backend. Implement the `OrderService` interface against the real system and run `orderEngine` server-side so baristas are notified even if the customer's phone sleeps.

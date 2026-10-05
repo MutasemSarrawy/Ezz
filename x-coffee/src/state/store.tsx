@@ -9,14 +9,18 @@ import React, {
 } from 'react';
 import { MARKETS, formatMoney, roundMoney, type Market } from '../domain/market';
 import { choiceKey, unitPrice } from '../domain/options';
-import type { CartLine, Choice, Currency, Lang, MarketId, Order, Product } from '../domain/types';
+import type { CartLine, Choice, Currency, Lang, LatLng, MarketId, Order, Product, TrackingMode, TravelMode } from '../domain/types';
+import { pointsEarned } from '../domain/loyalty';
 import { minutes, translate, type StringKey } from '../i18n/strings';
 import { orderService } from '../services/orderService';
 import { watchLocation } from '../services/location';
 import { getPref, setPref } from '../services/prefs';
 import type { Session } from '../services/auth';
 
-export type Route = 'splash' | 'login' | 'home' | 'product' | 'order' | 'tracking' | 'barista' | 'settings';
+export type Route = 'splash' | 'login' | 'home' | 'product' | 'order' | 'checkout' | 'tracking' | 'barista' | 'settings';
+
+/** Pickup details chosen on the Order screen, carried into Checkout. */
+export type PendingPickup = { location: LatLng; tracking: TrackingMode; travel: TravelMode; prepSeconds: number };
 
 type Store = {
   route: Route;
@@ -56,6 +60,16 @@ type Store = {
   orders: Order[];
   activeOrder: Order | undefined;
   setActiveOrderId: (id: string | null) => void;
+
+  pendingPickup: PendingPickup | null;
+  setPendingPickup: (p: PendingPickup | null) => void;
+
+  /** Loyalty points balance (shared across countries). */
+  points: number;
+  addPoints: (delta: number) => void;
+  /** Prepaid wallet balance per currency. */
+  wallet: Record<Currency, number>;
+  addWallet: (currency: Currency, delta: number) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -69,6 +83,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeId, setActiveOrderId] = useState<string | null>(null);
+  const [pendingPickup, setPendingPickup] = useState<PendingPickup | null>(null);
+  const [points, setPoints] = useState(0);
+  const [wallet, setWallet] = useState<Record<Currency, number>>({ JOD: 0, SAR: 0 });
 
   useEffect(() => orderService.subscribe(setOrders), []);
   useEffect(() => {
@@ -77,8 +94,42 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const m = await getPref('x.market');
       if (l === 'en' || l === 'ar') setLangState(l);
       if (m === 'JO' || m === 'SA') setMarketId(m);
+      const pts = Number(await getPref('x.points'));
+      if (Number.isFinite(pts) && pts > 0) setPoints(pts);
+      try {
+        const w = JSON.parse((await getPref('x.wallet')) ?? 'null');
+        if (w && typeof w.JOD === 'number' && typeof w.SAR === 'number') setWallet(w);
+      } catch {}
     })();
   }, []);
+
+  const addPoints = useCallback((d: number) => {
+    setPoints((p) => { const n = Math.max(0, p + d); setPref('x.points', String(n)); return n; });
+  }, []);
+  const addWallet = useCallback((cur: Currency, d: number) => {
+    setWallet((w) => {
+      const n = { ...w, [cur]: roundMoney(Math.max(0, w[cur] + d), cur) };
+      setPref('x.wallet', JSON.stringify(n));
+      return n;
+    });
+  }, []);
+
+  // Bookkeeping the backend will own later: credit points once an order is
+  // picked up, and return wallet money / redeemed points if it is cancelled.
+  useEffect(() => {
+    for (const o of orders) {
+      if (o.status === 'picked_up' && o.pointsEarned === undefined) {
+        const earned = pointsEarned(o.payment.amount, o.currency);
+        addPoints(earned);
+        orderService.annotate(o.id, { pointsEarned: earned });
+      }
+      if (o.status === 'cancelled' && !o.refunded) {
+        if (o.payment.pointsRedeemed) addPoints(o.payment.pointsRedeemed);
+        if (o.payment.method === 'wallet') addWallet(o.currency, o.payment.amount);
+        orderService.annotate(o.id, { refunded: true });
+      }
+    }
+  }, [orders, addPoints, addWallet]);
 
   const setLang = useCallback((l: Lang) => { setLangState(l); setPref('x.lang', l); }, []);
   const setMarket = useCallback((m: MarketId) => { setMarketId(m); setPref('x.market', m); }, []);
@@ -169,8 +220,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       orders,
       activeOrder,
       setActiveOrderId,
+      pendingPickup,
+      setPendingPickup,
+      points,
+      addPoints,
+      wallet,
+      addWallet,
     };
-  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder]);
+  }, [history, go, reset, back, openProduct, productId, session, lang, setLang, market, setMarket, lines, addLine, removeOne, changeQty, clear, orders, activeOrder, pendingPickup, points, addPoints, wallet, addWallet]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

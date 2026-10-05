@@ -11,6 +11,7 @@ import Order from './src/screens/Order';
 import Tracking from './src/screens/Tracking';
 import Barista from './src/screens/Barista';
 import Settings from './src/screens/Settings';
+import Checkout from './src/screens/Checkout';
 
 function Router() {
   const { route, reset, back, isRTL } = useStore();
@@ -29,6 +30,7 @@ function Router() {
       case 'home': return <Home />;
       case 'product': return <Product />;
       case 'order': return <Order />;
+      case 'checkout': return <Checkout />;
       case 'tracking': return <Tracking />;
       case 'barista': return <Barista />;
       case 'settings': return <Settings />;

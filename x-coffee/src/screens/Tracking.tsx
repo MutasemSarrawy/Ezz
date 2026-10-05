@@ -8,6 +8,15 @@ import { orderService } from '../services/orderService';
 import { useStore } from '../state/store';
 import { colors, font, radius } from '../theme';
 
+export function payLabel(o: Order, t: (k: StringKey) => string) {
+  const p = o.payment;
+  if (p.method === 'apple_pay') return t('applePay');
+  if (p.method === 'google_pay') return t('googlePay');
+  if (p.method === 'wallet') return t('walletMethod');
+  if (p.method === 'card') return `${p.cardBrand === 'mada' ? 'mada' : p.cardBrand === 'mastercard' ? 'Mastercard' : 'Visa'} •••• ${p.cardLast4 ?? ''}`;
+  return t('counter');
+}
+
 const STEPS: StringKey[] = ['stepPlaced', 'stepWaiting', 'stepPreparing', 'stepReady'];
 
 const stepIndex = (s: Order['status']) =>
@@ -97,10 +106,25 @@ export default function Tracking() {
             <Text style={s.lineText}>{money(l.qty * l.unitPrice, o.currency)}</Text>
           </View>
         ))}
+        {o.payment.discount > 0 && (
+          <View style={s.line}>
+            <Text style={[s.lineText, { color: colors.success }]}>{t('pointsDiscount')}</Text>
+            <Text style={[s.lineText, { color: colors.success }]}>− {money(o.payment.discount, o.currency)}</Text>
+          </View>
+        )}
         <View style={[s.line, { borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 10 }]}>
           <Text style={[s.lineText, { fontWeight: '800' }]}>{t('total')}</Text>
           <Text style={[s.lineText, { fontWeight: '800' }]}>{money(o.total, o.currency)}</Text>
         </View>
+      </View>
+
+      <View style={s.payRow}>
+        <Text style={s.payText}>
+          {o.payment.status === 'paid'
+            ? `✓ ${t('paidWith', { method: payLabel(o, t) })}`
+            : `🏪 ${t('payAtCounter', { amount: money(o.total, o.currency) })}`}
+        </Text>
+        {o.pointsEarned ? <Text style={s.points}>⭐ {t('pointsEarnedMsg', { points: o.pointsEarned })}</Text> : null}
       </View>
 
       {o.status === 'waiting' && <Button testID="arrived" label={t('arrivedBtn')} onPress={() => orderService.arrived(o.id)} />}
@@ -141,6 +165,9 @@ const s = StyleSheet.create({
   line: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   lineText: { ...font.body, color: colors.ink, textAlign: 'auto' },
   lineSub: { fontSize: 13, color: colors.inkSoft, textAlign: 'auto' },
+  payRow: { gap: 4 },
+  payText: { ...font.body, fontWeight: '700', color: colors.ink, textAlign: 'auto' },
+  points: { color: colors.accent, fontWeight: '700', textAlign: 'auto' },
   dev: { borderWidth: 1, borderStyle: 'dashed', borderColor: colors.inkSoft, borderRadius: radius.md, padding: 12, gap: 10 },
   devTitle: { ...font.label, color: colors.inkSoft, textAlign: 'auto' },
   devBtn: { paddingHorizontal: 14, minHeight: 44, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, justifyContent: 'center' },

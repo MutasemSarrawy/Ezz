@@ -1,3 +1,5 @@
+import type { OrderPayment } from './payment';
+
 export type LatLng = { lat: number; lng: number };
 
 export type Lang = 'en' | 'ar';
@@ -61,7 +63,13 @@ export type OrderLine = {
 export type Order = {
   id: string;
   lines: OrderLine[];
+  /** Amount after points discount. */
   total: number;
+  payment: OrderPayment;
+  /** Loyalty points credited when the order was picked up. */
+  pointsEarned?: number;
+  /** Paid amount / redeemed points returned after a cancellation. */
+  refunded?: boolean;
   currency: Currency;
   fulfilment: 'pickup';
   shop: LatLng;

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Header, Segmented, Stepper } from '../components/ui';
 import { describeChoice, unitPrepSeconds } from '../domain/options';
@@ -19,14 +19,13 @@ import { colors, font, radius } from '../theme';
 type Preview = { location: LatLng; distance: number };
 
 export default function Order() {
-  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, clear, linePrice, setActiveOrderId } = useStore();
+  const { go, reset, t, lang, mins, money, market, lines, subtotal, changeQty, linePrice, setPendingPickup } = useStore();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<FulfilmentMode>('pickup');
   const [travel, setTravel] = useState<TravelMode>('driving');
   const [tracking, setTracking] = useState<TrackingMode>('live');
   const [preview, setPreview] = useState<Preview | null>(null);
   const [locating, setLocating] = useState(false);
-  const [placing, setPlacing] = useState(false);
   const scroller = useRef<ScrollView>(null);
   const [permError, setPermError] = useState<'denied' | 'blocked' | 'failed' | null>(null);
 
@@ -68,34 +67,10 @@ export default function Order() {
     showTiming({ lat: shop.lat + 3000 / 111_195, lng: shop.lng });
   };
 
-  const place = async () => {
+  const toCheckout = () => {
     if (!fresh) return;
-    setPlacing(true);
-    try {
-      const order = await orderService.placePickup({
-        lines: lines.map((l) => ({
-          key: l.key,
-          name: l.product.name,
-          details: { en: describeChoice(l.choice, 'en'), ar: describeChoice(l.choice, 'ar') },
-          qty: l.qty,
-          unitPrice: linePrice(l),
-        })),
-        currency: market.currency,
-        shop,
-        prepSeconds: fresh.prep,
-        location: fresh.location,
-        tracking,
-        travel,
-      });
-      setActiveOrderId(order.id);
-      clear();
-      reset('home');
-      go('tracking');
-    } catch {
-      Alert.alert(t('couldNotPlace'), t('tryAgain'));
-    } finally {
-      setPlacing(false);
-    }
+    setPendingPickup({ location: fresh.location, tracking, travel, prepSeconds: fresh.prep });
+    go('checkout');
   };
 
   const startIn = fresh ? secondsUntilStart(fresh.eta, fresh.prep) : 0;
@@ -212,9 +187,8 @@ export default function Order() {
         </View>
         <Button
           testID="place-order"
-          label={mode === 'delivery' ? t('deliverySoon') : fresh ? t('placeOrder') : t('shareToContinue')}
-          onPress={place}
-          loading={placing}
+          label={mode === 'delivery' ? t('deliverySoon') : fresh ? t('continueToPayment') : t('shareToContinue')}
+          onPress={toCheckout}
           disabled={empty || mode === 'delivery' || !fresh}
           style={{ flex: 1 }}
         />

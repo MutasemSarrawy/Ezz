@@ -34,6 +34,7 @@ function order(distanceM: number, tracking: 'once' | 'live', prepSeconds = 170) 
     id: 'o1',
     lines,
     currency: 'JOD',
+    payment: { method: 'counter', status: 'pay_at_counter', amount: 2.9, subtotal: 2.9, pointsRedeemed: 0, discount: 0 },
     shop: SHOP_LOCATION,
     prepSeconds,
     location: metersNorth(distanceM),
