@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-memory"
+version = "0.1.0"
+description = "Permanent memory shared by all your AI agents (MCP server, CLI and HTTP API over SQLite)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp>=1.2"]
+
+[project.scripts]
+agent-memory = "agent_memory.cli:main"
+agent-memory-mcp = "agent_memory.server:main"
+
+[tool.setuptools]
+packages = ["agent_memory"]
