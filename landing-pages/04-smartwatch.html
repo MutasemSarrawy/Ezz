@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عدّاء X ساعة الرياضيين</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@400;600;800&family=Cairo:wght@400;600;700;900&display=swap">
+<style>
+/* Layout: race-day energy — slanted bands, a live heart-rate monitor in the hero, a scrolling ticker, stats set like a scoreboard */
+:root{
+  --track:#141414; --asphalt:#1f1f1f; --chalk:#f5f5f0; --blaze:#ff4f12; --blaze-dk:#c93a06; --grey:#9a9a92;
+  --f-display:"Changa","Cairo",sans-serif; --f-body:"Cairo",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--track);color:var(--chalk);font-family:var(--f-body);font-size:1.02rem;line-height:1.7;overflow-x:hidden}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--blaze);outline-offset:3px}
+.bar{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
+.logo{font-family:var(--f-display);font-weight:800;font-size:1.6rem;letter-spacing:.02em;font-style:italic}
+.logo b{color:var(--blaze)}
+.go{display:inline-flex;align-items:center;gap:10px;background:var(--blaze);color:#fff;font:800 1.05rem var(--f-display);padding:12px 30px;border:0;cursor:pointer;text-decoration:none;clip-path:polygon(8% 0,100% 0,92% 100%,0 100%);transition:background .2s,transform .2s}
+.go:hover{background:var(--blaze-dk);transform:translateX(-4px)}
+.go.light{background:var(--chalk);color:var(--track)}
+
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center;padding-block:40px 90px;position:relative}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(3.2rem,9vw,7.4rem);line-height:1;margin:0;font-style:italic;text-wrap:balance}
+.hero h1 em{color:var(--blaze);font-style:inherit;display:block}
+.hero p{font-size:1.18rem;color:#cfcfc8;max-width:40ch;margin:22px 0 28px}
+.timer{display:flex;gap:10px;margin-bottom:26px;align-items:center;flex-wrap:wrap}
+.timer .lbl{font-weight:700;color:var(--blaze);margin-inline-end:6px}
+.timer div{background:var(--asphalt);min-width:66px;text-align:center;padding:8px 6px;border-bottom:3px solid var(--blaze)}
+.timer b{display:block;font:800 1.7rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.timer small{color:var(--grey);font-size:.78rem}
+.watch{position:relative;display:grid;place-items:center}
+.watch .face{width:min(330px,82vw);aspect-ratio:1/1.18;max-width:100%;background:#000;border-radius:28%;border:12px solid #2c2c2c;box-shadow:0 0 0 2px #3a3a3a,0 40px 60px -20px rgba(255,79,18,.45);padding:24px 20px;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2;transform:rotate(-8deg)}
+.watch .strap{position:absolute;width:52%;height:130%;background:var(--blaze);border-radius:30px;z-index:1;transform:rotate(-8deg)}
+.face .row{display:flex;justify-content:space-between;color:var(--grey);font-size:.85rem}
+.face .bpm{font:800 4.4rem/1 var(--f-display);color:#fff;font-variant-numeric:tabular-nums}
+.face .bpm small{font-size:1rem;color:var(--blaze);margin-inline-start:6px}
+.face svg{width:100%;height:60px}
+.face .ecg{stroke:var(--blaze);stroke-width:2.5;fill:none;stroke-dasharray:420;animation:ecg 1.6s linear infinite}
+@keyframes ecg{from{stroke-dashoffset:840}to{stroke-dashoffset:0}}
+.face .zones{display:flex;gap:4px}
+.face .zones i{flex:1;height:6px;border-radius:3px;background:#333}
+.face .zones i.on{background:var(--blaze)}
+
+.tk-wrap{overflow:hidden;padding-block:16px}
+.ticker{background:var(--blaze);color:#fff;transform:rotate(-2deg);margin-inline:-20px;overflow:hidden;white-space:nowrap;padding-block:12px}
+.ticker div{display:inline-block;animation:tick 26s linear infinite;font:800 1.4rem var(--f-display);font-style:italic}
+.ticker span{margin-inline:28px}
+.ticker span::after{content:"⚡";margin-inline-start:56px}
+@keyframes tick{to{transform:translateX(50%)}}
+
+section{padding-block:90px}
+.h2{font-family:var(--f-display);font-weight:800;font-style:italic;font-size:clamp(2.2rem,5.5vw,4rem);line-height:1.1;margin:0 0 14px;text-wrap:balance}
+.h2 span{color:var(--blaze)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid #333;border-bottom:2px solid #333;margin-top:40px}
+.stat{padding:30px 22px;border-inline-start:2px solid #333}
+.stat:first-child{border-inline-start:0}
+.stat .n{font:800 clamp(2.6rem,5vw,3.8rem)/1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat .n sup{font-size:.4em;color:var(--blaze);vertical-align:top}
+.stat p{color:var(--grey);margin:8px 0 0}
+
+.sports{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.sport{background:var(--asphalt);padding:28px;position:relative;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 88%,92% 100%,0 100%);transition:background .25s}
+.sport:hover{background:#292929}
+.sport .ico{width:52px;height:52px;display:grid;place-items:center;background:var(--blaze);margin-bottom:16px;clip-path:polygon(20% 0,100% 0,80% 100%,0 100%)}
+.sport .ico svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2}
+.sport h3{font:800 1.5rem var(--f-display);margin:0 0 6px}
+.sport p{margin:0;color:#c9c9c2}
+.sport .metric{position:absolute;inset-inline-end:18px;top:18px;font:800 2.6rem var(--f-display);color:#2c2c2c;font-style:italic}
+
+.split{background:var(--chalk);color:var(--track);clip-path:polygon(0 4%,100% 0,100% 96%,0 100%);padding-block:120px}
+.split .grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.split ul{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:14px}
+.split li{display:flex;gap:14px;align-items:baseline;font-size:1.1rem;font-weight:600}
+.split li::before{content:"";flex:none;width:14px;height:14px;background:var(--blaze);transform:skewX(-15deg)}
+.athlete{background:var(--track);color:var(--chalk);padding:34px;position:relative}
+.athlete blockquote{margin:0;font:600 1.35rem/1.6 var(--f-body)}
+.athlete cite{display:block;margin-top:16px;font-style:normal;color:var(--blaze);font-weight:700}
+.athlete .pb{display:flex;gap:24px;margin-top:22px;border-top:1px solid #333;padding-top:18px;flex-wrap:wrap}
+.athlete .pb b{display:block;font:800 1.8rem var(--f-display)}
+.athlete .pb small{color:var(--grey)}
+
+.buy{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+.opt h3{font:800 1.1rem var(--f-display);margin:26px 0 10px;color:var(--grey)}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0}
+.chip span{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--asphalt);border:2px solid #333;cursor:pointer;font-weight:700;transition:border-color .2s}
+.chip input:checked+span{border-color:var(--blaze);background:#2a1a12}
+.chip input:focus-visible+span{outline:3px solid var(--blaze);outline-offset:2px}
+.chip i{width:16px;height:16px;border-radius:50%;display:inline-block}
+.ofm{background:var(--asphalt);padding:30px;border-top:4px solid var(--blaze)}
+.ofm h3{font:800 1.8rem var(--f-display);margin:0 0 18px;font-style:italic}
+.ofm .f{margin-bottom:12px}
+.ofm label{display:block;font-weight:700;font-size:.92rem;margin-bottom:4px;color:#cfcfc8}
+.ofm input,.ofm select{width:100%;font:inherit;padding:12px 14px;background:var(--track);color:var(--chalk);border:2px solid #333}
+.ofm input:focus,.ofm select:focus{outline:none;border-color:var(--blaze)}
+.err{color:#ff8a65;font-size:.85rem;display:block;min-height:1.1em}
+.line{display:flex;justify-content:space-between;padding:6px 0;color:#cfcfc8}
+.line.t{border-top:2px solid #333;margin-top:8px;padding-top:14px;color:var(--chalk);font:800 1.5rem var(--f-display)}
+.okbox{text-align:center;padding:30px 0}
+.okbox .big{font:800 3rem var(--f-display);color:var(--blaze);font-style:italic}
+
+.faq details{border-bottom:2px solid #2c2c2c;padding:18px 0}
+.faq summary{cursor:pointer;font:700 1.15rem var(--f-body);list-style:none;display:flex;justify-content:space-between}
+.faq summary::after{content:"+";color:var(--blaze);font-weight:800;font-size:1.5rem;line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq p{color:var(--grey);margin:.5em 0 0}
+footer{border-top:2px solid #2c2c2c;padding-block:28px 110px;color:var(--grey);font-size:.9rem;text-align:center}
+.mob{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--track);border-top:3px solid var(--blaze);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:900px){
+  .hero,.buy,.split .grid{grid-template-columns:1fr}
+  .watch{order:-1;margin-block:30px 20px}
+  .board{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3){border-inline-start:0}
+  .stat:nth-child(n+3){border-top:2px solid #333}
+  .sports{grid-template-columns:1fr}
+  .mob{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap bar"><div class="logo">عدّاء<b>X</b></div><a class="go" href="#buy">اطلب الآن</a></header>
+<main>
+<section class="wrap hero" style="padding-block:40px 90px">
+  <div>
+    <h1>كل نبضة <em>محسوبة.</em></h1>
+    <p>ساعة GPS ثنائية التردد للجري والسباحة والدراجات. خرائط بدون إنترنت، ١٤ يوماً بطارية، وشاشة AMOLED تُقرأ تحت شمس الظهيرة.</p>
+    <div class="timer" aria-live="polite"><span class="lbl">ينتهي عرض الإطلاق خلال</span>
+      <div><b id="th">٠٠</b><small>ساعة</small></div><div><b id="tm">٠٠</b><small>دقيقة</small></div><div><b id="ts">٠٠</b><small>ثانية</small></div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <a class="go" href="#buy">اطلبها بـ ٤٩ د.ك</a>
+      <span style="color:var(--grey)"><s>٧٩ د.ك</s> · الدفع عند الاستلام</span>
+    </div>
+  </div>
+  <div class="watch" aria-hidden="true">
+    <div class="strap"></div>
+    <div class="face">
+      <div class="row"><span>الجري · المنطقة ٤</span><span id="clock">٠٦:١٥</span></div>
+      <div><div class="bpm"><span id="bpm">١٥٢</span><small>نبضة/د</small></div>
+      <svg viewBox="0 0 300 60" preserveAspectRatio="none"><path class="ecg" d="M0 34h60l10-6 8 6h20l8-30 10 52 8-22h30l10-8 10 8h40l8-30 10 52 8-22h30l10-8 10 8h20"/></svg></div>
+      <div class="zones"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+      <div class="row"><span>٧٫٤٢ كم</span><span>٤:٣٨ /كم</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="tk-wrap"><div class="ticker" aria-hidden="true"><div><span>GPS ثنائي التردد</span><span>١٤ يوماً بطارية</span><span>مقاومة ماء ١٠ ATM</span><span>قياس الأكسجين في الدم</span><span>خرائط بدون إنترنت</span><span>GPS ثنائي التردد</span><span>١٤ يوماً بطارية</span><span>مقاومة ماء ١٠ ATM</span><span>قياس الأكسجين في الدم</span><span>خرائط بدون إنترنت</span></div></div></div>
+
+<section class="wrap">
+  <h2 class="h2">أرقام تصنع <span>الفرق</span></h2>
+  <div class="board">
+    <div class="stat"><div class="n">١٤<sup>يوم</sup></div><p>بطارية بالاستخدام اليومي، و٣٠ ساعة بتشغيل GPS المستمر</p></div>
+    <div class="stat"><div class="n">±٣<sup>م</sup></div><p>دقة الموقع حتى بين أبراج مدينة الكويت</p></div>
+    <div class="stat"><div class="n">١٠٠<sup>ATM</sup></div><p>مقاومة ماء حتى ١٠٠ متر للسباحة والغوص الحر</p></div>
+    <div class="stat"><div class="n">١٢٠<sup>+</sup></div><p>وضع رياضي من البادل إلى الهايكنج</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <h2 class="h2">مصمّمة لرياضتك</h2>
+  <div class="sports">
+    <div class="sport"><span class="metric">KM</span><div class="ico"><svg viewBox="0 0 24 24"><circle cx="14" cy="4" r="2"/><path d="M6 21l4-6 3 2 1 4M8 11l3-3 4 2 3 3M11 8l-1 6"/></svg></div><h3>الجري</h3><p>إيقاع لحظي، ديناميكيات الخطوة، واقتراحات الاستشفاء بعد كل تمرين.</p></div>
+    <div class="sport"><span class="metric">SWOLF</span><div class="ico"><svg viewBox="0 0 24 24"><path d="M2 18c2 0 2-1.5 4-1.5S8 18 10 18s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M8 12l4-4 4 2M16 6a2 2 0 100-4 2 2 0 000 4"/></svg></div><h3>السباحة</h3><p>عدّ الأطوال تلقائياً في المسبح، وتتبّع المسار في البحر المفتوح.</p></div>
+    <div class="sport"><span class="metric">W</span><div class="ico"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M15 5h2l2 4M5.5 17L9 9h6l3.5 8M12 17l-3-8"/></svg></div><h3>الدراجات</h3><p>تتصل بحسّاسات القدرة والإيقاع، وتنبّهك عند المنعطفات الحادة.</p></div>
+  </div>
+</section>
+
+<section class="split">
+  <div class="wrap grid">
+    <div>
+      <h2 class="h2" style="color:var(--track)">مدرّبك الشخصي <span>على معصمك</span></h2>
+      <ul>
+        <li>خطط تدريب لماراثون الكويت تتكيّف مع نومك ونبضك</li>
+        <li>تنبيه بالحرارة والرطوبة قبل التمرين الخارجي صيفاً</li>
+        <li>مواقيت الصلاة واتجاه القبلة مدمجة</li>
+        <li>دفع لاسلكي وإشعارات واتساب بدون الجوال</li>
+      </ul>
+    </div>
+    <div class="athlete">
+      <blockquote>«حسّنت زمني في نصف الماراثون ٩ دقائق خلال ثلاثة أشهر. البطارية صمدت أسبوعين كاملين بالتمرين اليومي.»</blockquote>
+      <cite>عبدالعزيز · عدّاء هاوٍ، السالمية</cite>
+      <div class="pb"><div><b>١:٣٨:٢٢</b><small>نصف ماراثون</small></div><div><b>٤:٣٢</b><small>متوسط /كم</small></div><div><b>٥٢</b><small>VO2 Max</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="buy" class="wrap">
+  <h2 class="h2">جهّز ساعتك</h2>
+  <div class="buy">
+    <div class="opt">
+      <h3>اللون</h3>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="color" value="أسود كربوني" checked><span><i style="background:#111;border:1px solid #555"></i>أسود كربوني</span></label>
+        <label class="chip"><input type="radio" name="color" value="برتقالي سباق"><span><i style="background:#ff4f12"></i>برتقالي سباق</span></label>
+        <label class="chip"><input type="radio" name="color" value="رمادي صحراوي"><span><i style="background:#b9b2a2"></i>رمادي صحراوي</span></label>
+      </div>
+      <h3>المقاس</h3>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="size" value="٤٢ ملم" data-add="0"><span>٤٢ ملم</span></label>
+        <label class="chip"><input type="radio" name="size" value="٤٧ ملم" data-add="6" checked><span>٤٧ ملم (+٦ د.ك)</span></label>
+      </div>
+      <h3>إضافات</h3>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="addon" value="حزام نايلون إضافي" data-add="5"><span>حزام نايلون إضافي · ٥ د.ك</span></label>
+        <label class="chip"><input type="checkbox" name="addon" value="حزام صدر لقياس النبض" data-add="12"><span>حزام صدر للنبض · ١٢ د.ك</span></label>
+        <label class="chip"><input type="checkbox" name="addon" value="واقي شاشة" data-add="3"><span>واقي شاشة · ٣ د.ك</span></label>
+      </div>
+      <p style="color:var(--grey);margin-top:26px">ضمان سنتين من الوكيل · توصيل خلال ٢٤ ساعة داخل الكويت · استبدال المقاس مجاناً</p>
+    </div>
+    <form class="ofm" id="wform" novalidate>
+      <div id="wbody">
+        <h3>معلومات التوصيل</h3>
+        <div class="f"><label for="wn">الاسم</label><input id="wn" autocomplete="name"><span class="err" data-for="wn"></span></div>
+        <div class="f"><label for="wp">رقم الهاتف</label><input id="wp" type="tel" inputmode="tel" placeholder="٥٠٠٠٠٠٠٠ أو 9xxxxxxx"><span class="err" data-for="wp"></span></div>
+        <div class="f"><label for="wa">المحافظة</label><select id="wa"><option value="">اختر</option><option>العاصمة</option><option>حولي</option><option>الفروانية</option><option>الأحمدي</option><option>الجهراء</option><option>مبارك الكبير</option></select><span class="err" data-for="wa"></span></div>
+        <div class="f"><label for="wb">القطعة والشارع والمنزل</label><input id="wb"></div>
+        <div class="line"><span>عدّاء X</span><span>٤٩ د.ك</span></div>
+        <div class="line"><span>إضافات ومقاس</span><span id="wadd">٦ د.ك</span></div>
+        <div class="line"><span>التوصيل</span><span>مجاني</span></div>
+        <div class="line t"><span>الإجمالي</span><span id="wtot">٥٥ د.ك</span></div>
+        <button class="go" type="submit" style="width:100%;justify-content:center;margin-top:14px;padding:15px">أكّد الطلب · الدفع عند الاستلام</button>
+      </div>
+      <div class="okbox" id="wok" hidden><div class="big">انطلق!</div><p id="wmsg" style="color:#cfcfc8"></p></div>
+    </form>
+  </div>
+</section>
+
+<section class="wrap faq">
+  <h2 class="h2">أسئلة</h2>
+  <details><summary>هل تعمل مع الآيفون؟</summary><p>نعم، مع iOS 15 وأحدث وأندرويد 9 وأحدث عبر تطبيق «عدّاء».</p></details>
+  <details><summary>هل يمكن الرد على المكالمات؟</summary><p>تصلك الإشعارات وتستطيع رفض المكالمة أو الرد برسالة جاهزة. لا تحتوي على سمّاعة.</p></details>
+  <details><summary>ماذا لو لم يناسبني المقاس؟</summary><p>استبدال مجاني خلال ١٤ يوماً، يأتي المندوب ويأخذ القديمة ويسلّمك الجديدة.</p></details>
+  <details><summary>هل الدفع عند الاستلام متاح؟</summary><p>نعم، نقداً أو كي-نت عند الاستلام في جميع المحافظات.</p></details>
+</section>
+</main>
+<footer class="wrap">© عدّاء X · صفحة نموذجية: العلامة والأسعار والإحصاءات والآراء محتوى تجريبي.</footer>
+<div class="mob"><span><b style="font:800 1.4rem var(--f-display)" id="mtot">٥٥ د.ك</b></span><a class="go" href="#buy">اطلب الآن</a></div>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  const pad = n => ar(n).padStart(2,'٠');
+  // countdown to local midnight
+  function tick(){
+    const now = new Date(), end = new Date(now); end.setHours(24,0,0,0);
+    let s = Math.max(0, Math.floor((end - now)/1000));
+    document.getElementById('th').textContent = pad(Math.floor(s/3600));
+    document.getElementById('tm').textContent = pad(Math.floor(s%3600/60));
+    document.getElementById('ts').textContent = pad(s%60);
+  }
+  tick(); setInterval(tick, 1000);
+  // heart rate wander
+  let bpm = 152; const bEl = document.getElementById('bpm');
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => { bpm = Math.min(168, Math.max(144, bpm + Math.round(Math.random()*4-2))); bEl.textContent = ar(bpm); }, 900);
+  // pricing
+  const base = 49, f = document.getElementById('wform');
+  function total(){
+    let add = +document.querySelector('input[name=size]:checked').dataset.add;
+    document.querySelectorAll('input[name=addon]:checked').forEach(c => add += +c.dataset.add);
+    document.getElementById('wadd').textContent = ar(add) + ' د.ك';
+    document.getElementById('wtot').textContent = document.getElementById('mtot').textContent = ar(base + add) + ' د.ك';
+    return base + add;
+  }
+  document.querySelectorAll('.opt input').forEach(i => i.addEventListener('change', total)); total();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    const ph = v('wp').replace(/[\s-]/g,'').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    if (v('wn').length < 2) errs.wn = 'الاسم مطلوب';
+    if (!/^(\+?965)?[569]\d{7}$/.test(ph)) errs.wp = 'رقم كويتي من ٨ أرقام يبدأ بـ ٥ أو ٦ أو ٩';
+    if (!v('wa')) errs.wa = 'اختر المحافظة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const t = total();
+    const color = document.querySelector('input[name=color]:checked').value, size = document.querySelector('input[name=size]:checked').value;
+    document.getElementById('wbody').hidden = true; document.getElementById('wok').hidden = false;
+    document.getElementById('wmsg').textContent = 'عدّاء X ' + color + ' مقاس ' + size + ' بإجمالي ' + ar(t) + ' د.ك. يتصل بك المندوب على ' + v('wp') + ' خلال ٢٤ ساعة للتسليم في ' + v('wa') + '.';
+  });
+})();
+</script>
+</body>
+</html>

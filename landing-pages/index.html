@@ -1,0 +1,94 @@
+<title>متجر الصفحات العربية</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+/* Layout: a printer's specimen board — ten numbered swatch cards, each previewing its page's palette and type */
+:root{
+  --bg:#f4f2ee; --surface:#ffffff; --fg:#1d1b18; --muted:#6c675f; --line:#e1ddd5; --accent:#b4412b;
+  --f-display:"Noto Kufi Arabic",system-ui,sans-serif; --f-body:"Noto Naskh Arabic",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15140f;--surface:#1f1d18;--fg:#efebe3;--muted:#a39d92;--line:#34312a;--accent:#e2775f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15140f;--surface:#1f1d18;--fg:#efebe3;--muted:#a39d92;--line:#34312a;--accent:#e2775f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:1.05rem;line-height:1.8}
+.page{direction:rtl;max-width:1180px;margin-inline:auto;padding-block:48px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;border-bottom:2px solid var(--fg);padding-bottom:22px;margin-bottom:34px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,5vw,3.2rem);line-height:1.3;margin:0;text-wrap:balance}
+header p{margin:8px 0 0;color:var(--muted);max-width:60ch}
+.count{font-family:var(--f-display);font-weight:800;font-size:4rem;line-height:1;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:inherit;text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:var(--fg)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.prev{height:150px;position:relative;display:flex;align-items:flex-end;padding:16px 18px}
+.prev .word{font-size:2.3rem;line-height:1.2}
+.prev .sw{position:absolute;top:14px;inset-inline-start:16px;display:flex;gap:5px}
+.prev .sw i{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.6)}
+.prev .no{position:absolute;top:10px;inset-inline-end:16px;font-family:var(--f-display);font-weight:800;font-size:1rem;opacity:.7}
+.info{padding:16px 18px 18px;display:flex;flex-direction:column;gap:4px;flex:1}
+.info b{font-family:var(--f-display);font-weight:600;font-size:1.1rem}
+.info span{color:var(--muted);font-size:.95rem}
+.info .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.info .meta em{font-style:normal;font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:0 10px;color:var(--muted)}
+.note{margin-top:34px;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line);padding-top:18px}
+@media (max-width:560px){header{grid-template-columns:1fr}.count{display:none}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Alexandria:wght@800&family=Rakkas&family=Changa:wght@800&family=Lemonada:wght@700&family=Readex+Pro:wght@200&family=Reem+Kufi:wght@700&family=El+Messiri:wght@700&family=Lalezar&family=Handjet:wght@800&display=swap">
+
+<div class="page">
+  <header>
+    <div>
+      <h1>عشر صفحات هبوط عربية، عشرة أساليب</h1>
+      <p>كل صفحة تبيع منتجاً مختلفاً بهوية بصرية خاصة، مع نموذج طلب يعمل (الدفع عند الاستلام)، وأسئلة شائعة، وشريط طلب ثابت على الجوال. اضغط على أي بطاقة لفتح الصفحة.</p>
+    </div>
+    <div class="count">١٠</div>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="01-oud-perfume.html">
+      <div class="prev" style="background:#0d0a08;color:#ecd49a"><span class="no">٠١</span><span class="sw"><i style="background:#0d0a08"></i><i style="background:#5a1a17"></i><i style="background:#c9a45c"></i></span><span class="word" style="font-family:'Aref Ruqaa',serif;font-weight:700">دار العود</span></div>
+      <div class="info"><b>عطر عود ملكي</b><span>فخامة داكنة بزخارف ذهبية وخط الرقعة</span><div class="meta"><em>السعودية · ر.س</em><em>فاخر</em></div></div>
+    </a>
+    <a class="card" href="02-earbuds.html">
+      <div class="prev" style="background:#07090f;color:#e8edf7"><span class="no">٠٢</span><span class="sw"><i style="background:#07090f"></i><i style="background:#4d7cff"></i><i style="background:#ff7a59"></i></span><span class="word" style="font-family:Alexandria,sans-serif;font-weight:800">نبض برو</span></div>
+      <div class="info"><b>سماعات لاسلكية</b><span>تقنية داكنة، موجة صوت حيّة وشبكة بنتو</span><div class="meta"><em>الإمارات · د.إ</em><em>تقني</em></div></div>
+    </a>
+    <a class="card" href="03-sidr-honey.html">
+      <div class="prev" style="background:#f0a818;color:#2b1606"><span class="no">٠٣</span><span class="sw"><i style="background:#f0a818"></i><i style="background:#2b1606"></i><i style="background:#fff3d1"></i></span><span class="word" style="font-family:Rakkas,serif">سدر الجبل</span></div>
+      <div class="info"><b>عسل سدر جبلي</b><span>ملصق تراثي، خلايا سداسية وشهادة تحليل</span><div class="meta"><em>السعودية · ر.س</em><em>تراثي عضوي</em></div></div>
+    </a>
+    <a class="card" href="04-smartwatch.html">
+      <div class="prev" style="background:#141414;color:#f5f5f0"><span class="no">٠٤</span><span class="sw"><i style="background:#141414"></i><i style="background:#ff4f12"></i><i style="background:#f5f5f0"></i></span><span class="word" style="font-family:Changa,sans-serif;font-weight:800;font-style:italic">عدّاء<span style="color:#ff4f12">X</span></span></div>
+      <div class="info"><b>ساعة ذكية رياضية</b><span>طاقة السباق، خطوط مائلة ونبض حيّ</span><div class="meta"><em>الكويت · د.ك</em><em>رياضي</em></div></div>
+    </a>
+    <a class="card" href="05-kids-blocks.html">
+      <div class="prev" style="background:#bfe6ff;color:#23204a"><span class="no">٠٥</span><span class="sw"><i style="background:#ff6b8b"></i><i style="background:#3ecf9b"></i><i style="background:#ffd23f"></i></span><span class="word" style="font-family:Lemonada,cursive;font-weight:700">حروفي</span></div>
+      <div class="info"><b>مكعبات تعليمية للأطفال</b><span>مرح بألوان الحلوى ومكعبات تفاعلية</span><div class="meta"><em>مصر · ج.م</em><em>مرح</em></div></div>
+    </a>
+    <a class="card" href="06-skin-serum.html">
+      <div class="prev" style="background:#f3dcd4;color:#2e2523"><span class="no">٠٦</span><span class="sw"><i style="background:#faf7f5"></i><i style="background:#c9877a"></i><i style="background:#2e2523"></i></span><span class="word" style="font-family:'Readex Pro',sans-serif;font-weight:200">صفاء</span></div>
+      <div class="info"><b>سيروم للبشرة</b><span>بساطة طبية، تركيزات شفافة وقبل وبعد</span><div class="meta"><em>قطر · ر.ق</em><em>هادئ</em></div></div>
+    </a>
+    <a class="card" href="07-specialty-coffee.html">
+      <div class="prev" style="background:#ecebe4;color:#111110;border-bottom:3px solid #111110"><span class="no">٠٧</span><span class="sw"><i style="background:#111110"></i><i style="background:#e01b0c"></i><i style="background:#ecebe4;box-shadow:0 0 0 1.5px #111"></i></span><span class="word" style="font-family:'Reem Kufi',sans-serif;font-weight:700;font-size:3.2rem">٣٧<span style="color:#e01b0c">.</span></span></div>
+      <div class="info"><b>قهوة مختصة</b><span>طباعة سويسرية خام وشبكة مكشوفة</span><div class="meta"><em>السعودية · ر.س</em><em>بروتاليست</em></div></div>
+    </a>
+    <a class="card" href="08-travel-backpack.html">
+      <div class="prev" style="background:#2f3a22;color:#f7f3e8"><span class="no">٠٨</span><span class="sw"><i style="background:#2f3a22"></i><i style="background:#e9e1cc"></i><i style="background:#ff6a13"></i></span><span class="word" style="font-family:'El Messiri',serif;font-weight:700">رحّال ٤٠</span></div>
+      <div class="info"><b>حقيبة ظهر للسفر</b><span>خريطة طبوغرافية ومسار رحلة تفاعلي</span><div class="meta"><em>الأردن · د.أ</em><em>مغامرة</em></div></div>
+    </a>
+    <a class="card" href="09-portable-blender.html">
+      <div class="prev" style="background:linear-gradient(135deg,#ff3d7f,#ffb347);color:#1d0b2a"><span class="no">٠٩</span><span class="sw"><i style="background:#ff3d7f"></i><i style="background:#ff9f1c"></i><i style="background:#19b36b"></i></span><span class="word" style="font-family:Lalezar,sans-serif">ميكسي</span></div>
+      <div class="info"><b>خلاط محمول</b><span>بوب ملوّن، النكهة تغيّر ألوان الصفحة</span><div class="meta"><em>المغرب · د.م</em><em>حيوي</em></div></div>
+    </a>
+    <a class="card" href="10-online-course.html">
+      <div class="prev" style="background:#0c0a06;color:#ffb000;text-shadow:0 0 12px rgba(255,176,0,.6)"><span class="no">١٠</span><span class="sw"><i style="background:#0c0a06;box-shadow:0 0 0 1.5px #a67300"></i><i style="background:#ffb000"></i><i style="background:#ff5f3a"></i></span><span class="word" style="font-family:Handjet,monospace;font-weight:800;font-size:2.8rem">كود العربي_</span></div>
+      <div class="info"><b>دورة برمجة أونلاين</b><span>شاشة طرفية كهرمانية وحجز مقعد</span><div class="meta"><em>الوطن العربي · $</em><em>طرفية</em></div></div>
+    </a>
+  </div>
+
+  <p class="note">كل العلامات التجارية والأسعار والآراء ونتائج الاختبارات في هذه الصفحات محتوى تجريبي لأغراض العرض. نماذج الطلب تعمل في المتصفح ولا ترسل بيانات إلى أي خادم؛ اربطها بنظام الطلبات لديك قبل الاستخدام الفعلي.</p>
+</div>

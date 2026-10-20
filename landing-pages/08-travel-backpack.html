@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رحّال ٤٠</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Almarai:wght@300;400;700;800&display=swap">
+<style>
+/* Layout: a trail map — generated contour lines behind everything, the pack shown as an annotated field diagram with hotspots, a route-style timeline */
+:root{
+  --olive:#2f3a22; --moss:#4c5b35; --sand:#e9e1cc; --dune:#d6c7a2; --signal:#ff6a13; --night:#1b2115; --chalk:#f7f3e8;
+  --f-display:"El Messiri","Almarai",serif; --f-body:"Almarai",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--sand);color:var(--night);font-family:var(--f-body);font-size:1.02rem;line-height:1.8}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+.hero-band{position:relative;background:var(--olive);color:var(--chalk);overflow:hidden}
+#topo{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
+.top{position:relative;display:flex;justify-content:space-between;align-items:center;padding-block:20px}
+.logo{font-family:var(--f-display);font-weight:700;font-size:1.6rem;display:flex;align-items:center;gap:10px}
+.logo svg{width:30px;height:30px}
+.btn{display:inline-flex;align-items:center;gap:10px;font:800 1rem var(--f-body);background:var(--signal);color:#fff;border:0;border-radius:6px;padding:14px 28px;cursor:pointer;text-decoration:none;transition:transform .2s,background .2s}
+.btn:hover{background:#e85a05;transform:translateY(-2px)}
+.btn.out{background:transparent;border:2px solid currentColor;color:inherit}
+.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding-block:40px 90px}
+.coords{font-size:.85rem;letter-spacing:.06em;color:var(--dune);display:flex;gap:16px;flex-wrap:wrap}
+.coords span{border:1px solid rgba(214,199,162,.4);padding:2px 10px;border-radius:4px;direction:ltr;unicode-bidi:isolate}
+.hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.8rem,7vw,5.4rem);line-height:1.2;margin:18px 0 14px;text-wrap:balance}
+.hero h1 span{color:var(--signal)}
+.hero p{font-size:1.15rem;color:#dcd4bd;max-width:40ch;margin:0 0 26px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.cta-row .pr{font-family:var(--f-display);font-size:1.6rem}
+.cta-row s{color:var(--dune);font-size:1rem}
+.diagram{position:relative;max-width:440px;width:100%;margin-inline:auto}
+.diagram svg{width:100%;height:auto;display:block}
+.hot{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--signal);color:#fff;border:3px solid var(--chalk);font:800 .95rem var(--f-body);cursor:pointer;display:grid;place-items:center;padding:0;transform:translate(50%,-50%)}
+.hot::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--signal);animation:pulse 2s ease-out infinite}
+.hot[aria-expanded=true]{background:var(--chalk);color:var(--olive)}
+@keyframes pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.5);opacity:0}}
+.callout{margin-top:14px;background:rgba(27,33,21,.8);border:1px solid rgba(214,199,162,.3);border-radius:10px;padding:14px 18px;min-height:88px}
+.callout b{font-family:var(--f-display);color:var(--signal);font-size:1.15rem}
+.callout p{margin:2px 0 0;color:#dcd4bd;font-size:.95rem}
+
+section{padding-block:84px}
+.h2{font-family:var(--f-display);font-weight:700;font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.3;margin:0 0 10px;text-wrap:balance}
+.lead{max-width:52ch;margin:0 0 40px;color:#4a4a38}
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:2px solid var(--night);border-radius:10px;overflow:hidden;background:var(--chalk)}
+.specs div{padding:24px 20px;border-inline-start:2px solid var(--night)}
+.specs div:first-child{border-inline-start:0}
+.specs .v{font-family:var(--f-display);font-weight:700;font-size:2.4rem;line-height:1}
+.specs .v small{font-size:1rem;font-family:var(--f-body);color:var(--moss);margin-inline-start:4px}
+.specs .k{color:#5d5d48;font-size:.92rem;margin-top:6px}
+
+.route{position:relative;display:grid;gap:0;margin-top:20px}
+.route::before{content:"";position:absolute;inset-inline-start:23px;top:20px;bottom:20px;border-inline-start:3px dashed var(--moss)}
+.stop{position:relative;display:grid;grid-template-columns:50px 1fr auto;gap:20px;align-items:start;padding:18px 0}
+.stop .pin{width:50px;height:50px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--olive);display:grid;place-items:center;z-index:1}
+.stop .pin span{transform:rotate(45deg);color:var(--chalk);font-family:var(--f-display);font-weight:700}
+.stop:last-child .pin{background:var(--signal)}
+.stop h3{font-family:var(--f-display);margin:4px 0 2px;font-size:1.35rem}
+.stop p{margin:0;color:#4a4a38}
+.stop .km{font-size:.85rem;color:var(--moss);white-space:nowrap;padding-top:10px}
+
+.dark{background:var(--night);color:var(--chalk)}
+.dark .lead{color:#c9c1a9}
+.mat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.mat div{border:1px solid rgba(214,199,162,.25);border-radius:12px;padding:26px;background:rgba(76,91,53,.25)}
+.mat h3{font-family:var(--f-display);color:var(--signal);font-size:1.3rem;margin:0 0 6px}
+.mat p{margin:0;color:#c9c1a9}
+.tests{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.tests span{border:1px solid var(--signal);color:var(--signal);border-radius:999px;padding:4px 14px;font-size:.9rem}
+
+.trail{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.log{background:var(--chalk);border-radius:12px;padding:24px;border-top:6px solid var(--moss)}
+.log .where{font-size:.85rem;color:var(--moss);font-weight:700}
+.log p{margin:8px 0;font-size:1.02rem}
+.log small{color:#5d5d48}
+
+.buy{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.colors{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.col{position:relative;cursor:pointer}
+.col input{position:absolute;opacity:0}
+.col span{display:flex;align-items:center;gap:10px;padding:10px 16px;border:2px solid var(--dune);border-radius:8px;background:var(--chalk);font-weight:700}
+.col i{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.2)}
+.col input:checked+span{border-color:var(--night)}
+.col input:focus-visible+span{outline:3px solid var(--signal);outline-offset:2px}
+.kit{display:grid;gap:10px}
+.kit label{display:flex;align-items:center;gap:12px;background:var(--chalk);border:2px solid var(--dune);border-radius:8px;padding:12px 16px;cursor:pointer}
+.kit label:has(input:checked){border-color:var(--moss)}
+.kit input{accent-color:var(--moss);width:18px;height:18px}
+.kit .p{margin-inline-start:auto;font-weight:700;white-space:nowrap}
+.formbox{background:var(--olive);color:var(--chalk);border-radius:14px;padding:28px}
+.formbox h3{font-family:var(--f-display);font-size:1.7rem;margin:0 0 14px}
+.fi{margin-bottom:12px}
+.fi label{display:block;font-size:.9rem;color:var(--dune);margin-bottom:4px}
+.fi input,.fi select{width:100%;font:inherit;padding:12px 14px;border-radius:8px;border:2px solid transparent;background:var(--chalk);color:var(--night)}
+.fi input:focus,.fi select:focus{outline:none;border-color:var(--signal)}
+.err{color:#ffb38a;font-size:.85rem;display:block;min-height:1.1em}
+.sum{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--dune);padding-top:14px;margin:8px 0 16px}
+.sum b{font-family:var(--f-display);font-size:1.9rem}
+.ok{text-align:center;padding:30px 0}
+.ok h3{color:var(--signal)}
+
+.faq details{border-bottom:2px solid var(--dune);padding:18px 0}
+.faq summary{cursor:pointer;font-weight:800;font-size:1.1rem}
+.faq p{margin:.5em 0 0;color:#4a4a38}
+footer{background:var(--olive);color:var(--dune);text-align:center;font-size:.9rem;padding-block:26px 110px}
+.mbar{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--night);color:var(--chalk);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mbar .btn{padding:10px 22px}
+@media (max-width:900px){
+  .hero,.buy{grid-template-columns:1fr}
+  .specs{grid-template-columns:1fr 1fr}
+  .specs div:nth-child(3){border-inline-start:0}
+  .specs div:nth-child(n+3){border-top:2px solid var(--night)}
+  .mat,.trail{grid-template-columns:1fr}
+  .stop{grid-template-columns:50px 1fr}
+  .stop .km{grid-column:2;padding-top:0}
+  .mbar{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="hero-band">
+  <canvas id="topo" aria-hidden="true"></canvas>
+  <header class="wrap top">
+    <div class="logo"><svg viewBox="0 0 30 30" aria-hidden="true"><path d="M2 26L12 8l5 8 3-4 8 14z" fill="#ff6a13"/></svg>رحّال</div>
+    <a class="btn out" href="#buy">اطلب حقيبتك</a>
+  </header>
+  <section class="wrap hero" style="padding-block:40px 90px">
+    <div>
+      <div class="coords"><span>29.57°N 35.42°E</span><span>وادي رم · ١٬٧٥٠ م</span></div>
+      <h1>حقيبة واحدة <span>لكل الطرق</span></h1>
+      <p>٤٠ لتراً تتّسع لأسبوع كامل، وتدخل مقصورة الطائرة. صُمّمت مع أدلّاء درب الأردن واختُبرت على ٦٥٠ كيلومتراً من الشمال إلى العقبة.</p>
+      <div class="cta-row"><a class="btn" href="#buy">اطلبها بـ ٨٥ د.أ</a><span class="pr"><s>١١٩ د.أ</s></span></div>
+    </div>
+    <div>
+      <div class="diagram" id="diagram">
+        <svg viewBox="0 0 300 380" aria-hidden="true">
+          <defs><linearGradient id="fab" x1="0" x2="1"><stop offset="0" stop-color="#3d4a2c"/><stop offset=".5" stop-color="#5a6b40"/><stop offset="1" stop-color="#3a4629"/></linearGradient></defs>
+          <path d="M110 30c0-16 80-16 80 0v20h-80z" fill="none" stroke="#d6c7a2" stroke-width="8" stroke-linecap="round"/>
+          <rect x="60" y="46" width="180" height="300" rx="46" fill="url(#fab)" stroke="#1b2115" stroke-width="3"/>
+          <path d="M60 120h180" stroke="#1b2115" stroke-width="3"/>
+          <path d="M80 70c40-14 100-14 140 0" fill="none" stroke="#e9e1cc" stroke-width="3" stroke-dasharray="6 5"/>
+          <rect x="90" y="160" width="120" height="120" rx="20" fill="#4c5b35" stroke="#1b2115" stroke-width="3"/>
+          <path d="M100 176h100" stroke="#ff6a13" stroke-width="4" stroke-linecap="round"/>
+          <rect x="40" y="200" width="22" height="90" rx="10" fill="#2f3a22" stroke="#1b2115" stroke-width="3"/>
+          <rect x="238" y="200" width="22" height="90" rx="10" fill="#2f3a22" stroke="#1b2115" stroke-width="3"/>
+          <path d="M75 300h150" stroke="#1b2115" stroke-width="10" stroke-linecap="round"/>
+          <rect x="138" y="292" width="24" height="16" rx="3" fill="#ff6a13"/>
+          <path d="M70 140l-14 0M230 140l14 0" stroke="#d6c7a2" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+        <button class="hot" style="top:20%;right:50%" data-i="0" aria-expanded="true" aria-label="الجيب العلوي">١</button>
+        <button class="hot" style="top:50%;right:30%" data-i="1" aria-expanded="false" aria-label="الجيب الأمامي">٢</button>
+        <button class="hot" style="top:63%;right:84%" data-i="2" aria-expanded="false" aria-label="الجيوب الجانبية">٣</button>
+        <button class="hot" style="top:79%;right:50%" data-i="3" aria-expanded="false" aria-label="حزام الخصر">٤</button>
+      </div>
+      <div class="callout" id="callout" aria-live="polite"><b>جيب علوي مقاوم للماء</b><p>للجواز والمحفظة والشاحن. سحّاب YKK محكم ضد المطر والغبار.</p></div>
+    </div>
+  </section>
+</div>
+
+<main>
+<section class="wrap">
+  <h2 class="h2">الأرقام التي تهمّ على الطريق</h2>
+  <p class="lead">كل غرام محسوب. خفيفة بما يكفي ليوم المشي، قوية بما يكفي لعشر سنوات.</p>
+  <div class="specs">
+    <div><div class="v">٤٠<small>لتر</small></div><div class="k">قابلة للتوسعة إلى ٤٥ لتراً</div></div>
+    <div><div class="v">١٫٣<small>كغ</small></div><div class="k">وزن الحقيبة فارغة</div></div>
+    <div><div class="v">٥٥×٣٥×٢٠</div><div class="k">سم · مقاس الحقيبة اليدوية للطيران</div></div>
+    <div><div class="v">١٠<small>سنوات</small></div><div class="k">ضمان ضد عيوب الصناعة</div></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <h2 class="h2">مسار يوم واحد معها</h2>
+  <p class="lead">من المطار إلى المخيّم، دون أن تغيّر حقيبتك.</p>
+  <div class="route">
+    <div class="stop"><div class="pin"><span>١</span></div><div><h3>مطار الملكة علياء</h3><p>تفتح بالكامل مثل الحقيبة، والجهاز اللوحي في جيب مبطّن مستقل للتفتيش.</p></div><span class="km">٠ كم</span></div>
+    <div class="stop"><div class="pin"><span>٢</span></div><div><h3>شوارع البتراء</h3><p>اسحب الأحزمة الجانبية لتصبح الحقيبة أنحف، والجيب الخلفي المخفي يحمي محفظتك في الزحام.</p></div><span class="km">٢٣٠ كم</span></div>
+    <div class="stop"><div class="pin"><span>٣</span></div><div><h3>صعود جبل الدير</h3><p>حزام الخصر ينقل ٧٠٪ من الوزن إلى الورك، والظهر الشبكي يترك الهواء يمرّ.</p></div><span class="km">٨٠٠ درجة</span></div>
+    <div class="stop"><div class="pin"><span>٤</span></div><div><h3>مخيّم وادي رم</h3><p>علّق الحقيبة من الحلقة العلوية، وأخرج غطاء المطر من قاعها عند هبوب العاصفة الرملية.</p></div><span class="km">١٠٠ كم</span></div>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap">
+    <h2 class="h2">مواد اختُبرت في أقسى الظروف</h2>
+    <p class="lead">لا نطلق أي منتج قبل ٦ أشهر من الاستخدام الميداني مع أدلّاء محترفين.</p>
+    <div class="mat">
+      <div><h3>نايلون ريب-ستوب ٤٢٠D</h3><p>مقاوم للتمزّق، ومعالج بطبقة طاردة للماء خالية من الفلور.</p></div>
+      <div><h3>إطار ظهر ألمنيوم</h3><p>قضيب واحد قابل للنزع يوزّع الحمل دون أن يزيد الوزن.</p></div>
+      <div><h3>قاع مقوّى بالـ TPU</h3><p>اجلس عليه على الصخر أو ضعه على أرض المطار المبللة.</p></div>
+    </div>
+    <div class="tests"><span>اختبار ٥٠ ألف فتحة سحّاب</span><span>تحميل ٤٠ كغ لمدة ٧٢ ساعة</span><span>مطر صناعي ٣٠ دقيقة</span><span>حرارة ٥٠° في صحراء رم</span></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h2">من دفاتر الرحّالة</h2>
+  <div class="trail" style="margin-top:30px">
+    <div class="log"><div class="where">درب الأردن · ٣٦ يوماً</div><p>«حملتها من أم قيس حتى العقبة. لا تمزّق، ولا ألم في الكتف رغم ١٤ كيلو فيها.»</p><small>يزن · عمّان</small></div>
+    <div class="log"><div class="where">إسطنبول · ١٠ أيام</div><p>«سافرت بها فقط، بدون حقيبة شحن. وفّرت الوقت والمال في المطار.»</p><small>دانة · إربد</small></div>
+    <div class="log"><div class="where">رحلة عمل أسبوعية</div><p>«جيب اللابتوب منفصل ويفتح من الجنب. أستخدمها كل أسبوع منذ سنة.»</p><small>كريم · الزرقاء</small></div>
+  </div>
+</section>
+
+<section id="buy" class="wrap" style="padding-top:0">
+  <h2 class="h2">جهّز حقيبتك</h2>
+  <p class="lead">التوصيل خلال ٢٤ إلى ٤٨ ساعة لكل المحافظات. افحص الحقيبة ثم ادفع للمندوب.</p>
+  <form class="buy" id="bform" novalidate>
+    <div>
+      <div class="colors" role="radiogroup" aria-label="اللون">
+        <label class="col"><input type="radio" name="color" value="زيتوني" checked><span><i style="background:#4c5b35"></i>زيتوني</span></label>
+        <label class="col"><input type="radio" name="color" value="رملي"><span><i style="background:#c8b17e"></i>رملي</span></label>
+        <label class="col"><input type="radio" name="color" value="أسود"><span><i style="background:#1b1b1b"></i>أسود</span></label>
+        <label class="col"><input type="radio" name="color" value="برتقالي إنقاذ"><span><i style="background:#ff6a13"></i>برتقالي إنقاذ</span></label>
+      </div>
+      <div class="kit">
+        <label><input type="checkbox" checked disabled>حقيبة رحّال ٤٠<span class="p">٨٥ د.أ</span></label>
+        <label><input type="checkbox" name="add" value="مكعبات تنظيم (٣ قطع)" data-p="12">مكعبات تنظيم الملابس (٣ قطع)<span class="p">+١٢ د.أ</span></label>
+        <label><input type="checkbox" name="add" value="حقيبة كتف قابلة للطي" data-p="9">حقيبة كتف قابلة للطي<span class="p">+٩ د.أ</span></label>
+        <label><input type="checkbox" name="add" value="غطاء مطر إضافي فسفوري" data-p="5">غطاء مطر فسفوري إضافي<span class="p">+٥ د.أ</span></label>
+      </div>
+    </div>
+    <div class="formbox">
+      <div id="bbody">
+        <h3>عنوان التوصيل</h3>
+        <div class="fi"><label for="bn">الاسم</label><input id="bn" autocomplete="name"><span class="err" data-for="bn"></span></div>
+        <div class="fi"><label for="bp">رقم الهاتف</label><input id="bp" type="tel" inputmode="tel" placeholder="07xxxxxxxx"><span class="err" data-for="bp"></span></div>
+        <div class="fi"><label for="bg">المحافظة</label><select id="bg"><option value="">اختر</option><option>عمّان</option><option>إربد</option><option>الزرقاء</option><option>البلقاء</option><option>مادبا</option><option>الكرك</option><option>العقبة</option><option>جرش</option><option>عجلون</option><option>المفرق</option><option>معان</option><option>الطفيلة</option></select><span class="err" data-for="bg"></span></div>
+        <div class="fi"><label for="ba">المنطقة والشارع</label><input id="ba"></div>
+        <div class="sum"><span>الإجمالي · التوصيل مجاني</span><b id="btot">٨٥ د.أ</b></div>
+        <button class="btn" type="submit" style="width:100%;justify-content:center">أكّد الطلب</button>
+      </div>
+      <div class="ok" id="bok" hidden><h3 style="font-family:var(--f-display);font-size:2rem;margin:0">الطريق بانتظارك</h3><p id="bmsg" style="color:#dcd4bd"></p></div>
+    </div>
+  </form>
+</section>
+
+<section class="wrap faq" style="padding-top:0">
+  <h2 class="h2">أسئلة</h2>
+  <details><summary>هل تُقبل كحقيبة يد في كل الطيران؟</summary><p>مقاسها ٥٥×٣٥×٢٠ سم يطابق الملكية الأردنية ومعظم شركات الطيران. على الطيران الاقتصادي جداً اضغط الأحزمة لتصل إلى ٤٠ سم.</p></details>
+  <details><summary>هل تناسب الأشخاص قصار القامة؟</summary><p>طول الظهر قابل للتعديل من ٤٠ إلى ٥٢ سم، ويوجد حزام صدر بمستويين.</p></details>
+  <details><summary>ماذا يشمل الضمان؟</summary><p>أي عيب في الخياطة أو السحّابات أو الأبازيم لمدة ١٠ سنوات، نصلحها أو نستبدلها مجاناً.</p></details>
+</section>
+</main>
+<footer><div class="wrap">© رحّال للمعدات · صفحة نموذجية: العلامة والأسعار والآراء محتوى تجريبي.</div></footer>
+<div class="mbar"><b id="mtot" style="font-family:var(--f-display);font-size:1.4rem">٨٥ د.أ</b><a class="btn" href="#buy">اطلب الآن</a></div>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  // contour map: marching squares over a sum of hills
+  const cv = document.getElementById('topo'), ctx = cv.getContext('2d');
+  function topo(){
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    const W = cv.width, H = cv.height, s = 10 * dpr, cols = Math.ceil(W/s)+1, rows = Math.ceil(H/s)+1;
+    const hills = [[.25,.3,.28],[.7,.65,.32],[.85,.2,.2],[.45,.85,.22],[.1,.75,.18]];
+    const f = (x,y) => hills.reduce((a,[hx,hy,hr]) => a + Math.exp(-(((x/W-hx)**2 + (y/H-hy)**2) / (hr*hr))), 0) + .08*Math.sin(x/(70*dpr)) * Math.cos(y/(50*dpr));
+    const g = []; for (let j=0;j<rows;j++){ g[j]=[]; for (let i=0;i<cols;i++) g[j][i] = f(i*s,j*s); }
+    ctx.strokeStyle = '#d6c7a2'; ctx.lineWidth = dpr;
+    for (let lv = .1; lv < 1.4; lv += .08){
+      ctx.globalAlpha = Math.abs((lv*100)%40) < 8 ? 1 : .55;
+      ctx.beginPath();
+      for (let j=0;j<rows-1;j++) for (let i=0;i<cols-1;i++){
+        const a=g[j][i], b=g[j][i+1], c=g[j+1][i+1], d=g[j+1][i];
+        const idx = (a>lv)*8 + (b>lv)*4 + (c>lv)*2 + (d>lv);
+        if (!idx || idx===15) continue;
+        const x=i*s, y=j*s, L=(p,q)=>(lv-p)/(q-p);
+        const T=[x+s*L(a,b),y], R=[x+s,y+s*L(b,c)], B=[x+s*L(d,c),y+s], Lf=[x,y+s*L(a,d)];
+        const seg = {1:[Lf,B],2:[B,R],3:[Lf,R],4:[T,R],5:[Lf,T,B,R],6:[T,B],7:[Lf,T],8:[Lf,T],9:[T,B],10:[T,R,Lf,B],11:[T,R],12:[Lf,R],13:[B,R],14:[Lf,B]}[idx];
+        for (let k=0;k<seg.length;k+=2){ ctx.moveTo(...seg[k]); ctx.lineTo(...seg[k+1]); }
+      }
+      ctx.stroke();
+    }
+  }
+  topo(); let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(topo, 200); });
+
+  const info = [['جيب علوي مقاوم للماء','للجواز والمحفظة والشاحن. سحّاب YKK محكم ضد المطر والغبار.'],['جيب أمامي سريع الوصول','لزجاجة الماء والخريطة والوجبة الخفيفة، دون فتح الحقيبة الرئيسية.'],['أحزمة ضغط جانبية','تشدّ الحمولة لتثبت على ظهرك، وتحمل حصيرة النوم أو العصا.'],['حزام خصر مبطّن','ينقل ٧٠٪ من الوزن إلى الورك، وفيه جيبان للجوال والمفاتيح.']];
+  const hots = document.querySelectorAll('.hot'), co = document.getElementById('callout');
+  hots.forEach(h => h.addEventListener('click', () => {
+    hots.forEach(x => x.setAttribute('aria-expanded', x === h));
+    const [t,d] = info[+h.dataset.i]; co.innerHTML = '<b>' + t + '</b><p>' + d + '</p>';
+  }));
+
+  const f = document.getElementById('bform');
+  function calc(){ let t = 85; f.querySelectorAll('input[name=add]:checked').forEach(c => t += +c.dataset.p); document.getElementById('btot').textContent = document.getElementById('mtot').textContent = ar(t) + ' د.أ'; return t; }
+  f.addEventListener('change', calc); calc();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('bn').length < 2) errs.bn = 'الاسم مطلوب';
+    if (!/^(\+?962|0)7[789]\d{7}$/.test(v('bp').replace(/[\s-]/g,''))) errs.bp = 'رقم أردني يبدأ بـ 077 أو 078 أو 079';
+    if (!v('bg')) errs.bg = 'اختر المحافظة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const t = calc(), adds = [...f.querySelectorAll('input[name=add]:checked')].map(c => c.value);
+    document.getElementById('bbody').hidden = true; document.getElementById('bok').hidden = false;
+    document.getElementById('bmsg').textContent = 'رحّال ٤٠ باللون ' + f.querySelector('input[name=color]:checked').value + (adds.length ? ' مع ' + adds.join(' و') : '') + '. الإجمالي ' + ar(t) + ' د.أ. يتصل بك المندوب على ' + v('bp') + ' قبل الوصول إلى ' + v('bg') + '.';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>معسكر كود العربي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an amber-phosphor terminal session — the page is one long shell, sections are commands and their output */
+:root{
+  --crt:#0c0a06; --panel:#15110a; --amber:#ffb000; --amber-dim:#a67300; --amber-faint:rgba(255,176,0,.14); --hot:#ff5f3a; --text:#ffd98a;
+  --f-display:"Handjet","IBM Plex Sans Arabic",monospace; --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--crt);color:var(--text);font-family:var(--f-body);font-size:1.02rem;line-height:1.8;text-shadow:0 0 6px rgba(255,176,0,.25)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.wrap{max-width:1100px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px dashed var(--amber);outline-offset:3px}
+.mono{font-family:var(--f-mono)}
+.bar{display:flex;justify-content:space-between;align-items:center;padding-block:14px;border-bottom:1px dashed var(--amber-dim);font-family:var(--f-mono);font-size:.85rem;color:var(--amber-dim);gap:12px}
+.bar .id{color:var(--amber)}
+.key{display:inline-flex;align-items:center;gap:10px;font:600 1rem var(--f-body);background:var(--amber);color:var(--crt);border:0;padding:12px 24px;cursor:pointer;text-decoration:none;text-shadow:none;box-shadow:0 0 20px rgba(255,176,0,.35);transition:box-shadow .2s,transform .2s}
+.key:hover{box-shadow:0 0 34px rgba(255,176,0,.6);transform:translateY(-1px)}
+.key.line{background:transparent;color:var(--amber);border:1px solid var(--amber);box-shadow:none}
+.key kbd{font-family:var(--f-mono);font-size:.8rem;border:1px solid currentColor;padding:0 6px;opacity:.75}
+
+.hero{padding-block:56px 40px}
+.prompt{font-family:var(--f-mono);color:var(--amber-dim);font-size:.95rem;direction:ltr;text-align:right}
+.prompt b{color:var(--amber);font-weight:400}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(3.2rem,10vw,7.4rem);line-height:1;margin:18px 0 10px;color:var(--amber);text-shadow:0 0 18px rgba(255,176,0,.55),0 0 2px var(--amber);text-wrap:balance}
+.typed{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,4vw,2.6rem);min-height:1.4em;color:var(--text)}
+.caret{display:inline-block;width:.55em;height:1em;background:var(--amber);vertical-align:-.12em;margin-inline-start:4px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p{max-width:56ch;font-size:1.12rem;margin:20px 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;border:1px solid var(--amber-dim)}
+.meta div{padding:16px 18px;border-inline-start:1px solid var(--amber-dim)}
+.meta div:first-child{border-inline-start:0}
+.meta small{display:block;font-family:var(--f-mono);font-size:.75rem;color:var(--amber-dim);text-transform:uppercase}
+.meta b{font-family:var(--f-display);font-size:1.8rem;font-weight:600;color:var(--amber)}
+
+section{padding-block:60px;border-top:1px dashed var(--amber-dim)}
+.cmd{font-family:var(--f-mono);color:var(--amber-dim);font-size:.9rem;margin-bottom:8px;direction:ltr;text-align:right}
+.cmd b{color:var(--amber);font-weight:400}
+.h2{font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.1;color:var(--amber);margin:0 0 14px;text-wrap:balance}
+.out{color:var(--text);max-width:60ch;margin:0 0 32px}
+
+.out-list{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--amber-dim)}
+.out-list div{padding:20px 22px;border-bottom:1px solid var(--amber-dim)}
+.out-list div:nth-child(even){border-inline-start:1px solid var(--amber-dim)}
+.out-list div:nth-last-child(-n+2){border-bottom:0}
+.out-list b{display:block;font-family:var(--f-display);font-size:1.5rem;font-weight:600;color:var(--amber)}
+.ok{color:var(--amber);font-family:var(--f-mono);margin-inline-end:8px}
+
+.tree{font-family:var(--f-mono);font-size:.95rem;border:1px solid var(--amber-dim);background:var(--panel)}
+.tree details{border-bottom:1px solid rgba(166,115,0,.4)}
+.tree details:last-child{border-bottom:0}
+.tree summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:auto 1fr auto;gap:14px;padding:14px 18px;align-items:center}
+.tree summary::-webkit-details-marker{display:none}
+.tree summary::before{content:"[+]";color:var(--amber)}
+.tree details[open] summary::before{content:"[−]"}
+.tree summary span{font-family:var(--f-body);font-weight:600;color:var(--text)}
+.tree summary em{font-style:normal;color:var(--amber-dim);font-size:.8rem;white-space:nowrap}
+.tree summary:hover{background:var(--amber-faint)}
+.tree ul{list-style:none;margin:0;padding:0 18px 16px;padding-inline-start:52px}
+.tree li{font-family:var(--f-body);padding:3px 0;color:var(--text)}
+.tree li::before{content:"├─ ";font-family:var(--f-mono);color:var(--amber-dim)}
+.tree li:last-child::before{content:"└─ "}
+.tree li code{font-family:var(--f-mono);font-size:.85rem;color:var(--amber);background:var(--amber-faint);padding:0 6px}
+
+.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.proj{border:1px solid var(--amber-dim);background:var(--panel)}
+.proj .scr{height:150px;border-bottom:1px solid var(--amber-dim);padding:14px;font-family:var(--f-mono);font-size:.72rem;line-height:1.5;color:var(--amber-dim);overflow:hidden;direction:ltr;text-align:left;white-space:pre}
+.proj .scr b{color:var(--amber);font-weight:400}
+.proj div.c{padding:16px 18px}
+.proj h3{font-family:var(--f-display);font-weight:600;font-size:1.5rem;margin:0;color:var(--amber)}
+.proj p{margin:4px 0 0;font-size:.95rem}
+
+.log{font-family:var(--f-mono);font-size:.92rem;border:1px solid var(--amber-dim);background:var(--panel);padding:18px}
+.log .ln{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:10px 0;border-bottom:1px dashed rgba(166,115,0,.4)}
+.log .ln:last-child{border-bottom:0}
+.log time{color:var(--amber-dim);white-space:nowrap}
+.log p{margin:0;font-family:var(--f-body)}
+.log p b{color:var(--amber);font-weight:600}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plan{position:relative;border:1px solid var(--amber-dim);background:var(--panel);padding:24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:background .2s}
+.plan input{position:absolute;opacity:0}
+.plan:has(input:checked){border-color:var(--amber);background:#221a0c;box-shadow:0 0 0 1px var(--amber),0 0 30px rgba(255,176,0,.2)}
+.plan:has(input:focus-visible){outline:2px dashed var(--amber);outline-offset:3px}
+.plan .nm{font-family:var(--f-mono);font-size:.85rem;color:var(--amber-dim)}
+.plan .pr{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1;color:var(--amber)}
+.plan .pr small{font-size:.4em;font-weight:400;color:var(--amber-dim)}
+.plan ul{margin:0;padding:0;list-style:none;font-size:.95rem}
+.plan li::before{content:"> ";font-family:var(--f-mono);color:var(--amber)}
+.plan .tag{position:absolute;top:-12px;inset-inline-start:18px;background:var(--hot);color:var(--crt);font:600 .78rem var(--f-mono);padding:1px 8px;text-shadow:none}
+.term{margin-top:20px;border:1px solid var(--amber);background:#0f0c07}
+.term .tb{display:flex;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--amber-dim);font-family:var(--f-mono);font-size:.8rem;color:var(--amber-dim)}
+.term .tb i{width:10px;height:10px;border-radius:50%;border:1px solid var(--amber-dim)}
+.term .body{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:14px 20px}
+.term .full{grid-column:1/-1}
+.term label{display:block;font-family:var(--f-mono);font-size:.8rem;color:var(--amber-dim);direction:ltr;text-align:right}
+.term input,.term select{width:100%;font:inherit;background:transparent;color:var(--text);border:0;border-bottom:1px solid var(--amber-dim);padding:8px 0;text-shadow:inherit;border-radius:0}
+.term select option{background:var(--crt)}
+.term input:focus,.term select:focus{outline:none;border-bottom-color:var(--amber)}
+.err{display:block;color:var(--hot);font-family:var(--f-mono);font-size:.78rem;min-height:1.1em}
+.tsum{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;border-top:1px dashed var(--amber-dim);padding-top:16px}
+.tsum b{font-family:var(--f-display);font-size:2rem;color:var(--amber)}
+.done{padding:22px;font-family:var(--f-mono);font-size:.92rem}
+.done p{margin:4px 0}
+.done .y{color:var(--amber)}
+
+.faq details{border-bottom:1px dashed var(--amber-dim);padding:16px 0}
+.faq summary{cursor:pointer;list-style:none;font-weight:600}
+.faq summary::before{content:"? ";font-family:var(--f-mono);color:var(--amber)}
+.faq p{margin:.4em 0 0;padding-inline-start:22px}
+footer{border-top:1px dashed var(--amber-dim);padding-block:24px 110px;font-family:var(--f-mono);font-size:.8rem;color:var(--amber-dim);text-align:center}
+.mbar{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--crt);border-top:1px solid var(--amber);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:860px){
+  .meta{grid-template-columns:1fr 1fr}
+  .meta div:nth-child(3){border-inline-start:0}
+  .meta div:nth-child(n+3){border-top:1px solid var(--amber-dim)}
+  .out-list,.projects,.plans{grid-template-columns:1fr}
+  .out-list div:nth-child(even){border-inline-start:0}
+  .out-list div:nth-last-child(2){border-bottom:1px solid var(--amber-dim)}
+  .term .body{grid-template-columns:1fr}
+  .bar .hide{display:none}
+  .mbar{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap bar">
+  <span class="id" dir="ltr">kod@arabi:~$</span>
+  <span class="hide">الدفعة ١٤ · تبدأ ١ نوفمبر ٢٠٢٦</span>
+  <a class="key" href="#enroll">احجز مقعدك</a>
+</header>
+
+<main class="wrap">
+<div class="hero">
+  <div class="prompt">$ <b>./start --cohort=14 --lang=ar</b></div>
+  <h1>معسكر كود العربي</h1>
+  <div class="typed" aria-live="polite"><span id="typed"></span><span class="caret" aria-hidden="true"></span></div>
+  <p>١٢ أسبوعاً مباشراً بالعربية، من أول سطر HTML إلى متجر إلكتروني كامل بالدفع والشحن ولوحة التحكم. مشاريع حقيقية، مراجعة كود أسبوعية، ومرشد شخصي لكل ١٠ طلاب.</p>
+  <div class="cta"><a class="key" href="#enroll">ابدأ الآن <kbd>Enter</kbd></a><a class="key line" href="#curriculum">اعرض المنهج</a></div>
+  <div class="meta">
+    <div><small>المدة</small><b>١٢ أسبوعاً</b></div>
+    <div><small>الجلسات</small><b>٣ أسبوعياً</b></div>
+    <div><small>المقاعد المتبقية</small><b id="seats">١٧ / ٦٠</b></div>
+    <div><small>يبدأ خلال</small><b id="countdown">—</b></div>
+  </div>
+</div>
+
+<section>
+  <div class="cmd">$ <b>cat outcomes.txt</b></div>
+  <h2 class="h2">ماذا ستستطيع أن تفعل في النهاية</h2>
+  <p class="out">ليست شهادة تُعلّق على الجدار، بل مهارات تكتب بها كوداً يعمل وتُوظَّف بها.</p>
+  <div class="out-list">
+    <div><span class="ok">[OK]</span><b>واجهات بـ React</b>صفحات منتجات وسلّة شراء سريعة ومتجاوبة مع الجوال.</div>
+    <div><span class="ok">[OK]</span><b>خادم بـ Node.js</b>واجهات برمجية للطلبات والمستخدمين والمخزون.</div>
+    <div><span class="ok">[OK]</span><b>قاعدة بيانات PostgreSQL</b>تصميم الجداول والعلاقات والاستعلامات بكفاءة.</div>
+    <div><span class="ok">[OK]</span><b>دفع إلكتروني</b>ربط بوابات دفع خليجية ومحافظ إلكترونية.</div>
+    <div><span class="ok">[OK]</span><b>نشر على السحابة</b>من جهازك إلى رابط حقيقي يزوره العملاء.</div>
+    <div><span class="ok">[OK]</span><b>Git والعمل الجماعي</b>مراجعة الكود وطلبات الدمج كما في الشركات.</div>
+  </div>
+</section>
+
+<section id="curriculum">
+  <div class="cmd">$ <b>tree ./curriculum -L 2</b></div>
+  <h2 class="h2">المنهج أسبوعاً بأسبوع</h2>
+  <p class="out">اضغط على أي وحدة لعرض دروسها.</p>
+  <div class="tree">
+    <details open><summary><span>الوحدة ١ · أساسيات الويب</span><em>الأسبوع ١–٢</em></summary><ul><li>كيف يعمل المتصفح والإنترنت</li><li>HTML الدلالي ودعم العربية <code>dir="rtl"</code></li><li>CSS: Flexbox و Grid والتصميم المتجاوب</li><li>مشروع: صفحة هبوط لمنتج</li></ul></details>
+    <details><summary><span>الوحدة ٢ · JavaScript بعمق</span><em>الأسبوع ٣–٤</em></summary><ul><li>المتغيرات والدوال والمصفوفات</li><li>DOM والأحداث</li><li><code>fetch</code> والوعود و async/await</li><li>مشروع: سلّة شراء تفاعلية</li></ul></details>
+    <details><summary><span>الوحدة ٣ · React</span><em>الأسبوع ٥–٧</em></summary><ul><li>المكوّنات والحالة <code>useState</code></li><li>التوجيه بين الصفحات</li><li>إدارة حالة السلّة عبر التطبيق</li><li>مشروع: واجهة المتجر كاملة</li></ul></details>
+    <details><summary><span>الوحدة ٤ · الخادم وقاعدة البيانات</span><em>الأسبوع ٨–١٠</em></summary><ul><li>Node.js و Express</li><li>PostgreSQL والاستعلامات</li><li>تسجيل الدخول والصلاحيات</li><li>ربط بوابة الدفع وإشعارات الطلب</li></ul></details>
+    <details><summary><span>الوحدة ٥ · الإطلاق والتوظيف</span><em>الأسبوع ١١–١٢</em></summary><ul><li>النشر والنطاق وشهادة SSL</li><li>تحسين الأداء ومحركات البحث</li><li>معرض أعمال وسيرة ذاتية تقنية</li><li>مقابلات تجريبية مع مهندسين من شركات ناشئة</li></ul></details>
+  </div>
+</section>
+
+<section>
+  <div class="cmd">$ <b>ls ./projects</b></div>
+  <h2 class="h2">ثلاثة مشاريع في معرض أعمالك</h2>
+  <div class="projects" style="margin-top:28px">
+    <div class="proj"><div class="scr" aria-hidden="true"><b>&lt;section</b> class="hero"<b>&gt;</b>
+  <b>&lt;h1&gt;</b>عطر العود<b>&lt;/h1&gt;</b>
+  <b>&lt;button</b> id="buy"<b>&gt;</b>
+    اطلب الآن
+  <b>&lt;/button&gt;</b>
+<b>&lt;/section&gt;</b></div><div class="c"><h3>صفحة هبوط</h3><p>متجاوبة، سريعة، بنموذج طلب يعمل.</p></div></div>
+    <div class="proj"><div class="scr" aria-hidden="true"><b>const</b> [cart, setCart] =
+  useState([]);
+
+<b>function</b> add(item) {
+  setCart(c =&gt; [...c, item]);
+}</div><div class="c"><h3>واجهة متجر</h3><p>منتجات وفلترة وسلّة وصفحة دفع.</p></div></div>
+    <div class="proj"><div class="scr" aria-hidden="true">app.<b>post</b>('/orders', <b>async</b> (req, res) =&gt; {
+  <b>const</b> order = <b>await</b>
+    db.orders.create(req.body);
+  res.status(201).json(order);
+});</div><div class="c"><h3>لوحة تحكم البائع</h3><p>طلبات ومخزون وتقارير مبيعات.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="cmd">$ <b>tail -n 4 alumni.log</b></div>
+  <h2 class="h2">خرّيجون من الدفعات السابقة</h2>
+  <div class="log" style="margin-top:24px">
+    <div class="ln"><time>الدفعة ١١</time><p><b>عمر · الرياض:</b> كنت محاسباً. بعد المعسكر بشهرين حصلت على وظيفة مطوّر واجهات في شركة توصيل.</p></div>
+    <div class="ln"><time>الدفعة ١٢</time><p><b>آمنة · تونس:</b> بنيت متجر الحِرَف اليدوية لعائلتي، ويستقبل اليوم ٤٠ طلباً في الأسبوع.</p></div>
+    <div class="ln"><time>الدفعة ١٢</time><p><b>محمود · القاهرة:</b> مراجعة الكود الأسبوعية علّمتني أكثر من سنة من الدروس المسجّلة.</p></div>
+    <div class="ln"><time>الدفعة ١٣</time><p><b>جنى · بيروت:</b> أعمل الآن مستقلّة وأبني صفحات هبوط لعملاء في الخليج.</p></div>
+  </div>
+</section>
+
+<section id="enroll">
+  <div class="cmd">$ <b>./enroll --interactive</b></div>
+  <h2 class="h2">اختر خطتك واحجز مقعدك</h2>
+  <p class="out">ادفع بالبطاقة أو التحويل البنكي أو على ثلاث دفعات. ضمان استرداد كامل خلال أول أسبوعين.</p>
+  <form id="eform" novalidate>
+    <div class="plans" role="radiogroup" aria-label="الخطة">
+      <label class="plan"><input type="radio" name="plan" data-price="299" data-label="ذاتي"><span class="nm">--plan=self</span><span class="pr">$٢٩٩<small> مرة واحدة</small></span><ul><li>كل الدروس المسجّلة</li><li>مجتمع الطلاب</li><li>مشاريع مع حلول</li></ul></label>
+      <label class="plan"><span class="tag">الأكثر اختياراً</span><input type="radio" name="plan" data-price="749" data-label="المعسكر المباشر" checked><span class="nm">--plan=live</span><span class="pr">$٧٤٩<small> أو ٣×$٢٥٩</small></span><ul><li>٣٦ جلسة مباشرة</li><li>مراجعة كود أسبوعية</li><li>مرشد لكل ١٠ طلاب</li><li>شهادة إتمام</li></ul></label>
+      <label class="plan"><input type="radio" name="plan" data-price="1190" data-label="المعسكر + التوظيف"><span class="nm">--plan=career</span><span class="pr">$١١٩٠<small> مرة واحدة</small></span><ul><li>كل ما في المباشر</li><li>٦ جلسات إرشاد فردية</li><li>مقابلات تجريبية</li><li>ترشيح لشركائنا</li></ul></label>
+    </div>
+    <div class="term">
+      <div class="tb"><i></i><i></i><i></i><span>enroll.sh</span></div>
+      <div class="body" id="ebody">
+        <div><label for="en">name:</label><input id="en" autocomplete="name"><span class="err" data-for="en"></span></div>
+        <div><label for="ee">email:</label><input id="ee" type="email" autocomplete="email" dir="ltr" style="text-align:right"><span class="err" data-for="ee"></span></div>
+        <div><label for="ew">whatsapp:</label><input id="ew" type="tel" inputmode="tel" dir="ltr" style="text-align:right" placeholder="+966 5x xxx xxxx"><span class="err" data-for="ew"></span></div>
+        <div><label for="ec">country:</label><select id="ec"><option value="">—</option><option>السعودية</option><option>الإمارات</option><option>مصر</option><option>الكويت</option><option>قطر</option><option>البحرين</option><option>عُمان</option><option>الأردن</option><option>المغرب</option><option>تونس</option><option>الجزائر</option><option>العراق</option><option>لبنان</option><option>دولة أخرى</option></select><span class="err" data-for="ec"></span></div>
+        <div class="full"><label for="el">level:</label><select id="el"><option>لم أكتب كوداً من قبل</option><option>جرّبت HTML و CSS</option><option>أعرف JavaScript الأساسية</option></select></div>
+        <div class="full tsum"><span>الإجمالي: <b id="etot">$٧٤٩</b></span><button class="key" type="submit">احجز المقعد <kbd>⏎</kbd></button></div>
+      </div>
+      <div class="done" id="edone" hidden aria-live="polite"></div>
+    </div>
+  </form>
+</section>
+
+<section class="faq">
+  <div class="cmd">$ <b>man kod-arabi</b></div>
+  <h2 class="h2">أسئلة</h2>
+  <details><summary>هل أحتاج خبرة سابقة؟</summary><p>لا. نبدأ من الصفر، ونطلب فقط ١٥ ساعة أسبوعياً وحاسوباً بذاكرة ٨ غيغابايت.</p></details>
+  <details><summary>ماذا لو فاتتني جلسة مباشرة؟</summary><p>كل جلسة تُسجَّل وتُرفع خلال ساعتين، ويمكنك طرح أسئلتك على المرشد في المجتمع.</p></details>
+  <details><summary>ما مواعيد الجلسات؟</summary><p>الأحد والثلاثاء والخميس، الساعة ٨ مساءً بتوقيت مكة، لمدة ساعتين.</p></details>
+  <details><summary>هل يوجد استرداد؟</summary><p>إن قررت الانسحاب خلال أول أسبوعين نعيد المبلغ كاملاً دون أسئلة.</p></details>
+</section>
+</main>
+<footer class="wrap">© كود العربي · صفحة نموذجية: العلامة والأسعار وقصص الخرّيجين محتوى تجريبي · exit 0</footer>
+<div class="mbar"><b id="mt" style="font-family:var(--f-display);font-size:1.6rem;color:var(--amber)">$٧٤٩</b><a class="key" href="#enroll">احجز</a></div>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  // typewriter
+  const lines = ['ابنِ متجرك الإلكتروني بيدك.','من الصفر إلى أول عميل.','بالعربية، مباشرة، مع مرشد.'];
+  const el = document.getElementById('typed');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) el.textContent = lines[0];
+  else { let li = 0, ci = 0, del = false;
+    (function step(){
+      const s = lines[li];
+      el.textContent = s.slice(0, ci);
+      if (!del && ci < s.length) { ci++; setTimeout(step, 70); }
+      else if (!del) { del = true; setTimeout(step, 1800); }
+      else if (ci > 0) { ci--; setTimeout(step, 30); }
+      else { del = false; li = (li + 1) % lines.length; setTimeout(step, 300); }
+    })();
+  }
+  // cohort countdown
+  const start = new Date('2026-11-01T20:00:00+03:00');
+  function cd(){
+    const ms = start - new Date();
+    document.getElementById('countdown').textContent = ms <= 0 ? 'بدأت' : ar(Math.floor(ms/864e5)) + ' يوم · ' + ar(Math.floor(ms%864e5/36e5)) + ' س';
+  }
+  cd(); setInterval(cd, 60000);
+  const f = document.getElementById('eform');
+  const sel = () => f.querySelector('input[name=plan]:checked');
+  function calc(){ const p = +sel().dataset.price; document.getElementById('etot').textContent = document.getElementById('mt').textContent = '$' + ar(p); return p; }
+  f.addEventListener('change', calc); calc();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('en').length < 2) errs.en = 'error: name required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('ee'))) errs.ee = 'error: invalid email';
+    if (v('ew').replace(/\D/g,'').length < 8) errs.ew = 'error: invalid number';
+    if (!v('ec')) errs.ec = 'error: country required';
+    f.querySelectorAll('.err').forEach(x => x.textContent = errs[x.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const p = calc(), d = document.getElementById('edone');
+    document.getElementById('ebody').hidden = true; d.hidden = false;
+    const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    d.innerHTML = '<p class="y">[OK] تم حجز مقعد مؤقت باسم ' + esc(v('en')) + '</p><p>&gt; الخطة: ' + sel().dataset.label + ' · $' + ar(p) + '</p><p>&gt; أرسلنا رابط الدفع إلى ' + esc(v('ee')) + '</p><p>&gt; المقعد محجوز لك ٤٨ ساعة. سيتواصل معك فريق القبول على واتساب.</p><p class="y">exit 0<span class="caret"></span></p>';
+    document.getElementById('seats').textContent = ar(16) + ' / ' + ar(60);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ميكسي الخلاط المحمول</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Mada:wght@400;600;800;900&display=swap">
+<style>
+/* Layout: a juice-bar menu board — the flavour picker recolours the whole page and the blender, stickers slapped on at angles */
+:root{
+  --fruit:#ff3d7f; --fruit-2:#ffb347; --bg:#fff4e6; --ink:#1d0b2a; --cream:#fffdf8; --leaf:#19b36b;
+  --f-display:"Lalezar","Mada",sans-serif; --f-body:"Mada",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1.08rem;line-height:1.7;overflow-x:hidden;transition:background .6s}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.top{display:flex;justify-content:space-between;align-items:center;padding-block:18px}
+.logo{font-family:var(--f-display);font-size:2.2rem;line-height:1;color:var(--fruit);transition:color .6s}
+.btn{display:inline-flex;align-items:center;gap:8px;font:900 1.1rem var(--f-body);background:var(--ink);color:var(--cream);border:0;border-radius:18px;padding:14px 30px;cursor:pointer;text-decoration:none;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.btn:hover{transform:scale(1.06) rotate(-2deg)}
+.btn.fruit{background:var(--fruit);transition:background .6s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+
+.hero{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:center;padding-block:20px 60px}
+.hero h1{font-family:var(--f-display);font-weight:400;font-size:clamp(3.4rem,10vw,7.6rem);line-height:1.05;margin:0 0 10px;text-wrap:balance}
+.hero h1 .c{color:var(--fruit);transition:color .6s;display:block}
+.hero p{font-size:1.25rem;max-width:34ch;margin:0 0 20px;font-weight:600}
+.flavors{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.flv{border:3px solid var(--ink);border-radius:999px;background:var(--cream);padding:8px 18px 8px 12px;font:800 1rem var(--f-body);cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--ink);transition:transform .2s}
+.flv i{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink)}
+.flv[aria-pressed=true]{background:var(--ink);color:var(--cream);transform:rotate(-3deg)}
+.flv:hover{transform:translateY(-2px)}
+.stage{position:relative;display:grid;place-items:center;min-height:460px}
+.disc{position:absolute;width:min(420px,90%);aspect-ratio:1;max-width:100%;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--fruit-2),var(--fruit));transition:background .6s}
+.blender{position:relative;width:min(200px,46vw);height:auto;z-index:2;filter:drop-shadow(0 30px 30px rgba(29,11,42,.35));animation:wobble 4s ease-in-out infinite}
+@keyframes wobble{25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
+.blender .liq{fill:var(--fruit);transition:fill .6s}
+.blender .liq2{fill:var(--fruit-2);transition:fill .6s}
+.swirl{transform-origin:100px 205px;animation:swirl 1.2s linear infinite}
+@keyframes swirl{to{transform:rotate(360deg)}}
+.fruit-bit{position:absolute;z-index:3;font-size:2.6rem;animation:orbit 6s ease-in-out infinite}
+@keyframes orbit{50%{transform:translateY(-18px) rotate(15deg)}}
+.sticker{position:absolute;z-index:4;background:var(--cream);border:3px solid var(--ink);border-radius:16px;padding:6px 14px;font:900 1rem var(--f-body);box-shadow:4px 4px 0 var(--ink);line-height:1.3;text-align:center}
+
+.marq{background:var(--ink);color:var(--cream);overflow:hidden;white-space:nowrap;padding-block:14px;font-family:var(--f-display);font-size:1.6rem}
+.marq div{display:inline-block;animation:mq 22s linear infinite}
+.marq span{margin-inline:22px}
+.marq b{color:var(--fruit-2);font-weight:400;transition:color .6s}
+@keyframes mq{to{transform:translateX(50%)}}
+
+section{padding-block:80px}
+.h2{font-family:var(--f-display);font-weight:400;font-size:clamp(2.4rem,6vw,4.2rem);line-height:1.1;margin:0 0 14px;text-wrap:balance}
+.lead{font-weight:600;max-width:46ch;margin:0 0 40px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--cream);border:3px solid var(--ink);border-radius:28px;padding:28px;box-shadow:8px 8px 0 var(--ink)}
+.card .n{font-family:var(--f-display);font-size:3.6rem;line-height:1;color:var(--fruit);transition:color .6s}
+.card h3{font:900 1.3rem var(--f-body);margin:6px 0 4px}
+.card p{margin:0}
+.card:nth-child(2){transform:rotate(1.5deg)}
+.card:nth-child(3){transform:rotate(-1deg)}
+
+.menu{background:var(--ink);color:var(--cream);border-radius:36px;padding:44px;position:relative}
+.menu .h2{color:var(--fruit-2);transition:color .6s}
+.recipes{display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px}
+.rec{display:flex;justify-content:space-between;gap:14px;padding:16px 0;border-bottom:2px dotted rgba(255,253,248,.3)}
+.rec b{font:800 1.2rem var(--f-body)}
+.rec span{display:block;color:#cbbfd6;font-size:.95rem}
+.rec .cal{font-family:var(--f-display);font-size:1.5rem;white-space:nowrap;color:var(--fruit-2);transition:color .6s}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:st}
+.step{text-align:center;counter-increment:st}
+.step .circle{width:140px;height:140px;margin:0 auto 14px;border-radius:50%;background:var(--cream);border:3px solid var(--ink);display:grid;place-items:center;position:relative}
+.step .circle::after{content:counter(st,arabic-indic);position:absolute;top:-6px;inset-inline-end:-6px;width:46px;height:46px;border-radius:50%;background:var(--fruit);color:var(--cream);font-family:var(--f-display);font-size:1.6rem;display:grid;place-items:center;border:3px solid var(--ink);transition:background .6s}
+.step svg{width:64px;height:64px}
+.step h3{font:900 1.3rem var(--f-body);margin:0}
+.step p{margin:4px 0 0}
+
+.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.rev{background:var(--fruit-2);border:3px solid var(--ink);border-radius:24px;padding:24px;transition:background .6s}
+.rev:nth-child(2){background:var(--cream)}
+.rev p{margin:0 0 10px;font-weight:600}
+.rev small{font-weight:900}
+
+.order{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+.deal{display:grid;gap:14px}
+.d{position:relative;cursor:pointer;display:flex;align-items:center;gap:16px;background:var(--cream);border:3px solid var(--ink);border-radius:22px;padding:18px 20px;transition:transform .2s}
+.d input{position:absolute;opacity:0}
+.d:has(input:checked){background:var(--fruit);color:var(--cream);transform:rotate(-1deg) scale(1.02)}
+.d:has(input:focus-visible){outline:3px solid var(--ink);outline-offset:3px}
+.d .q{font-family:var(--f-display);font-size:2.4rem;line-height:1;min-width:56px;text-align:center}
+.d .t{flex:1}
+.d .t b{display:block;font-weight:900;font-size:1.15rem}
+.d .p{font-family:var(--f-display);font-size:1.7rem;white-space:nowrap}
+.d .bdg{position:absolute;top:-14px;inset-inline-end:18px;background:var(--leaf);color:#fff;border:3px solid var(--ink);border-radius:10px;padding:0 10px;font-weight:900;font-size:.85rem;transform:rotate(4deg)}
+.fbox{background:var(--cream);border:3px solid var(--ink);border-radius:28px;padding:28px;box-shadow:8px 8px 0 var(--ink)}
+.fbox h3{font-family:var(--f-display);font-weight:400;font-size:2rem;margin:0 0 12px}
+.fl{margin-bottom:12px}
+.fl label{display:block;font-weight:800;margin-bottom:4px}
+.fl input,.fl select{width:100%;font:inherit;padding:12px 16px;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink)}
+.fl input:focus,.fl select:focus{outline:none;box-shadow:4px 4px 0 var(--fruit)}
+.err{color:#c4004b;font-weight:700;font-size:.9rem;display:block;min-height:1.2em}
+.total{display:flex;justify-content:space-between;align-items:center;margin:8px 0 16px}
+.total b{font-family:var(--f-display);font-size:2.2rem;font-weight:400}
+.ok{text-align:center;padding:20px 0}
+.ok .big{font-family:var(--f-display);font-size:3rem;color:var(--fruit)}
+
+.faq{display:grid;gap:12px;max-width:820px}
+.faq details{background:var(--cream);border:3px solid var(--ink);border-radius:18px;padding:14px 20px}
+.faq summary{cursor:pointer;font-weight:900;font-size:1.1rem}
+.faq p{margin:.4em 0 0}
+footer{background:var(--ink);color:var(--cream);text-align:center;padding-block:24px 110px;font-weight:600}
+.mbar{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--cream);border-top:3px solid var(--ink);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mbar .btn{padding:10px 22px}
+@media (max-width:900px){
+  .hero,.order{grid-template-columns:1fr}
+  .stage{min-height:380px}
+  .feat,.steps,.revs{grid-template-columns:1fr}
+  .recipes{grid-template-columns:1fr}
+  .menu{padding:28px 20px}
+  .card:nth-child(n){transform:none}
+  .mbar{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap top"><div class="logo">ميكسي</div><a class="btn" href="#order">اطلب الآن</a></header>
+<main>
+<section class="wrap hero" style="padding-block:20px 60px">
+  <div>
+    <h1>عصيرك الطازج <span class="c" id="flavName">بالفراولة</span></h1>
+    <p>خلاط لاسلكي بحجم القارورة. اشحنه بكابل USB-C، اخلط في ٣٠ ثانية، واشرب مباشرة منه في العمل أو الجيم أو البحر.</p>
+    <div class="flavors" role="group" aria-label="اختر نكهة">
+      <button type="button" class="flv" aria-pressed="true" data-name="بالفراولة" data-a="#ff3d7f" data-b="#ffb347" data-bg="#fff0f4"><i style="background:#ff3d7f"></i>فراولة</button>
+      <button type="button" class="flv" aria-pressed="false" data-name="بالمانجو" data-a="#ff9f1c" data-b="#ffe066" data-bg="#fff7e0"><i style="background:#ff9f1c"></i>مانجو</button>
+      <button type="button" class="flv" aria-pressed="false" data-name="بالأفوكادو" data-a="#19b36b" data-b="#c5f277" data-bg="#effbe9"><i style="background:#19b36b"></i>أفوكادو</button>
+      <button type="button" class="flv" aria-pressed="false" data-name="بالتوت الأزرق" data-a="#6c4cf0" data-b="#ff7ad9" data-bg="#f3efff"><i style="background:#6c4cf0"></i>توت</button>
+    </div>
+    <a class="btn fruit" href="#order">اطلبه بـ ٢٩٩ د.م</a>
+    <span style="font-weight:800;margin-inline-start:12px"><s style="opacity:.6">٤٩٩ د.م</s> · الدفع عند الاستلام</span>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div class="disc"></div>
+    <svg class="blender" viewBox="0 0 200 400">
+      <rect x="70" y="10" width="60" height="26" rx="10" fill="#1d0b2a"/>
+      <rect x="40" y="34" width="120" height="22" rx="8" fill="#1d0b2a"/>
+      <path d="M44 56h112l-6 230H50z" fill="#fff" fill-opacity=".55" stroke="#1d0b2a" stroke-width="5"/>
+      <path class="liq" d="M47 120c20-10 40 10 56 0s38-10 50 0l-4 166H51z"/>
+      <path class="liq2" d="M50 200c22-8 40 8 52 0s34-8 48 0l-1 86H52z" opacity=".7"/>
+      <g class="swirl"><path d="M100 205l30-6-30 6-6 30 6-30-30 6 30-6 6-30z" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/></g>
+      <path d="M58 70c-2 60-2 140 2 200" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".6" fill="none"/>
+      <rect x="42" y="286" width="116" height="100" rx="20" fill="#1d0b2a"/>
+      <circle cx="100" cy="336" r="18" fill="none" stroke="#fff" stroke-width="4"/>
+      <circle cx="100" cy="336" r="6" fill="#fff"/>
+      <rect x="70" y="366" width="60" height="6" rx="3" fill="#19b36b"/>
+    </svg>
+    <span class="fruit-bit" style="top:8%;right:14%">🍓</span>
+    <span class="fruit-bit" style="bottom:14%;left:12%;animation-delay:1.5s">🥭</span>
+    <span class="fruit-bit" style="top:40%;left:6%;animation-delay:3s">🫐</span>
+    <span class="sticker" style="top:14%;left:8%;transform:rotate(-10deg)">٢٠<br>كوب بشحنة</span>
+    <span class="sticker" style="bottom:12%;right:6%;transform:rotate(8deg)">يكسر<br>الثلج!</span>
+  </div>
+</section>
+
+<div class="marq" aria-hidden="true"><div><span>سموذي</span><b>●</b><span>بروتين شيك</span><b>●</b><span>عصير أخضر</span><b>●</b><span>ميلك شيك</span><b>●</b><span>قهوة مثلجة</span><b>●</b><span>سموذي</span><b>●</b><span>بروتين شيك</span><b>●</b><span>عصير أخضر</span><b>●</b><span>ميلك شيك</span><b>●</b><span>قهوة مثلجة</span><b>●</b></div></div>
+
+<section class="wrap">
+  <h2 class="h2">صغير في الحجم، قوي في الخلط</h2>
+  <p class="lead">٦ شفرات من الستانلس ستيل بسرعة ٢٢ ألف دورة في الدقيقة.</p>
+  <div class="feat">
+    <div class="card"><div class="n">٣٠ ث</div><h3>لعصير ناعم</h3><p>بدون قطع، حتى مع الفواكه المجمدة ومكعبات الثلج.</p></div>
+    <div class="card"><div class="n">٥٠٠ مل</div><h3>سعة الكوب</h3><p>زجاجة بلاستيك تريتان خالية من BPA، تتحمل الماء الساخن.</p></div>
+    <div class="card"><div class="n">٢٠×</div><h3>خلطة بشحنة واحدة</h3><p>بطارية ٤٠٠٠ ملّي أمبير، تُشحن في ساعتين بأي شاحن جوال.</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <div class="menu">
+    <h2 class="h2">قائمة اليوم</h2>
+    <p style="margin:0 0 20px;color:#cbbfd6">وصفات تأتي مطبوعة مع الخلاط، بالسعرات لكل كوب.</p>
+    <div class="recipes">
+      <div class="rec"><div><b>صباح الأطلس</b><span>موز، تمر مجهول، حليب لوز، قرفة</span></div><div class="cal">٢٨٠ س.ح</div></div>
+      <div class="rec"><div><b>أخضر الجيم</b><span>سبانخ، تفاح، زنجبيل، ليمون</span></div><div class="cal">١٢٠ س.ح</div></div>
+      <div class="rec"><div><b>بروتين بعد التمرين</b><span>زبادي يوناني، فراولة، شوفان، عسل</span></div><div class="cal">٣٢٠ س.ح</div></div>
+      <div class="rec"><div><b>أفوكادو مغربي</b><span>أفوكادو، حليب، تمر، لوز</span></div><div class="cal">٣٨٠ س.ح</div></div>
+      <div class="rec"><div><b>مانجو البحر</b><span>مانجو مجمد، برتقال، نعناع</span></div><div class="cal">١٧٠ س.ح</div></div>
+      <div class="rec"><div><b>قهوة مثلجة</b><span>إسبريسو، ثلج، حليب، فانيليا</span></div><div class="cal">١٤٠ س.ح</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <h2 class="h2" style="text-align:center">ثلاث خطوات</h2>
+  <div class="steps" style="margin-top:30px">
+    <div class="step"><div class="circle"><svg viewBox="0 0 64 64" fill="none" stroke="#1d0b2a" stroke-width="4" stroke-linecap="round"><path d="M20 12h24l-3 44H23z"/><circle cx="32" cy="30" r="5"/><circle cx="28" cy="44" r="4"/></svg></div><h3>ضع المكوّنات</h3><p>فواكه وحليب أو ماء حتى الخط.</p></div>
+    <div class="step"><div class="circle"><svg viewBox="0 0 64 64" fill="none" stroke="#1d0b2a" stroke-width="4" stroke-linecap="round"><circle cx="32" cy="32" r="18"/><path d="M32 22v10l7 5"/></svg></div><h3>اضغط مرتين</h3><p>يعمل ٣٠ ثانية ويتوقف وحده.</p></div>
+    <div class="step"><div class="circle"><svg viewBox="0 0 64 64" fill="none" stroke="#1d0b2a" stroke-width="4" stroke-linecap="round"><path d="M22 10h20M24 10l-2 46h20l-2-46M28 26h8"/></svg></div><h3>اشرب منه</h3><p>غطاء شرب مدمج، وينظّف نفسه بالماء والصابون.</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <h2 class="h2">الناس تحبّه</h2>
+  <div class="revs" style="margin-top:24px">
+    <div class="rev"><p>«كنستعملو كل صباح فالخدمة، كنخلط البروتين بلا ما نحتاج لشي حاجة. خفيف وكيدخل فالساك.»</p><small>أيوب · الدار البيضاء</small></div>
+    <div class="rev"><p>«الشحن كيدوم أسبوع كامل عندي. وكيكسر الثلج مزيان بصح.»</p><small>سلمى · الرباط</small></div>
+    <div class="rev"><p>«خديتو للبحر فأكادير، الدراري فرحو بالعصير البارد. كنصح بيه.»</p><small>ياسين · مراكش</small></div>
+  </div>
+</section>
+
+<section id="order" class="wrap" style="padding-top:0">
+  <h2 class="h2">اختر عرضك</h2>
+  <p class="lead">التوصيل مجاني لجميع المدن المغربية خلال ٢٤ إلى ٧٢ ساعة. تدفع عند الاستلام.</p>
+  <form class="order" id="mform" novalidate>
+    <div class="deal" role="radiogroup" aria-label="العرض">
+      <label class="d"><input type="radio" name="deal" data-price="299" data-label="خلاط واحد" checked><span class="q">١</span><span class="t"><b>خلاط واحد</b>مع كتيّب الوصفات</span><span class="p">٢٩٩ د.م</span></label>
+      <label class="d"><span class="bdg">الأكثر طلباً</span><input type="radio" name="deal" data-price="499" data-label="خلاطان"><span class="q">٢</span><span class="t"><b>خلاطان</b>واحد لك وواحد هدية · وفّر ٩٩ د.م</span><span class="p">٤٩٩ د.م</span></label>
+      <label class="d"><input type="radio" name="deal" data-price="649" data-label="عرض العائلة"><span class="q">٣</span><span class="t"><b>عرض العائلة</b>ثلاثة خلاطات بثلاثة ألوان</span><span class="p">٦٤٩ د.م</span></label>
+    </div>
+    <div class="fbox">
+      <div id="mbody">
+        <h3>معلومات التوصيل</h3>
+        <div class="fl"><label for="mn">الاسم الكامل</label><input id="mn" autocomplete="name"><span class="err" data-for="mn"></span></div>
+        <div class="fl"><label for="mp">رقم الهاتف</label><input id="mp" type="tel" inputmode="tel" placeholder="06xxxxxxxx"><span class="err" data-for="mp"></span></div>
+        <div class="fl"><label for="mc">المدينة</label><select id="mc"><option value="">اختر</option><option>الدار البيضاء</option><option>الرباط</option><option>مراكش</option><option>فاس</option><option>طنجة</option><option>أكادير</option><option>مكناس</option><option>وجدة</option><option>تطوان</option><option>مدينة أخرى</option></select><span class="err" data-for="mc"></span></div>
+        <div class="fl"><label for="ma">العنوان</label><input id="ma" placeholder="الحي، الزنقة، رقم المنزل"></div>
+        <div class="total"><span style="font-weight:800">الإجمالي</span><b id="mtot">٢٩٩ د.م</b></div>
+        <button class="btn fruit" type="submit" style="width:100%;justify-content:center">أكّد الطلب الآن</button>
+      </div>
+      <div class="ok" id="mok" hidden><div class="big">مزيان!</div><p id="mmsg" style="font-weight:600"></p></div>
+    </div>
+  </form>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <h2 class="h2">أسئلة</h2>
+  <div class="faq">
+    <details><summary>هل يكسر الثلج فعلاً؟</summary><p>نعم، مكعبات الثلج الصغيرة والفواكه المجمدة. ضع سائلاً أولاً ثم الثلج للحصول على أفضل نتيجة.</p></details>
+    <details><summary>هل هو آمن؟</summary><p>لا يعمل إلا إذا كان الكوب مثبتاً بإحكام، ويتوقف تلقائياً بعد ٣٠ ثانية.</p></details>
+    <details><summary>هل يمكن غسله في غسالة الصحون؟</summary><p>الكوب نعم. القاعدة فيها البطارية، امسحها بقطعة مبللة فقط.</p></details>
+    <details><summary>ما مدة الضمان؟</summary><p>سنة كاملة، مع استبدال فوري إذا وصل معطوباً.</p></details>
+  </div>
+</section>
+</main>
+<footer>© ميكسي · صفحة نموذجية: العلامة والأسعار والآراء محتوى تجريبي.</footer>
+<div class="mbar"><b id="mbt" style="font-family:var(--f-display);font-size:1.6rem;font-weight:400">٢٩٩ د.م</b><a class="btn fruit" href="#order">اطلب الآن</a></div>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  const root = document.documentElement;
+  document.querySelectorAll('.flv').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.flv').forEach(x => x.setAttribute('aria-pressed', x === b));
+    root.style.setProperty('--fruit', b.dataset.a); root.style.setProperty('--fruit-2', b.dataset.b); root.style.setProperty('--bg', b.dataset.bg);
+    document.getElementById('flavName').textContent = b.dataset.name;
+  }));
+  const f = document.getElementById('mform');
+  const sel = () => f.querySelector('input[name=deal]:checked');
+  function calc(){ const p = +sel().dataset.price; document.getElementById('mtot').textContent = document.getElementById('mbt').textContent = ar(p) + ' د.م'; return p; }
+  f.addEventListener('change', calc); calc();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('mn').length < 2) errs.mn = 'الاسم مطلوب';
+    if (!/^(\+?212|0)[67]\d{8}$/.test(v('mp').replace(/[\s-]/g,''))) errs.mp = 'رقم مغربي يبدأ بـ 06 أو 07';
+    if (!v('mc')) errs.mc = 'اختر المدينة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const p = calc();
+    document.getElementById('mbody').hidden = true; document.getElementById('mok').hidden = false;
+    document.getElementById('mmsg').textContent = 'طلبك (' + sel().dataset.label + ') بـ ' + ar(p) + ' د.م وصلنا. غادي نتاصلو بيك على ' + v('mp') + ' باش نأكدو التوصيل إلى ' + v('mc') + '.';
+  });
+})();
+</script>
+</body>
+</html>

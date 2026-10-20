@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>نبض برو</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;500;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&display=swap">
+<style>
+/* Layout: dark studio stage; live waveform hero, then an asymmetric bento of specs, then a configurator that is the order form */
+:root{
+  --void:#07090f; --panel:#0e1320; --line:rgba(150,180,255,.12); --text:#e8edf7; --dim:#8b95ab; --volt:#4d7cff; --flare:#ff7a59;
+  --f-display:"Alexandria","IBM Plex Sans Arabic",sans-serif; --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--void);color:var(--text);font-family:var(--f-body);font-size:1.02rem;line-height:1.75;overflow-x:hidden}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--volt);outline-offset:3px}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;backdrop-filter:blur(18px);background:rgba(7,9,15,.7);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--void)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:14px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.3rem;display:flex;align-items:center;gap:10px}
+.brand i{width:12px;height:12px;border-radius:50%;background:var(--volt);box-shadow:0 0 16px var(--volt)}
+.nav-links{display:flex;gap:28px;color:var(--dim);font-size:.95rem}
+.nav-links a{color:inherit;text-decoration:none}
+.nav-links a:hover{color:var(--text)}
+.pill{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;font:600 1rem var(--f-body);padding:12px 26px;border-radius:999px;background:var(--text);color:var(--void);text-decoration:none;transition:transform .25s cubic-bezier(.2,.8,.2,1),background .25s}
+.pill:hover{transform:scale(1.04);background:#fff}
+.pill.volt{background:var(--volt);color:#fff}
+.pill.volt:hover{background:#6a92ff}
+
+.hero{position:relative;padding-block:80px 30px;text-align:center}
+.hero .kicker{display:inline-flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-size:.88rem;color:var(--dim);background:rgba(14,19,32,.6)}
+.hero .kicker b{color:var(--flare);font-weight:600}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.8rem,8vw,6.4rem);line-height:1.15;margin:22px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.hero h1 span{background:linear-gradient(90deg,var(--volt),#9db6ff 50%,var(--flare));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--dim);font-size:1.15rem;max-width:46ch;margin:0 auto 28px}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.stage{position:relative;margin-top:50px;height:340px;max-width:100%}
+#wave{position:absolute;inset:0;width:100%;height:100%}
+.buds{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(30px,10vw,140px);pointer-events:none}
+.bud{width:clamp(90px,16vw,150px);aspect-ratio:1/1.5;max-width:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.7))}
+.bud:first-child{transform:rotate(-14deg);animation:bob 5s ease-in-out infinite}
+.bud:last-child{transform:rotate(14deg) scaleX(-1);animation:bob 5s ease-in-out infinite 1.2s}
+@keyframes bob{50%{translate:0 -14px}}
+.anc-toggle{position:relative;z-index:2;display:inline-flex;margin-top:18px;border:1px solid var(--line);border-radius:999px;padding:4px;background:var(--panel)}
+.anc-toggle button{font:500 .92rem var(--f-body);border:0;background:transparent;color:var(--dim);padding:8px 18px;border-radius:999px;cursor:pointer}
+.anc-toggle button[aria-pressed=true]{background:var(--text);color:var(--void)}
+
+section{padding-block:90px}
+.h2{font-family:var(--f-display);font-weight:700;font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.25;margin:0 0 12px;text-wrap:balance}
+.sub{color:var(--dim);max-width:52ch;margin:0 0 44px}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(180px,auto);gap:14px}
+.tile{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:26px;padding:28px;overflow:hidden;min-width:0}
+.tile .big{font-family:var(--f-display);font-weight:800;font-size:clamp(3rem,6vw,4.6rem);line-height:1;letter-spacing:-.02em}
+.tile .big small{font-size:.35em;font-weight:500;color:var(--dim);margin-inline-start:6px}
+.tile h3{font-family:var(--f-display);font-weight:500;font-size:1.2rem;margin:10px 0 4px}
+.tile p{color:var(--dim);margin:0;font-size:.97rem}
+.t1{grid-column:span 4;grid-row:span 2;background:radial-gradient(80% 70% at 20% 100%,rgba(77,124,255,.25),transparent 60%),var(--panel)}
+.t2{grid-column:span 2}
+.t3{grid-column:span 2}
+.t4{grid-column:span 3}
+.t5{grid-column:span 3;background:radial-gradient(70% 90% at 100% 0%,rgba(255,122,89,.22),transparent 60%),var(--panel)}
+.battery{display:flex;gap:6px;margin-top:22px}
+.battery span{flex:1;height:54px;border-radius:10px;background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+.battery span::after{content:"";position:absolute;inset:auto 0 0;height:var(--h);background:linear-gradient(0deg,var(--volt),#8fb0ff);border-radius:inherit;transition:height 1.2s cubic-bezier(.2,.8,.2,1)}
+.rings{position:absolute;inset-inline-end:-60px;bottom:-60px;width:260px;height:260px}
+.rings i{position:absolute;inset:0;border:1px solid rgba(77,124,255,.35);border-radius:50%;animation:ping 3.6s ease-out infinite}
+.rings i:nth-child(2){animation-delay:1.2s}.rings i:nth-child(3){animation-delay:2.4s}
+@keyframes ping{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.2);opacity:0}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips span{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.85rem;color:var(--dim)}
+
+.compare{width:100%;border-collapse:collapse;font-size:.98rem}
+.compare-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:22px;background:var(--panel)}
+.compare th,.compare td{padding:16px 20px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+.compare thead th{font-family:var(--f-display);font-weight:500;color:var(--dim)}
+.compare thead th:nth-child(2){color:var(--text)}
+.compare td:nth-child(2){color:var(--text);font-weight:600}
+.compare td:not(:nth-child(2)){color:var(--dim)}
+.compare tr:last-child td{border-bottom:0}
+.yes{color:var(--volt)!important}
+
+.config{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+.preview{border-radius:30px;border:1px solid var(--line);background:radial-gradient(60% 60% at 50% 50%,var(--glow,rgba(77,124,255,.35)),transparent 70%),var(--panel);display:grid;place-items:center;min-height:420px;transition:background .5s}
+.preview svg{width:min(260px,70%);height:auto;transition:filter .4s}
+.panel{border-radius:30px;border:1px solid var(--line);background:var(--panel);padding:30px}
+.panel h3{font-family:var(--f-display);font-weight:700;font-size:1.6rem;margin:0}
+.opt-label{font-size:.9rem;color:var(--dim);margin:22px 0 10px}
+.swatches{display:flex;gap:12px}
+.swatch{width:46px;height:46px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;box-shadow:inset 0 0 0 3px var(--panel)}
+.swatch[aria-checked=true]{border-color:var(--text)}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px}
+.qty button{width:42px;height:42px;border:0;background:transparent;color:var(--text);font-size:1.3rem;cursor:pointer}
+.qty output{min-width:34px;text-align:center;font-weight:600}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.fields .full{grid-column:1/-1}
+.fields input,.fields select{width:100%;font:inherit;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:#0a0e18;color:var(--text)}
+.fields input:focus,.fields select:focus{outline:none;border-color:var(--volt)}
+.err{color:var(--flare);font-size:.85rem;min-height:1.2em;display:block}
+.summary{display:flex;justify-content:space-between;align-items:center;margin:20px 0 14px;padding-top:18px;border-top:1px solid var(--line)}
+.summary .amt{font-family:var(--f-display);font-weight:800;font-size:2rem}
+.summary s{color:var(--dim);font-size:.95rem;margin-inline-end:8px}
+.done{text-align:center;padding:40px 10px}
+.done .ok{width:72px;height:72px;margin:0 auto 18px;border-radius:50%;background:var(--volt);display:grid;place-items:center;font-size:2rem;box-shadow:0 0 40px var(--volt)}
+
+.faq{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.faq details{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:20px 24px}
+.faq summary{cursor:pointer;font-family:var(--f-display);font-weight:500;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq p{color:var(--dim);margin:.6em 0 0}
+footer{color:var(--dim);font-size:.88rem;border-top:1px solid var(--line);padding-block:30px 110px;text-align:center}
+.mbar{position:fixed;inset:auto 0 0;z-index:40;display:none;justify-content:space-between;align-items:center;background:rgba(14,19,32,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:900px){
+  .bento{grid-template-columns:1fr 1fr}
+  .t1,.t4,.t5{grid-column:span 2}.t1{grid-row:auto}
+  .config,.faq{grid-template-columns:1fr}
+  .preview{min-height:300px}
+  .nav-links{display:none}
+  .stage{height:260px}
+  .mbar{display:flex}
+}
+@media (max-width:480px){.fields{grid-template-columns:1fr}.bento{grid-template-columns:1fr}.t2,.t3{grid-column:span 2}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <div class="brand"><i></i>نبض برو</div>
+  <nav class="nav-links" aria-label="أقسام"><a href="#specs">المواصفات</a><a href="#compare">المقارنة</a><a href="#buy">الشراء</a><a href="#faq">الدعم</a></nav>
+  <a class="pill" href="#buy">اشترِ الآن</a>
+</div></header>
+
+<main>
+<section class="hero wrap" style="padding-block:80px 30px">
+  <span class="kicker"><b>جديد</b> عزل ضوضاء تكيّفي بقوة ٥٢ ديسيبل</span>
+  <h1>اسمع ما يهمّك <span>فقط</span></h1>
+  <p>سماعات لاسلكية بعزل ذكي يتعلّم بيئتك، صوت مكاني ثلاثي الأبعاد، وبطارية تكفي رحلة دبي–لندن ذهاباً وعودة.</p>
+  <div class="hero-cta"><a class="pill volt" href="#buy">اطلبها بـ ٤٤٩ د.إ</a><a class="pill" style="background:transparent;color:var(--text);border:1px solid var(--line)" href="#specs">شاهد المواصفات</a></div>
+  <div class="anc-toggle" role="group" aria-label="وضع الصوت">
+    <button type="button" data-mode="anc" aria-pressed="true">عزل كامل</button>
+    <button type="button" data-mode="aware" aria-pressed="false">وضع الشفافية</button>
+    <button type="button" data-mode="off" aria-pressed="false">إيقاف</button>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <canvas id="wave"></canvas>
+    <div class="buds">
+      <svg class="bud" viewBox="0 0 100 150"><defs><linearGradient id="bg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f3f5fa"/><stop offset="1" stop-color="#9aa3b8"/></linearGradient></defs><ellipse cx="52" cy="44" rx="40" ry="38" fill="url(#bg1)"/><rect x="30" y="60" width="26" height="84" rx="13" fill="url(#bg1)"/><ellipse cx="62" cy="36" rx="14" ry="12" fill="#0e1320"/><circle cx="43" cy="132" r="3" fill="#4d7cff"/></svg>
+      <svg class="bud" viewBox="0 0 100 150"><ellipse cx="52" cy="44" rx="40" ry="38" fill="url(#bg1)"/><rect x="30" y="60" width="26" height="84" rx="13" fill="url(#bg1)"/><ellipse cx="62" cy="36" rx="14" ry="12" fill="#0e1320"/><circle cx="43" cy="132" r="3" fill="#4d7cff"/></svg>
+    </div>
+  </div>
+</section>
+
+<section id="specs" class="wrap">
+  <h2 class="h2">هندسة صوت بلا تنازلات</h2>
+  <p class="sub">كل رقم هنا مُقاس في مختبرنا، وليس في كتيّب التسويق.</p>
+  <div class="bento">
+    <div class="tile t1">
+      <div class="big">٥٢<small>ديسيبل</small></div>
+      <h3>عزل ضوضاء تكيّفي</h3>
+      <p>ستة ميكروفونات تقيس الضجيج ٤٨ ألف مرة في الثانية، فتختفي أصوات المحرّكات والمكيّفات وزحمة المترو.</p>
+      <div class="rings" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+    <div class="tile t2"><div class="big">٤٠<small>ساعة</small></div><h3>مع علبة الشحن</h3><p>١٠ دقائق شحن = ساعتان تشغيل.</p></div>
+    <div class="tile t3"><div class="big">IP<small>٥٥</small></div><h3>مقاومة العرق والغبار</h3><p>للجيم وللجري في حرّ الصيف.</p></div>
+    <div class="tile t4">
+      <h3>البطارية لحظياً</h3>
+      <p>السماعة اليمنى · اليسرى · العلبة</p>
+      <div class="battery" id="battery"><span style="--h:0%" data-h="92%"></span><span style="--h:0%" data-h="88%"></span><span style="--h:0%" data-h="64%"></span></div>
+    </div>
+    <div class="tile t5"><h3>اتصال بجهازين معاً</h3><p>انتقل من اللابتوب إلى الجوال دون إعادة الإقران. بلوتوث ٥٫٤ بزمن تأخير ٦٠ ملّي ثانية للألعاب.</p><div class="chips"><span>LDAC</span><span>AAC</span><span>صوت مكاني</span><span>مكالمات بعزل الرياح</span></div></div>
+  </div>
+</section>
+
+<section id="compare" class="wrap">
+  <h2 class="h2">قارن قبل أن تقرّر</h2>
+  <p class="sub">نفس الفئة، نصف السعر تقريباً.</p>
+  <div class="compare-wrap">
+    <table class="compare">
+      <thead><tr><th>الميزة</th><th>نبض برو</th><th>منافس أ</th><th>منافس ب</th></tr></thead>
+      <tbody>
+        <tr><td>عزل الضوضاء</td><td>٥٢ ديسيبل</td><td>٤٨ ديسيبل</td><td>٣٥ ديسيبل</td></tr>
+        <tr><td>البطارية الكلية</td><td>٤٠ ساعة</td><td>٣٠ ساعة</td><td>٢٨ ساعة</td></tr>
+        <tr><td>اتصال بجهازين</td><td class="yes">نعم</td><td>نعم</td><td>لا</td></tr>
+        <tr><td>شحن لاسلكي</td><td class="yes">نعم</td><td>نعم</td><td>لا</td></tr>
+        <tr><td>السعر</td><td>٤٤٩ د.إ</td><td>٩٩٩ د.إ</td><td>٥٤٩ د.إ</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="buy" class="wrap">
+  <h2 class="h2">اختر لونك، ونوصّلها غداً</h2>
+  <p class="sub">توصيل في نفس اليوم داخل دبي والشارقة للطلبات قبل الساعة ٢ ظهراً. الدفع نقداً أو بالبطاقة عند الاستلام.</p>
+  <div class="config">
+    <div class="preview" id="preview" aria-hidden="true">
+      <svg viewBox="0 0 220 160"><defs><linearGradient id="caseG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c1,#f3f5fa)"/><stop offset="1" stop-color="var(--c2,#9aa3b8)"/></linearGradient></defs><rect x="20" y="30" width="180" height="110" rx="50" fill="url(#caseG)"/><path d="M20 78h180" stroke="#000" stroke-opacity=".18"/><circle cx="110" cy="104" r="4" fill="#4d7cff"/></svg>
+    </div>
+    <form class="panel" id="buyForm" novalidate>
+      <div id="buyBody">
+        <h3>نبض برو</h3>
+        <div class="opt-label">اللون: <b id="colorName" style="color:var(--text)">أبيض قطبي</b></div>
+        <div class="swatches" role="radiogroup" aria-label="اللون">
+          <button type="button" class="swatch" role="radio" aria-checked="true" aria-label="أبيض قطبي" data-name="أبيض قطبي" data-c1="#f3f5fa" data-c2="#9aa3b8" data-glow="rgba(77,124,255,.35)" style="background:#e9edf5"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="أسود ليلي" data-name="أسود ليلي" data-c1="#3a4051" data-c2="#0c0f17" data-glow="rgba(140,150,180,.25)" style="background:#1b1f2b"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="مرجاني" data-name="مرجاني" data-c1="#ffb19c" data-c2="#d9583a" data-glow="rgba(255,122,89,.35)" style="background:#ff8a6a"></button>
+          <button type="button" class="swatch" role="radio" aria-checked="false" aria-label="أزرق كهربائي" data-name="أزرق كهربائي" data-c1="#8fb0ff" data-c2="#2c4fcc" data-glow="rgba(77,124,255,.5)" style="background:#4d7cff"></button>
+        </div>
+        <div class="opt-label">الكمية</div>
+        <div class="qty"><button type="button" id="minus" aria-label="إنقاص">−</button><output id="qty">١</output><button type="button" id="plus" aria-label="زيادة">+</button></div>
+        <div class="fields">
+          <div><input id="bname" placeholder="الاسم" autocomplete="name" aria-label="الاسم"><span class="err" data-for="bname"></span></div>
+          <div><input id="bphone" placeholder="05x xxx xxxx" type="tel" inputmode="tel" aria-label="رقم الهاتف"><span class="err" data-for="bphone"></span></div>
+          <div class="full"><select id="bemirate" aria-label="الإمارة"><option value="">الإمارة</option><option>دبي</option><option>أبوظبي</option><option>الشارقة</option><option>عجمان</option><option>رأس الخيمة</option><option>الفجيرة</option><option>أم القيوين</option></select><span class="err" data-for="bemirate"></span></div>
+          <div class="full"><input id="baddr" placeholder="المنطقة، المبنى، رقم الشقة" aria-label="العنوان"></div>
+        </div>
+        <div class="summary"><span style="color:var(--dim)">الإجمالي<br><small>شامل الضريبة والتوصيل</small></span><span><s id="was">٦٩٩ د.إ</s><span class="amt" id="amt">٤٤٩ د.إ</span></span></div>
+        <button class="pill volt" type="submit" style="width:100%;justify-content:center;padding:15px">تأكيد الطلب</button>
+        <p style="color:var(--dim);font-size:.85rem;text-align:center;margin:12px 0 0">ضمان سنتين · إرجاع مجاني خلال ١٤ يوماً</p>
+      </div>
+      <div class="done" id="buyDone" hidden><div class="ok">✓</div><h3>طلبك في الطريق</h3><p id="doneMsg" style="color:var(--dim)"></p></div>
+    </form>
+  </div>
+</section>
+
+<section id="faq" class="wrap">
+  <h2 class="h2">أسئلة شائعة</h2>
+  <div class="faq" style="margin-top:30px">
+    <details><summary>هل تعمل مع آيفون وأندرويد؟</summary><p>نعم، مع أي جهاز يدعم البلوتوث. تطبيق «نبض» متاح على المتجرين لتخصيص المعادل الصوتي.</p></details>
+    <details><summary>هل الضمان رسمي في الإمارات؟</summary><p>ضمان سنتين لدى مركز الخدمة في دبي، مع استبدال فوري خلال أول ٣٠ يوماً.</p></details>
+    <details><summary>هل هي مريحة لساعات طويلة؟</summary><p>وزن كل سماعة ٤٫٨ غرام، وتأتي مع ٤ مقاسات من الأطراف السيليكونية.</p></details>
+    <details><summary>كيف أدفع؟</summary><p>نقداً أو بالبطاقة عند الاستلام، أو بالتقسيط على ٤ دفعات بدون فوائد.</p></details>
+  </div>
+</section>
+</main>
+<footer class="wrap">© نبض للصوتيات · دبي · صفحة نموذجية: العلامة والأسعار والمقارنات محتوى تجريبي.</footer>
+<div class="mbar"><b id="mAmt" style="font-family:var(--f-display);font-size:1.3rem">٤٤٩ د.إ</b><a class="pill volt" href="#buy">اشترِ الآن</a></div>
+
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  // waveform: amplitude reacts to the noise-mode toggle
+  const cv = document.getElementById('wave'), ctx = cv.getContext('2d');
+  let amp = .25, target = .25, t = 0;
+  const modes = {anc:.25, aware:.7, off:1};
+  document.querySelectorAll('.anc-toggle button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.anc-toggle button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    target = modes[b.dataset.mode];
+  }));
+  function size(){ const r = cv.getBoundingClientRect(); cv.width = r.width * devicePixelRatio; cv.height = r.height * devicePixelRatio; }
+  size(); addEventListener('resize', size);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function draw(){
+    const w = cv.width, h = cv.height; ctx.clearRect(0,0,w,h);
+    amp += (target - amp) * .05; t += .02;
+    const lines = [['rgba(77,124,255,.9)',1],['rgba(157,182,255,.45)',.7],['rgba(255,122,89,.5)',.45]];
+    lines.forEach(([c,k],i) => {
+      ctx.beginPath(); ctx.strokeStyle = c; ctx.lineWidth = 2 * devicePixelRatio;
+      for (let x = 0; x <= w; x += 4){
+        const n = x / w;
+        const env = Math.sin(n * Math.PI);
+        const y = h/2 + env * amp * k * h * .32 * (Math.sin(n*14 + t*3 + i) * .6 + Math.sin(n*37 - t*5 + i*2) * .4 * amp);
+        x ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+      }
+      ctx.stroke();
+    });
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  draw();
+
+  // battery fill when visible
+  const bat = document.getElementById('battery');
+  new IntersectionObserver((es,o) => { if (es[0].isIntersecting){ bat.querySelectorAll('span').forEach(s => s.style.setProperty('--h', s.dataset.h)); o.disconnect(); } }).observe(bat);
+
+  // configurator
+  const unit = 449, unitWas = 699; let q = 1;
+  const amt = document.getElementById('amt'), was = document.getElementById('was'), mAmt = document.getElementById('mAmt'), qo = document.getElementById('qty');
+  function price(){
+    const total = q >= 2 ? Math.round(unit * q * .9) : unit * q;
+    amt.textContent = ar(total) + ' د.إ'; mAmt.textContent = amt.textContent; was.textContent = ar(unitWas * q) + ' د.إ'; qo.textContent = ar(q);
+    return total;
+  }
+  document.getElementById('plus').onclick = () => { if (q < 9){ q++; price(); } };
+  document.getElementById('minus').onclick = () => { if (q > 1){ q--; price(); } };
+  const pv = document.getElementById('preview');
+  document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(x => x.setAttribute('aria-checked', x === s));
+    pv.style.setProperty('--c1', s.dataset.c1); pv.style.setProperty('--c2', s.dataset.c2); pv.style.setProperty('--glow', s.dataset.glow);
+    document.getElementById('colorName').textContent = s.dataset.name;
+  }));
+  const f = document.getElementById('buyForm');
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('bname').length < 2) errs.bname = 'الاسم مطلوب';
+    if (!/^(05\d|\+9715\d|9715\d)\d{7}$/.test(v('bphone').replace(/[\s-]/g,''))) errs.bphone = 'رقم إماراتي يبدأ بـ 05';
+    if (!v('bemirate')) errs.bemirate = 'اختر الإمارة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const total = price();
+    document.getElementById('buyBody').hidden = true; document.getElementById('buyDone').hidden = false;
+    document.getElementById('doneMsg').textContent = ar(q) + ' × نبض برو (' + document.getElementById('colorName').textContent + ') بإجمالي ' + ar(total) + ' د.إ. سيصلك رابط تتبّع الشحنة برسالة نصية إلى ' + v('bphone') + '.';
+  });
+  price();
+})();
+</script>
+</body>
+</html>

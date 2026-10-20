@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>دار العود الملكي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a single centred "majlis" column framed by a carved arch; ornament lives in the frame, never in the content */
+:root{
+  --ink:#0d0a08; --lacquer:#1a120d; --oxblood:#5a1a17; --gold:#c9a45c; --gold-hi:#ecd49a; --parch:#efe4cf; --muted:#a8977c;
+  --f-display:"Aref Ruqaa","Amiri",serif; --f-body:"Amiri","Times New Roman",serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--parch);font-family:var(--f-body);font-size:1.15rem;line-height:1.9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23c9a45c' stroke-opacity='.07'%3E%3Cpath d='M40 4l10 26 26 10-26 10-10 26-10-26L4 40l26-10z'/%3E%3Ccircle cx='40' cy='40' r='9'/%3E%3C/g%3E%3C/svg%3E");}
+.wrap{max-width:1080px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+.top{display:flex;justify-content:space-between;align-items:center;padding-block:22px;border-bottom:1px solid rgba(201,164,92,.18)}
+.logo{font-family:var(--f-display);font-size:1.7rem;color:var(--gold);text-decoration:none}
+.top nav{display:flex;gap:26px;font-size:1rem;color:var(--muted)}
+.top nav a{text-decoration:none}
+.top nav a:hover{color:var(--gold-hi)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-weight:700;font-size:1.1rem;
+  padding:14px 34px;border:1px solid var(--gold);background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--ink);
+  text-decoration:none;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px -10px rgba(236,212,154,.5)}
+.btn.ghost{background:transparent;color:var(--gold-hi)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-block:64px 40px}
+.eyebrow{letter-spacing:.06em;color:var(--gold);font-size:1rem}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.35;margin:.2em 0 .3em;color:var(--gold-hi);text-wrap:balance}
+.lede{color:#d8c9ad;max-width:34ch;font-size:1.25rem}
+.price-row{display:flex;align-items:baseline;gap:18px;margin:26px 0;flex-wrap:wrap}
+.price{font-size:2.4rem;font-weight:700;color:var(--gold-hi)}
+.price small{font-size:1rem;color:var(--muted)}
+.was{text-decoration:line-through;color:var(--muted)}
+.tag{border:1px solid var(--oxblood);background:rgba(90,26,23,.5);padding:2px 12px;font-size:.95rem;color:#f0c9b8}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.assure{display:flex;gap:22px;flex-wrap:wrap;margin-top:26px;font-size:.98rem;color:var(--muted)}
+.assure span::before{content:"◆";color:var(--gold);margin-inline-end:8px;font-size:.7em}
+
+.arch{position:relative;aspect-ratio:3/4;max-width:100%;border:1px solid rgba(201,164,92,.45);border-radius:999px 999px 6px 6px;
+  background:radial-gradient(60% 50% at 50% 60%,rgba(90,26,23,.85),transparent 70%),linear-gradient(180deg,#1f1611,#0f0b09);
+  display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 10px rgba(13,10,8,.9),inset 0 0 0 11px rgba(201,164,92,.25)}
+.arch svg{width:62%;height:auto;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6));animation:float 7s ease-in-out infinite}
+.smoke{position:absolute;inset:0;pointer-events:none}
+.smoke i{position:absolute;bottom:30%;left:50%;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(239,228,207,.12),transparent 65%);animation:rise 9s linear infinite}
+.smoke i:nth-child(2){animation-delay:3s;margin-left:-60px}
+.smoke i:nth-child(3){animation-delay:6s;margin-left:20px}
+@keyframes float{50%{transform:translateY(-12px)}}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-320px) scale(2.2);opacity:0}}
+
+/* notes pyramid */
+section{padding-block:72px}
+.sec-title{text-align:center;font-family:var(--f-display);color:var(--gold);font-size:clamp(2rem,4vw,2.8rem);margin:0 0 8px;text-wrap:balance}
+.sec-sub{text-align:center;color:var(--muted);margin:0 auto 46px;max-width:52ch}
+.pyramid{display:grid;gap:14px;max-width:760px;margin-inline:auto}
+.tier{display:grid;grid-template-columns:140px 1fr;align-items:center;gap:22px;padding:22px 26px;border:1px solid rgba(201,164,92,.22);background:rgba(26,18,13,.75)}
+.tier:nth-child(1){margin-inline:18%}
+.tier:nth-child(2){margin-inline:9%}
+.tier b{font-family:var(--f-display);color:var(--gold-hi);font-size:1.4rem;font-weight:400}
+.tier p{margin:0;color:#d8c9ad}
+.tier em{display:block;font-style:normal;color:var(--muted);font-size:.9rem}
+
+/* craft */
+.craft{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-block:1px solid rgba(201,164,92,.22)}
+.craft div{padding:34px 28px;border-inline-start:1px solid rgba(201,164,92,.22)}
+.craft div:first-child{border-inline-start:0}
+.craft .num{font-family:var(--f-display);font-size:3rem;color:var(--gold);line-height:1}
+.craft h3{margin:.4em 0 .2em;font-size:1.35rem;color:var(--gold-hi)}
+.craft p{margin:0;color:#cdbd9f;font-size:1.05rem}
+
+/* quote */
+.quote{background:var(--oxblood);background-image:linear-gradient(135deg,rgba(0,0,0,.25),transparent)}
+.quote blockquote{margin:0 auto;max-width:760px;text-align:center;font-size:clamp(1.4rem,3vw,2rem);line-height:1.7;color:var(--parch)}
+.quote cite{display:block;margin-top:18px;font-style:normal;color:var(--gold-hi);font-size:1.05rem}
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+.review{background:rgba(13,10,8,.35);padding:22px;border:1px solid rgba(236,212,154,.2)}
+.review .stars{color:var(--gold-hi);letter-spacing:3px}
+.review p{margin:.5em 0;font-size:1.05rem}
+.review small{color:#e2cfb4}
+
+/* order */
+.order{display:grid;grid-template-columns:.95fr 1.05fr;gap:40px;align-items:start}
+.bundles{display:grid;gap:12px}
+.bundle{position:relative;display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid rgba(201,164,92,.3);background:rgba(26,18,13,.8);cursor:pointer;transition:border-color .2s,background .2s}
+.bundle input{accent-color:var(--gold);width:20px;height:20px}
+.bundle:has(input:checked){border-color:var(--gold-hi);background:rgba(90,26,23,.55)}
+.bundle .b-name{flex:1}
+.bundle .b-name b{display:block;color:var(--gold-hi);font-size:1.15rem}
+.bundle .b-name span{color:var(--muted);font-size:.95rem}
+.bundle .b-price{font-weight:700;font-size:1.3rem;color:var(--gold-hi);white-space:nowrap}
+.ribbon{position:absolute;top:-11px;inset-inline-start:16px;background:var(--gold);color:var(--ink);font-size:.8rem;padding:0 10px;font-weight:700}
+form.card{border:1px solid rgba(201,164,92,.4);padding:30px;background:linear-gradient(180deg,rgba(26,18,13,.95),rgba(13,10,8,.95))}
+.card h3{font-family:var(--f-display);color:var(--gold);font-size:1.9rem;margin:0 0 6px;font-weight:400}
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-size:.98rem;color:#d8c9ad}
+.field input,.field select,.field textarea{font:inherit;font-size:1.05rem;padding:11px 14px;background:#0f0b09;color:var(--parch);border:1px solid rgba(201,164,92,.3);border-radius:0;width:100%}
+.field input:focus,.field select:focus{border-color:var(--gold-hi);outline:none}
+.err{color:#f0a48f;font-size:.9rem;min-height:1em}
+.total{display:flex;justify-content:space-between;padding:14px 0;margin:6px 0 16px;border-top:1px dashed rgba(201,164,92,.35);font-size:1.2rem}
+.total b{color:var(--gold-hi)}
+.full{width:100%}
+.success{text-align:center;padding:30px 10px}
+.success .seal{width:84px;height:84px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold-hi);font-family:var(--f-display);font-size:2rem}
+
+/* faq */
+.faq{max-width:780px;margin-inline:auto}
+details{border-bottom:1px solid rgba(201,164,92,.22);padding:18px 4px}
+summary{cursor:pointer;font-size:1.2rem;color:var(--gold-hi);list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::after{content:"+";color:var(--gold);font-size:1.4rem;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:.6em 0 0;color:#cdbd9f}
+
+footer{border-top:1px solid rgba(201,164,92,.18);padding-block:34px 110px;color:var(--muted);font-size:.95rem;text-align:center}
+.sticky{position:fixed;inset:auto 0 0 0;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:20;
+  background:rgba(13,10,8,.96);border-top:1px solid rgba(201,164,92,.4);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sticky b{color:var(--gold-hi);font-size:1.25rem}
+.sticky .btn{padding:10px 22px}
+
+@media (max-width:860px){
+  .hero,.order{grid-template-columns:1fr}
+  .arch{max-width:360px;margin-inline:auto;order:-1;width:100%}
+  .craft,.reviews{grid-template-columns:1fr}
+  .craft div{border-inline-start:0;border-top:1px solid rgba(201,164,92,.22)}
+  .craft div:first-child{border-top:0}
+  .top nav{display:none}
+  .tier{grid-template-columns:1fr;gap:4px}
+  .tier:nth-child(1),.tier:nth-child(2){margin-inline:0}
+  .sticky{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="logo" href="#">دار العود</a>
+  <nav aria-label="روابط الصفحة"><a href="#notes">المكوّنات</a><a href="#craft">الصنعة</a><a href="#reviews">آراء العملاء</a><a href="#faq">أسئلة</a></nav>
+  <a class="btn ghost" href="#order">اطلب الآن</a>
+</header>
+
+<main>
+<section class="wrap hero" style="padding-block:64px 40px">
+  <div>
+    <div class="eyebrow">إصدار محدود · ٣٠٠ قارورة فقط</div>
+    <h1>عودٌ ملكيّ يبقى أثرُه بعد أن تغادر المجلس</h1>
+    <p class="lede">دهن عود كمبودي معتّق خمس سنوات، ممزوج بالورد الطائفي والعنبر الأشهب. ثبات يتجاوز ٢٤ ساعة على الثوب.</p>
+    <div class="price-row">
+      <span class="price">٣٤٩ <small>ر.س</small></span>
+      <span class="was">٥٢٠ ر.س</span>
+      <span class="tag">وفّر ٣٣٪ لفترة الإطلاق</span>
+    </div>
+    <div class="hero-actions">
+      <a class="btn" href="#order">احجز قارورتك</a>
+      <a class="btn ghost" href="#notes">تعرّف على الرائحة</a>
+    </div>
+    <div class="assure"><span>الدفع عند الاستلام</span><span>شحن مجاني خلال ٤٨ ساعة</span><span>ضمان الأصالة</span></div>
+  </div>
+  <div class="arch" aria-hidden="true">
+    <div class="smoke"><i></i><i></i><i></i></div>
+    <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="glass" x1="0" x2="1"><stop offset="0" stop-color="#3a1210"/><stop offset=".45" stop-color="#7a2a20"/><stop offset=".55" stop-color="#9b3a28"/><stop offset="1" stop-color="#2a0d0b"/></linearGradient>
+        <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#8a6a2e"/><stop offset=".5" stop-color="#f3dea6"/><stop offset="1" stop-color="#8a6a2e"/></linearGradient>
+      </defs>
+      <path d="M100 18c10 0 16 10 16 22 0 10-6 16-6 22H90c0-6-6-12-6-22 0-12 6-22 16-22z" fill="url(#gold)"/>
+      <rect x="84" y="62" width="32" height="20" fill="url(#gold)"/>
+      <path d="M84 82h32l6 14H78z" fill="#a8823e"/>
+      <path d="M78 96h44c34 18 50 52 50 92 0 56-30 92-72 92s-72-36-72-92c0-40 16-74 50-92z" fill="url(#glass)"/>
+      <path d="M100 120l14 36 36 14-36 14-14 36-14-36-36-14 36-14z" fill="none" stroke="url(#gold)" stroke-width="2"/>
+      <circle cx="100" cy="170" r="12" fill="none" stroke="url(#gold)" stroke-width="1.5"/>
+      <path d="M52 140c-8 20-10 50-2 80" stroke="#fff" stroke-opacity=".18" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</section>
+
+<section id="notes" class="wrap">
+  <h2 class="sec-title">هرم الرائحة</h2>
+  <p class="sec-sub">ثلاث طبقات تتكشّف على مدار اليوم: افتتاحية مشرقة، قلب دافئ، وقاعدة عميقة تبقى حتى الغد.</p>
+  <div class="pyramid">
+    <div class="tier"><b>الافتتاحية</b><p>زعفران إيراني، هيل أخضر، لمسة بخور لبان ظفاري<em>أول ١٥ دقيقة</em></p></div>
+    <div class="tier"><b>القلب</b><p>ورد طائفي مقطّر في الهدا، جلد ناعم، باتشولي<em>من ساعة إلى ٦ ساعات</em></p></div>
+    <div class="tier"><b>القاعدة</b><p>دهن عود كمبودي معتّق، عنبر أشهب، مسك أبيض، صندل ميسوري<em>حتى ٢٤ ساعة وأكثر</em></p></div>
+  </div>
+</section>
+
+<section id="craft" class="wrap">
+  <h2 class="sec-title">صنعة لا تُستعجل</h2>
+  <p class="sec-sub">من الغابة إلى القارورة، كل خطوة تتم يدوياً في ورشتنا بالطائف.</p>
+  <div class="craft">
+    <div><div class="num">٥</div><h3>سنوات تعتيق</h3><p>يُترك الدهن في أوانٍ نحاسية حتى تهدأ حدّته ويكتسب نعومة الخشب القديم.</p></div>
+    <div><div class="num">١٢</div><h3>ملّ لكل قارورة</h3><p>تركيز ٣٠٪ زيوت عطرية، تكفي قطرة واحدة على المعصم وطرف الشماغ.</p></div>
+    <div><div class="num">٠</div><h3>كحول أو إضافات</h3><p>دهن خالص يناسب البشرة الحساسة ولا يترك بقعاً على الثوب الأبيض.</p></div>
+  </div>
+</section>
+
+<section id="reviews" class="quote">
+  <div class="wrap">
+    <blockquote>«حضرت به عرس أخي، وفي آخر الليل ما زال الناس يسألون عن العطر. رائحة رجل يعرف ما يريد.»<cite>خالد العتيبي · الرياض</cite></blockquote>
+    <div class="reviews">
+      <div class="review"><div class="stars">★★★★★</div><p>الثبات حقيقي. رشّة صباحاً وما زال على الشماغ في اليوم التالي.</p><small>فهد · جدة</small></div>
+      <div class="review"><div class="stars">★★★★★</div><p>التغليف فخم جداً، أهديته لوالدي في العيد وكان أجمل هدية.</p><small>نورة · الدمام</small></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>عود أصلي بلا حدّة. أتمنى لو كان هناك حجم أكبر.</p><small>عبدالله · المدينة</small></div>
+    </div>
+  </div>
+</section>
+
+<section id="order" class="wrap">
+  <h2 class="sec-title">اختر هديتك</h2>
+  <p class="sec-sub">ادفع نقداً عند الاستلام. التوصيل لجميع مدن المملكة خلال ٢ إلى ٤ أيام عمل.</p>
+  <div class="order">
+    <div class="bundles" role="radiogroup" aria-label="الباقات">
+      <label class="bundle"><input type="radio" name="bundle" value="1" data-price="349" data-label="قارورة واحدة"><span class="b-name"><b>قارورة واحدة</b><span>١٢ ملّ في علبة خشب الجوز</span></span><span class="b-price">٣٤٩ ر.س</span></label>
+      <label class="bundle"><span class="ribbon">الأكثر طلباً</span><input type="radio" name="bundle" value="2" data-price="599" data-label="قارورتان" checked><span class="b-name"><b>قارورتان</b><span>واحدة لك وواحدة هدية · وفّر ٩٩ ر.س</span></span><span class="b-price">٥٩٩ ر.س</span></label>
+      <label class="bundle"><input type="radio" name="bundle" value="3" data-price="899" data-label="صندوق المجلس"><span class="b-name"><b>صندوق المجلس</b><span>٣ قوارير + مبخرة نحاسية + بخور</span></span><span class="b-price">٨٩٩ ر.س</span></label>
+      <p style="color:var(--muted);font-size:1rem;margin:8px 0 0">تبقّى <b id="stock" style="color:var(--gold-hi)">٤٧</b> قارورة من الإصدار. السعر يعود إلى ٥٢٠ ر.س بعد نفاد الكمية.</p>
+    </div>
+    <form class="card" id="orderForm" novalidate>
+      <div id="formBody">
+        <h3>بيانات التوصيل</h3>
+        <p style="margin:0 0 18px;color:var(--muted);font-size:1rem">لن تدفع شيئاً الآن. سيتصل بك فريقنا لتأكيد الطلب.</p>
+        <div class="field"><label for="name">الاسم الكامل</label><input id="name" name="name" autocomplete="name" required><span class="err" data-for="name"></span></div>
+        <div class="field"><label for="phone">رقم الجوال</label><input id="phone" name="phone" type="tel" inputmode="tel" placeholder="05xxxxxxxx" dir="ltr" style="text-align:right" required><span class="err" data-for="phone"></span></div>
+        <div class="field"><label for="city">المدينة</label><select id="city" name="city" required><option value="">اختر المدينة</option><option>الرياض</option><option>جدة</option><option>مكة المكرمة</option><option>المدينة المنورة</option><option>الدمام</option><option>الطائف</option><option>أبها</option><option>تبوك</option><option>أخرى</option></select><span class="err" data-for="city"></span></div>
+        <div class="field"><label for="addr">الحي والعنوان</label><input id="addr" name="addr" autocomplete="street-address"></div>
+        <div class="total"><span>الإجمالي (<span id="sumLabel">قارورتان</span>)</span><b id="sum">٥٩٩ ر.س</b></div>
+        <button class="btn full" type="submit">تأكيد الطلب · الدفع عند الاستلام</button>
+      </div>
+      <div class="success" id="success" hidden>
+        <div class="seal">✓</div>
+        <h3>تم استلام طلبك</h3>
+        <p id="successMsg" style="color:#d8c9ad"></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section id="faq" class="wrap">
+  <h2 class="sec-title">أسئلة متكررة</h2>
+  <div class="faq">
+    <details><summary>هل العود أصلي؟</summary><p>نعم، كل دفعة تأتي بشهادة مصدر من مزارع كمبوديا، ورقم الدفعة مطبوع على قاعدة القارورة.</p></details>
+    <details><summary>كم يدوم العطر على الملابس؟</summary><p>على الأقمشة القطنية والصوفية يبقى من ٢٤ إلى ٤٨ ساعة. على البشرة من ٨ إلى ١٢ ساعة.</p></details>
+    <details><summary>هل يمكنني الإرجاع؟</summary><p>إن لم تعجبك الرائحة، أعد القارورة خلال ٧ أيام ونسترد المبلغ كاملاً، بشرط ألا يتجاوز الاستخدام ربع الكمية.</p></details>
+    <details><summary>متى يصل الطلب؟</summary><p>الرياض وجدة والدمام خلال ٢٤ إلى ٤٨ ساعة، وباقي المدن خلال ٣ إلى ٤ أيام عمل.</p></details>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">© دار العود · الطائف · صفحة نموذجية: العلامة والأسعار والآراء محتوى تجريبي.</footer>
+
+<div class="sticky"><div><b id="stickyPrice">٥٩٩ ر.س</b><div style="font-size:.85rem;color:var(--muted)">الدفع عند الاستلام</div></div><a class="btn" href="#order">اطلب الآن</a></div>
+
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  const radios = document.querySelectorAll('input[name=bundle]');
+  const sum = document.getElementById('sum'), sumLabel = document.getElementById('sumLabel'), sticky = document.getElementById('stickyPrice');
+  function update(){
+    const r = document.querySelector('input[name=bundle]:checked');
+    const p = ar(+r.dataset.price) + ' ر.س';
+    sum.textContent = p; sticky.textContent = p; sumLabel.textContent = r.dataset.label;
+  }
+  radios.forEach(r => r.addEventListener('change', update)); update();
+
+  const form = document.getElementById('orderForm');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => form.querySelector('#'+id).value.trim();
+    const errs = {};
+    if (v('name').length < 3) errs.name = 'اكتب اسمك الكامل.';
+    if (!/^(05|9665|\+9665)\d{8}$/.test(v('phone').replace(/\s/g,''))) errs.phone = 'رقم الجوال يبدأ بـ 05 ويتكوّن من ١٠ أرقام.';
+    if (!v('city')) errs.city = 'اختر مدينة التوصيل.';
+    form.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) { form.querySelector('#'+Object.keys(errs)[0]).focus(); return; }
+    const r = document.querySelector('input[name=bundle]:checked');
+    document.getElementById('formBody').hidden = true;
+    document.getElementById('success').hidden = false;
+    document.getElementById('successMsg').textContent = 'شكراً ' + v('name').split(' ')[0] + '. طلبك (' + r.dataset.label + ') بقيمة ' + ar(+r.dataset.price) + ' ر.س. سنتصل بك على ' + v('phone') + ' خلال ساعات لتأكيد موعد التوصيل إلى ' + v('city') + '.';
+  });
+})();
+</script>
+</body>
+</html>

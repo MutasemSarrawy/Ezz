@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مكعبات حروفي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lemonada:wght@500;700&family=Baloo+Bhaijaan+2:wght@400;600;800&display=swap">
+<style>
+/* Layout: a toy box — chunky rounded slabs that sit at slight angles, tappable letter blocks the visitor can actually play with */
+:root{
+  --sky:#bfe6ff; --sun:#ffd23f; --berry:#ff6b8b; --mint:#3ecf9b; --grape:#7b5cff; --ink:#23204a; --paper:#fffaf0;
+  --f-display:"Lemonada","Baloo Bhaijaan 2",cursive; --f-body:"Baloo Bhaijaan 2",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:1.12rem;line-height:1.7;overflow-x:hidden}
+.wrap{max-width:1140px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:4px dashed var(--grape);outline-offset:4px}
+.top{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
+.logo{font-family:var(--f-display);font-weight:700;font-size:1.5rem;display:flex;gap:4px}
+.logo span{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;color:#fff;font-size:1.2rem}
+.btn{display:inline-flex;align-items:center;gap:8px;font:800 1.15rem var(--f-body);background:var(--berry);color:#fff;border:3px solid var(--ink);border-radius:999px;padding:12px 30px;box-shadow:0 6px 0 var(--ink);cursor:pointer;white-space:nowrap;text-decoration:none;transition:transform .15s cubic-bezier(.3,1.6,.5,1),box-shadow .15s}
+.btn:hover{transform:translateY(-3px) rotate(-1.5deg);box-shadow:0 9px 0 var(--ink)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.btn.y{background:var(--sun);color:var(--ink)}
+
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;padding-block:30px 70px}
+.age{display:inline-block;background:var(--paper);border:3px solid var(--ink);border-radius:14px;padding:2px 14px;font-weight:800;transform:rotate(-3deg)}
+.hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(2.3rem,5.5vw,4rem);line-height:1.45;margin:18px 0 14px;text-wrap:balance}
+.hero h1 mark{background:var(--sun);color:inherit;padding:0 10px;border-radius:12px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero p{font-size:1.25rem;max-width:36ch;margin:0 0 26px}
+.trust{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px;font-weight:600}
+.trust span{display:flex;align-items:center;gap:6px}
+.trust i{width:24px;height:24px;border-radius:50%;background:var(--mint);display:grid;place-items:center;color:#fff;font-style:normal;font-size:.8rem;border:2px solid var(--ink)}
+
+.playbox{position:relative;background:var(--paper);border:4px solid var(--ink);border-radius:40px;padding:30px;box-shadow:12px 12px 0 var(--ink);min-height:380px}
+.playbox h2{margin:0;font:800 1.1rem var(--f-body);text-align:center}
+.playbox .hint{text-align:center;font-size:.95rem;margin:0 0 14px;opacity:.75}
+.blocks{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.blk{aspect-ratio:1;max-width:100%;border:3px solid var(--ink);border-radius:18px;font:700 clamp(1.6rem,4vw,2.4rem) var(--f-display);color:#fff;cursor:pointer;box-shadow:0 6px 0 var(--ink);transition:transform .25s cubic-bezier(.3,1.8,.5,1);display:grid;place-items:center;padding:0}
+.blk:hover{transform:translateY(-6px) rotate(6deg)}
+.blk.pop{animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{40%{transform:scale(1.25) rotate(-10deg)}}
+.word{margin-top:18px;text-align:center;min-height:86px;background:var(--sky);border:3px dashed var(--ink);border-radius:20px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.word b{font:700 1.8rem var(--f-display)}
+.word span{font-size:.95rem}
+.blob{position:absolute;z-index:-1;border-radius:50%}
+
+.wave{height:46px;display:block;width:100%;margin-bottom:-1px}
+.band{background:var(--paper)}
+section{padding-block:70px}
+.h2{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,4.5vw,3rem);line-height:1.5;margin:0 0 10px;text-align:center;text-wrap:balance}
+.sub{text-align:center;max-width:50ch;margin:0 auto 44px;font-size:1.15rem}
+.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.skill{border:3px solid var(--ink);border-radius:28px;padding:24px 20px;text-align:center;box-shadow:0 8px 0 var(--ink)}
+.skill:nth-child(odd){transform:rotate(-2deg)}
+.skill:nth-child(even){transform:rotate(2deg) translateY(14px)}
+.skill .em{width:70px;height:70px;margin:0 auto 10px;border-radius:22px;background:var(--paper);border:3px solid var(--ink);display:grid;place-items:center}
+.skill .em svg{width:40px;height:40px}
+.skill h3{font:800 1.3rem var(--f-body);margin:0 0 4px}
+.skill p{margin:0;font-size:1rem}
+
+.box{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.inbox{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.inbox li{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px 16px;font-weight:600}
+.inbox li b{display:grid;place-items:center;min-width:46px;height:46px;border-radius:14px;background:var(--sun);border:2px solid var(--ink);font:700 1.1rem var(--f-display)}
+.cert-card{background:var(--grape);color:#fff;border:4px solid var(--ink);border-radius:36px;padding:34px;box-shadow:12px 12px 0 var(--ink);transform:rotate(1.5deg)}
+.cert-card h3{font:700 1.6rem var(--f-display);margin:0 0 10px;line-height:1.5}
+.cert-card ul{margin:0;padding-inline-start:20px}
+
+.moms{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.mom{background:#fff;border:3px solid var(--ink);border-radius:26px;padding:22px;position:relative}
+.mom::after{content:"";position:absolute;bottom:-18px;inset-inline-start:34px;width:30px;height:30px;background:#fff;border:3px solid var(--ink);border-top:0;border-inline-start:0;transform:rotate(45deg);border-radius:0 0 6px 0}
+.mom p{margin:0 0 8px}
+.mom small{font-weight:800}
+.stars{color:#f5a300;font-size:1.2rem;letter-spacing:2px}
+
+.order{background:var(--sun)}
+.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:30px}
+.pack{position:relative;cursor:pointer;background:var(--paper);border:4px solid var(--ink);border-radius:30px;padding:24px;text-align:center;box-shadow:0 8px 0 var(--ink);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.pack:hover{transform:translateY(-4px)}
+.pack input{position:absolute;opacity:0}
+.pack:has(input:checked){background:var(--mint);transform:translateY(-6px) rotate(-1deg)}
+.pack:has(input:focus-visible){outline:4px dashed var(--grape);outline-offset:4px}
+.pack h3{font:700 1.3rem var(--f-display);margin:0}
+.pack .pc{font:800 2rem var(--f-body);margin:6px 0 0}
+.pack s{opacity:.6}
+.pack .flag{position:absolute;top:-16px;inset-inline-end:16px;background:var(--berry);color:#fff;border:3px solid var(--ink);border-radius:12px;padding:0 10px;font-weight:800;font-size:.9rem;transform:rotate(6deg)}
+.form{background:#fff;border:4px solid var(--ink);border-radius:32px;padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.form .full{grid-column:1/-1}
+.form label{font-weight:800;display:block;margin-bottom:4px}
+.form input,.form select{width:100%;font:inherit;padding:12px 16px;border:3px solid var(--ink);border-radius:16px;background:var(--paper);color:var(--ink)}
+.form input:focus,.form select:focus{outline:none;background:#fff;border-color:var(--grape)}
+.err{color:#d6204a;font-size:.92rem;font-weight:600;display:block;min-height:1.2em}
+.ftot{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:3px dashed var(--ink);padding-top:16px}
+.ftot b{font:800 2rem var(--f-body)}
+.yay{grid-column:1/-1;text-align:center;padding:20px}
+.yay .big{font:700 2.6rem var(--f-display)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+.faq{max-width:820px;margin-inline:auto;display:grid;gap:12px}
+.faq details{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:14px 20px}
+.faq summary{cursor:pointer;font-weight:800;font-size:1.15rem}
+.faq p{margin:.4em 0 0}
+footer{text-align:center;padding-block:26px 110px;font-weight:600}
+.mbar{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--paper);border-top:4px solid var(--ink);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mbar .btn{padding:8px 22px;box-shadow:0 4px 0 var(--ink)}
+@media (max-width:900px){
+  .hero,.box{grid-template-columns:1fr}
+  .skills{grid-template-columns:1fr 1fr}
+  .moms,.packs{grid-template-columns:1fr}
+  .mbar{display:flex}
+}
+@media (max-width:520px){.top .btn{padding:8px 16px;font-size:1rem}.logo span{width:32px;height:32px;font-size:1rem}.form{grid-template-columns:1fr}.skills{grid-template-columns:1fr}.skill:nth-child(even){transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <div class="logo" aria-label="حروفي"><span style="background:var(--berry)">ح</span><span style="background:var(--mint)">ر</span><span style="background:var(--grape)">و</span><span style="background:#f5a300">ف</span><span style="background:var(--berry)">ي</span></div>
+  <a class="btn y" href="#order">اطلب العلبة</a>
+</header>
+
+<main>
+<section class="wrap hero" style="padding-block:30px 70px">
+  <div>
+    <span class="age">من ٢ إلى ٦ سنوات</span>
+    <h1>طفلك يتعلّم الحروف <mark>وهو يلعب</mark>، بلا شاشات</h1>
+    <p>٢٨ مكعباً خشبياً ملوّناً بالحروف العربية، مع بطاقات صور وكلمات. ١٥ دقيقة لعب يومياً تكفي ليقرأ أول كلماته.</p>
+    <a class="btn" href="#order">أريد العلبة · ٦٩٠ ج.م</a>
+    <div class="trust"><span><i>✓</i>خشب زان طبيعي</span><span><i>✓</i>ألوان آمنة للأطفال</span><span><i>✓</i>الدفع عند الاستلام</span></div>
+  </div>
+  <div class="playbox">
+    <h2>جرّب بنفسك!</h2>
+    <p class="hint">اضغط على المكعبات</p>
+    <div class="blocks" id="blocks"></div>
+    <div class="word" id="word" aria-live="polite"><b>أ</b><span>أرنب يقفز في الحديقة</span></div>
+  </div>
+</section>
+
+<svg class="wave" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46V24C100 0 200 0 300 24S500 48 600 24 800 0 900 24 1100 48 1200 24V46z" fill="#fffaf0"/></svg>
+<div class="band">
+<section class="wrap">
+  <h2 class="h2">مهارات تكبر معه</h2>
+  <p class="sub">صمّمها أخصائيو تخاطب ومعلّمات رياض أطفال لتناسب كل مرحلة.</p>
+  <div class="skills">
+    <div class="skill" style="background:#ffe1e8"><div class="em"><svg viewBox="0 0 40 40" fill="none" stroke="#23204a" stroke-width="3" stroke-linecap="round"><path d="M8 30L20 8l12 22M12 22h16"/></svg></div><h3>الحروف والأصوات</h3><p>كل حرف بصورة وكلمة تبدأ به</p></div>
+    <div class="skill" style="background:#dcf7ec"><div class="em"><svg viewBox="0 0 40 40" fill="none" stroke="#23204a" stroke-width="3"><rect x="6" y="18" width="12" height="12" rx="2"/><rect x="22" y="18" width="12" height="12" rx="2"/><rect x="14" y="6" width="12" height="12" rx="2"/></svg></div><h3>التركيز والبناء</h3><p>تكديس المكعبات يقوّي العضلات الدقيقة</p></div>
+    <div class="skill" style="background:#e8e2ff"><div class="em"><svg viewBox="0 0 40 40" fill="none" stroke="#23204a" stroke-width="3" stroke-linecap="round"><circle cx="20" cy="20" r="13"/><path d="M14 23c2 3 10 3 12 0M15 16h0M25 16h0"/></svg></div><h3>الثقة بالنفس</h3><p>يفرح حين يكوّن أول كلمة وحده</p></div>
+    <div class="skill" style="background:#fff3c4"><div class="em"><svg viewBox="0 0 40 40" fill="none" stroke="#23204a" stroke-width="3" stroke-linecap="round"><path d="M10 12h20M10 20h14M10 28h18"/></svg></div><h3>الكلمات الأولى</h3><p>٦٠ بطاقة كلمات من حياته اليومية</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="box">
+    <div>
+      <h2 class="h2" style="text-align:start">ماذا في العلبة؟</h2>
+      <ul class="inbox">
+        <li><b>٢٨</b>مكعباً خشبياً بالحروف الهجائية، مقاس ٥ سم</li>
+        <li><b>٦٠</b>بطاقة صور وكلمات مقوّاة ضد التمزّق</li>
+        <li><b>١</b>كتيّب أنشطة للأهل بـ ٣٠ لعبة يومية</li>
+        <li><b>١</b>حقيبة قماشية لجمع المكعبات بعد اللعب</li>
+      </ul>
+    </div>
+    <div class="cert-card">
+      <h3>آمنة لأصغر الأيدي</h3>
+      <ul>
+        <li>حواف مستديرة مصقولة يدوياً</li>
+        <li>أصباغ مائية خالية من الرصاص</li>
+        <li>مطابقة لمعيار EN71 الأوروبي لسلامة الألعاب</li>
+        <li>حجم المكعب أكبر من أن يُبلع</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h2">أمهات جرّبنها</h2>
+  <div class="moms" style="margin-top:40px">
+    <div class="mom"><div class="stars">★★★★★</div><p>ابني عنده ٣ سنين، بقى يقول «ب بطة» لوحده بعد أسبوعين. بدل ما يمسك الموبايل بيجيب العلبة.</p><small>مريم · مدينة نصر</small></div>
+    <div class="mom"><div class="stars">★★★★★</div><p>الخشب تقيل وجامد، والألوان ما بتطلعش حتى بعد ما بنتي عضّتها كتير.</p><small>هبة · الإسكندرية</small></div>
+    <div class="mom"><div class="stars">★★★★☆</div><p>الكتيّب مفيد جداً لأني ما كنتش عارفة ألعب معاه إزاي. كنت أتمنى يكون فيه أرقام كمان.</p><small>سارة · المنصورة</small></div>
+  </div>
+</section>
+</div>
+
+<section id="order" class="order">
+  <div class="wrap">
+    <h2 class="h2">اختاري العلبة المناسبة</h2>
+    <p class="sub">التوصيل لكل المحافظات خلال ٢ إلى ٤ أيام. تفتحي العلبة وتتأكدي قبل ما تدفعي.</p>
+    <form id="kform" novalidate>
+      <div class="packs">
+        <label class="pack"><input type="radio" name="pack" data-price="690" data-label="علبة الحروف" checked><h3>علبة الحروف</h3><p style="margin:6px 0 0">٢٨ مكعب + ٦٠ بطاقة</p><div class="pc">٦٩٠ ج.م</div><s>٨٩٠ ج.م</s></label>
+        <label class="pack"><span class="flag">وفّري ٣٠٠</span><input type="radio" name="pack" data-price="1090" data-label="الحروف + الأرقام"><h3>الحروف + الأرقام</h3><p style="margin:6px 0 0">علبتان كاملتان</p><div class="pc">١٬٠٩٠ ج.م</div><s>١٬٣٩٠ ج.م</s></label>
+        <label class="pack"><input type="radio" name="pack" data-price="1290" data-label="هدية التوأم"><h3>هدية التوأم</h3><p style="margin:6px 0 0">علبتا حروف بتغليف هدية</p><div class="pc">١٬٢٩٠ ج.م</div><s>١٬٧٨٠ ج.م</s></label>
+      </div>
+      <div class="form" id="kbody">
+        <div><label for="kn">اسم الأم أو الأب</label><input id="kn" autocomplete="name"><span class="err" data-for="kn"></span></div>
+        <div><label for="kp">رقم الموبايل</label><input id="kp" type="tel" inputmode="tel" placeholder="01xxxxxxxxx"><span class="err" data-for="kp"></span></div>
+        <div><label for="kg">المحافظة</label><select id="kg"><option value="">اختاري</option><option>القاهرة</option><option>الجيزة</option><option>الإسكندرية</option><option>الدقهلية</option><option>الشرقية</option><option>القليوبية</option><option>الغربية</option><option>المنوفية</option><option>أسيوط</option><option>سوهاج</option><option>محافظة أخرى</option></select><span class="err" data-for="kg"></span></div>
+        <div><label for="kchild">اسم الطفل (نطبعه على الحقيبة مجاناً)</label><input id="kchild" placeholder="مثلاً: يوسف"></div>
+        <div class="full"><label for="ka">العنوان بالتفصيل</label><input id="ka" placeholder="المنطقة، الشارع، رقم العمارة والشقة"></div>
+        <div class="full ftot"><span>الإجمالي شامل الشحن: <b id="ktot">٦٩٠ ج.م</b></span><button class="btn" type="submit">اطلبي الآن</button></div>
+      </div>
+      <div class="form" id="kyay" hidden><div class="yay"><div class="big">يااااي! 🎉</div><p id="kmsg"></p></div></div>
+    </form>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="h2">أسئلة الأهل</h2>
+  <div class="faq" style="margin-top:30px">
+    <details><summary>هل تناسب طفلاً عمره سنة ونصف؟</summary><p>المكعبات آمنة من ١٨ شهراً للعب والتكديس، ونبدأ بالحروف عادةً من عمر سنتين.</p></details>
+    <details><summary>هل يمكنني المعاينة قبل الدفع؟</summary><p>طبعاً، افتحي العلبة أمام المندوب، وإن لم تعجبك لا تدفعي شيئاً.</p></details>
+    <details><summary>هل الحروف بالتشكيل؟</summary><p>كل مكعب عليه الحرف بشكله المنفصل، وعلى الجوانب الأخرى صورة وكلمة وحركة الفتحة.</p></details>
+    <details><summary>كم تكلفة الشحن؟</summary><p>الشحن مجاني لكل المحافظات خلال فترة العرض.</p></details>
+  </div>
+</section>
+</main>
+<footer class="wrap">© حروفي · صفحة نموذجية: العلامة والأسعار والآراء محتوى تجريبي.</footer>
+<div class="mbar"><b style="font-size:1.3rem" id="mtot">٦٩٠ ج.م</b><a class="btn" href="#order">اطلبي الآن</a></div>
+<canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  const data = [['أ','أرنب يقفز في الحديقة'],['ب','بطة تسبح في البركة'],['ت','تفاحة حمراء لذيذة'],['ث','ثعلب ذكي'],['ج','جمل في الصحراء'],['ح','حصان سريع'],['خ','خروف أبيض'],['د','دبّ يحب العسل']];
+  const colors = ['#ff6b8b','#3ecf9b','#7b5cff','#f5a300'];
+  const wrap = document.getElementById('blocks'), word = document.getElementById('word');
+  data.forEach(([l,w],i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'blk'; b.textContent = l;
+    b.style.background = colors[i%4]; b.style.transform = 'rotate(' + (i%2 ? 4 : -4) + 'deg)'; b.setAttribute('aria-label','حرف ' + l);
+    b.addEventListener('click', () => { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); word.innerHTML = '<b>' + l + '</b><span>' + w + '</span>'; });
+    wrap.appendChild(b);
+  });
+  const f = document.getElementById('kform'), tot = document.getElementById('ktot'), mtot = document.getElementById('mtot');
+  const sel = () => f.querySelector('input[name=pack]:checked');
+  function calc(){ const p = +sel().dataset.price; tot.textContent = mtot.textContent = ar(p) + ' ج.م'; return p; }
+  f.addEventListener('change', calc); calc();
+  function confetti(){
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const c = document.getElementById('confetti'), x = c.getContext('2d'); c.width = innerWidth; c.height = innerHeight;
+    const ps = Array.from({length:140}, () => ({x:Math.random()*c.width, y:-20-Math.random()*c.height*.5, r:4+Math.random()*6, c:colors[Math.floor(Math.random()*4)], vy:2+Math.random()*3, vx:Math.random()*2-1, a:Math.random()*6}));
+    let n = 0; (function f(){ x.clearRect(0,0,c.width,c.height); ps.forEach(p => { p.y += p.vy; p.x += p.vx; p.a += .1; x.fillStyle = p.c; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6); x.restore(); }); if (++n < 220) requestAnimationFrame(f); else x.clearRect(0,0,c.width,c.height); })();
+  }
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('kn').length < 2) errs.kn = 'اكتبي الاسم';
+    if (!/^01[0125]\d{8}$/.test(v('kp').replace(/\s/g,''))) errs.kp = 'رقم موبايل مصري من ١١ رقم يبدأ بـ 01';
+    if (!v('kg')) errs.kg = 'اختاري المحافظة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const p = calc(), child = v('kchild');
+    document.getElementById('kbody').hidden = true; f.querySelector('.packs').hidden = true; document.getElementById('kyay').hidden = false;
+    document.getElementById('kmsg').textContent = 'وصلنا طلب «' + sel().dataset.label + '» بـ ' + ar(p) + ' ج.م' + (child ? '، وسنطبع اسم ' + child + ' على الحقيبة' : '') + '. هنكلمك على ' + v('kp') + ' لتأكيد الشحن إلى ' + v('kg') + '.';
+    confetti();
+  });
+})();
+</script>
+</body>
+</html>

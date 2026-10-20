@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>سيروم صفاء</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;500&family=Tajawal:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: a dermatologist's formula sheet — vast white space, hairline rules, ingredient concentrations as the hero proof */
+:root{
+  --pearl:#faf7f5; --blush:#f3dcd4; --rose:#c9877a; --clay:#8c4f43; --ink:#2e2523; --mist:#8e817d; --rule:#e8dfdb;
+  --f-display:"Readex Pro","Tajawal",sans-serif; --f-body:"Tajawal",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--pearl);color:var(--ink);font-family:var(--f-body);font-weight:400;font-size:1.06rem;line-height:1.85}
+.wrap{max-width:1160px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:1.5px solid var(--clay);outline-offset:4px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding-block:26px}
+.mark{font-family:var(--f-display);font-weight:300;font-size:1.5rem;letter-spacing:.08em}
+.nav nav{display:flex;gap:34px;font-size:.95rem;color:var(--mist)}
+.nav a{color:inherit;text-decoration:none}
+.nav nav a:hover{color:var(--ink)}
+.link-btn{font:500 1rem var(--f-body);color:var(--ink);border:0;border-bottom:1px solid var(--ink);background:none;padding:4px 0;cursor:pointer;text-decoration:none}
+.solid{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:500 1.05rem var(--f-body);background:var(--ink);color:var(--pearl);border:0;border-radius:999px;padding:16px 36px;cursor:pointer;text-decoration:none;transition:background .4s cubic-bezier(.2,.8,.2,1)}
+.solid:hover{background:var(--clay)}
+
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding-block:40px 80px}
+.label{font-size:.85rem;letter-spacing:.12em;color:var(--rose)}
+.hero h1{font-family:var(--f-display);font-weight:200;font-size:clamp(2.8rem,6.5vw,5.2rem);line-height:1.2;margin:16px 0 22px;text-wrap:balance}
+.hero h1 b{font-weight:500}
+.hero p{color:var(--mist);font-size:1.18rem;max-width:38ch;margin:0 0 34px}
+.hero .row{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.price{font-family:var(--f-display);font-weight:300;font-size:1.6rem}
+.price small{font-size:.9rem;color:var(--mist)}
+.visual{position:relative;aspect-ratio:4/5;max-width:100%;background:linear-gradient(180deg,var(--blush),#efd3c9);border-radius:220px 220px 24px 24px;display:grid;place-items:center;overflow:hidden}
+.visual svg{width:46%;height:auto;animation:drift 8s ease-in-out infinite}
+@keyframes drift{50%{transform:translateY(-10px) rotate(-1deg)}}
+.drop{position:absolute;width:14px;height:20px;background:rgba(255,255,255,.75);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;left:50%;top:22%;animation:fall 3.2s cubic-bezier(.6,0,.9,.5) infinite}
+@keyframes fall{0%,40%{transform:translate(-50%,0) scale(.3);opacity:0}50%{opacity:1;transform:translate(-50%,0) scale(1)}100%{transform:translate(-50%,320px);opacity:0}}
+.visual .note{position:absolute;bottom:20px;inset-inline:20px;display:flex;justify-content:space-between;font-size:.85rem;color:var(--clay)}
+
+.strip{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--rule)}
+.strip div{padding:26px 10px;text-align:center;border-inline-start:1px solid var(--rule)}
+.strip div:first-child{border-inline-start:0}
+.strip b{display:block;font-family:var(--f-display);font-weight:300;font-size:2.1rem}
+.strip span{font-size:.92rem;color:var(--mist)}
+
+section{padding-block:96px}
+.h2{font-family:var(--f-display);font-weight:200;font-size:clamp(2rem,4.5vw,3.2rem);line-height:1.3;margin:0 0 14px;text-wrap:balance}
+.h2 b{font-weight:500}
+.intro{color:var(--mist);max-width:50ch;margin:0 0 50px}
+.formula{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px}
+.ing{display:grid;gap:0}
+.ing-row{display:grid;grid-template-columns:90px 1fr;gap:20px;padding:24px 0;border-top:1px solid var(--rule);align-items:start}
+.ing-row:last-child{border-bottom:1px solid var(--rule)}
+.pct{font-family:var(--f-display);font-weight:300;font-size:2rem;line-height:1;color:var(--clay);font-variant-numeric:tabular-nums}
+.ing-row h3{margin:0;font-weight:500;font-size:1.15rem}
+.ing-row h3 small{font-weight:300;color:var(--mist);font-size:.85rem;margin-inline-start:6px;direction:ltr;unicode-bidi:isolate}
+.ing-row p{margin:4px 0 10px;color:var(--mist);font-size:.98rem}
+.meter{height:3px;background:var(--rule);border-radius:2px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--rose);width:var(--w)}
+.free{font-size:.92rem;color:var(--mist);margin-top:24px;line-height:2.2}
+.free span{display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:0 14px;margin:0 0 6px 6px}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.ba{position:relative;aspect-ratio:1;max-width:100%;border-radius:24px;overflow:hidden;user-select:none;touch-action:pan-y}
+.ba .layer{position:absolute;inset:0}
+.ba .before{background:radial-gradient(circle at 30% 40%,#b47a63 0 6%,transparent 7%),radial-gradient(circle at 62% 30%,#ae735d 0 4%,transparent 5%),radial-gradient(circle at 48% 68%,#b47a63 0 5%,transparent 6%),radial-gradient(circle at 72% 60%,#a96f59 0 3%,transparent 4%),radial-gradient(circle at 25% 72%,#b07660 0 3%,transparent 4%),linear-gradient(135deg,#d8a58f,#c99079)}
+.ba .after{background:radial-gradient(circle at 30% 40%,rgba(217,168,148,.6) 0 6%,transparent 7%),radial-gradient(70% 60% at 40% 30%,rgba(255,240,232,.55),transparent 70%),linear-gradient(135deg,#ecc2ae,#e2b29c);clip-path:inset(0 0 0 var(--cut,50%))}
+.ba .handle{position:absolute;top:0;bottom:0;left:var(--cut,50%);width:2px;background:#fff;transform:translateX(-1px)}
+.ba .handle::after{content:"⟷";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--ink);font-size:1.1rem;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.ba .tag{position:absolute;top:16px;background:rgba(255,255,255,.85);border-radius:999px;padding:2px 14px;font-size:.85rem}
+.ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.results{list-style:none;margin:0;padding:0}
+.results li{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:20px 0;border-bottom:1px solid var(--rule)}
+.results b{font-family:var(--f-display);font-weight:300;font-size:2.2rem;color:var(--clay);white-space:nowrap}
+.fine{font-size:.85rem;color:var(--mist);margin-top:16px}
+
+.routine{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink)}
+.step{padding:30px 26px 0 0;position:relative}
+.step:not(:first-child){border-inline-start:1px solid var(--rule);padding-inline-start:26px}
+.step .when{font-size:.85rem;letter-spacing:.1em;color:var(--rose)}
+.step h3{font-family:var(--f-display);font-weight:300;font-size:1.5rem;margin:6px 0}
+.step p{color:var(--mist);margin:0}
+
+.reviews{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:20px}
+.rv{background:#fff;border-radius:20px;padding:30px}
+.rv:first-child{background:var(--blush)}
+.rv p{margin:0 0 16px;font-family:var(--f-display);font-weight:300;font-size:1.15rem;line-height:1.75}
+.rv:first-child p{font-size:1.45rem}
+.rv small{color:var(--mist)}
+
+.buy{background:#fff;border-radius:32px;padding:50px;display:grid;grid-template-columns:1fr 1fr;gap:50px}
+.opts{display:grid;gap:12px}
+.opt{display:flex;align-items:center;gap:16px;padding:18px 22px;border:1px solid var(--rule);border-radius:18px;cursor:pointer;transition:border-color .3s}
+.opt:has(input:checked){border-color:var(--ink)}
+.opt input{accent-color:var(--ink);width:18px;height:18px}
+.opt .t{flex:1}
+.opt .t b{display:block;font-weight:500}
+.opt .t span{font-size:.9rem;color:var(--mist)}
+.opt .p{font-family:var(--f-display);font-weight:300;font-size:1.3rem;white-space:nowrap}
+.sub-badge{font-size:.78rem;background:var(--blush);color:var(--clay);border-radius:999px;padding:0 10px;margin-inline-start:6px}
+.ff{display:grid;gap:4px;margin-bottom:14px}
+.ff label{font-size:.9rem;color:var(--mist)}
+.ff input,.ff select{font:inherit;padding:12px 0;border:0;border-bottom:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:0}
+.ff input:focus,.ff select:focus{outline:none;border-bottom-color:var(--ink)}
+.err{color:#b33c2c;font-size:.85rem;min-height:1.1em}
+.tot{display:flex;justify-content:space-between;margin:20px 0;font-size:1.1rem}
+.tot b{font-family:var(--f-display);font-weight:500;font-size:1.5rem}
+.thanks{text-align:center;padding:40px 0}
+.thanks h3{font-family:var(--f-display);font-weight:200;font-size:2.4rem;margin:0 0 10px}
+
+.faq details{border-top:1px solid var(--rule);padding:22px 0}
+.faq details:last-child{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;font-weight:500;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between}
+.faq summary::after{content:"+";font-weight:200;font-size:1.5rem;line-height:1;color:var(--mist)}
+.faq details[open] summary::after{content:"−"}
+.faq p{color:var(--mist);margin:.5em 0 0;max-width:60ch}
+footer{color:var(--mist);font-size:.88rem;padding-block:30px 110px;text-align:center}
+.mbar{position:fixed;inset:auto 0 0;display:none;z-index:20;justify-content:space-between;align-items:center;background:rgba(250,247,245,.94);backdrop-filter:blur(10px);border-top:1px solid var(--rule);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mbar .solid{padding:11px 26px}
+@media (max-width:900px){
+  .hero,.formula,.compare,.buy{grid-template-columns:1fr;gap:40px}
+  .visual{max-width:420px;margin-inline:auto;width:100%}
+  .strip{grid-template-columns:1fr 1fr}
+  .strip div:nth-child(3){border-inline-start:0}
+  .strip div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .routine,.reviews{grid-template-columns:1fr}
+  .step,.step:not(:first-child){padding:26px 0;border-inline-start:0;border-bottom:1px solid var(--rule)}
+  .buy{padding:28px 20px}
+  .nav nav{display:none}
+  .mbar{display:flex}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="wrap nav">
+  <div class="mark">صفاء</div>
+  <nav aria-label="أقسام"><a href="#formula">التركيبة</a><a href="#results">النتائج</a><a href="#routine">الاستخدام</a><a href="#faq">أسئلة</a></nav>
+  <a class="link-btn" href="#buy">اطلبي الآن</a>
+</header>
+
+<main>
+<section class="wrap hero" style="padding-block:40px 80px">
+  <div>
+    <div class="label">سيروم التصبّغات · ٣٠ ملّ</div>
+    <h1>بشرة <b>موحّدة اللون</b> خلال ثمانية أسابيع</h1>
+    <p>نياسيناميد ١٠٪ مع حمض الترانيكساميك وفيتامين C المستقر، لتفتيح البقع الداكنة وآثار الحبوب دون تهيّج.</p>
+    <div class="row"><a class="solid" href="#buy">أضيفي إلى طلبك</a><span class="price">١٨٥ <small>ر.ق</small></span></div>
+  </div>
+  <div class="visual" aria-hidden="true">
+    <span class="drop"></span>
+    <svg viewBox="0 0 120 300">
+      <defs><linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".5" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".5"/></linearGradient><linearGradient id="liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c7a0"/><stop offset="1" stop-color="#e9a476"/></linearGradient></defs>
+      <rect x="44" y="0" width="32" height="54" rx="14" fill="#2e2523"/>
+      <rect x="38" y="50" width="44" height="26" rx="4" fill="#d9cfc8"/>
+      <rect x="18" y="76" width="84" height="214" rx="16" fill="url(#gl)" stroke="#fff" stroke-width="1.5"/>
+      <rect x="22" y="130" width="76" height="156" rx="12" fill="url(#liq)" opacity=".85"/>
+      <rect x="30" y="170" width="60" height="70" rx="2" fill="#faf7f5"/>
+      <text x="60" y="200" text-anchor="middle" font-family="Readex Pro" font-weight="300" font-size="14" fill="#2e2523">صفاء</text>
+      <text x="60" y="222" text-anchor="middle" font-family="Tajawal" font-size="8" fill="#8e817d">NIACINAMIDE 10%</text>
+    </svg>
+    <div class="note"><span>pH ٥٫٥</span><span>خالٍ من العطور</span></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="strip">
+  <div><b>٩٤٪</b><span>لاحظن توحّد اللون</span></div>
+  <div><b>٨</b><span>أسابيع لنتيجة واضحة</span></div>
+  <div><b>٠٪</b><span>عطور أو كحول</span></div>
+  <div><b>١٢٠</b><span>مشاركة في الاختبار</span></div>
+</div></div>
+
+<section id="formula" class="wrap">
+  <div class="formula">
+    <div>
+      <h2 class="h2">تركيبة <b>شفّافة</b>، كل رقم مكتوب</h2>
+      <p class="intro">نذكر التركيز الفعلي لكل مكوّن نشط، لأن «يحتوي على» لا تعني شيئاً دون نسبة.</p>
+      <div class="free">خالٍ من: <span>البارابين</span><span>الكحول</span><span>العطور</span><span>السيليكون</span><span>الزيوت المعدنية</span></div>
+    </div>
+    <div class="ing">
+      <div class="ing-row"><div class="pct">١٠٪</div><div><h3>نياسيناميد<small>Niacinamide</small></h3><p>يقلّل انتقال الصبغة إلى سطح البشرة ويضيّق المسام.</p><div class="meter"><i style="--w:100%"></i></div></div></div>
+      <div class="ing-row"><div class="pct">٣٪</div><div><h3>حمض الترانيكساميك<small>Tranexamic Acid</small></h3><p>يستهدف الكلف الهرموني والتصبّغ بعد الالتهاب.</p><div class="meter"><i style="--w:30%"></i></div></div></div>
+      <div class="ing-row"><div class="pct">٢٪</div><div><h3>فيتامين C المستقر<small>Ethyl Ascorbic Acid</small></h3><p>نشاط مضاد للأكسدة لا يتأكسد ولا يغيّر لون السيروم.</p><div class="meter"><i style="--w:20%"></i></div></div></div>
+      <div class="ing-row"><div class="pct">١٪</div><div><h3>هيالورونيك بثلاثة أوزان<small>Hyaluronic Acid</small></h3><p>ترطيب على ثلاثة أعماق ليبقى الحاجز الجلدي سليماً.</p><div class="meter"><i style="--w:10%"></i></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="wrap" style="padding-top:0">
+  <div class="compare">
+    <div class="ba" id="ba" style="--cut:50%">
+      <div class="layer before"></div>
+      <div class="layer after"></div>
+      <span class="tag" style="inset-inline-start:16px">بعد ٨ أسابيع</span>
+      <span class="tag" style="inset-inline-end:16px">قبل</span>
+      <div class="handle" aria-hidden="true"></div>
+      <input type="range" dir="ltr" id="baRange" min="0" max="100" value="50" aria-label="اسحبي للمقارنة بين قبل وبعد">
+    </div>
+    <div>
+      <h2 class="h2">نتائج <b>مقاسة</b>، لا وعود</h2>
+      <p class="intro" style="margin-bottom:20px">دراسة استخدام لمدة ٨ أسابيع على ١٢٠ امرأة بين ٢٢ و٤٥ عاماً، بأنواع بشرة مختلفة.</p>
+      <ul class="results">
+        <li><span>انخفاض في شدّة البقع الداكنة</span><b>−٣٨٪</b></li>
+        <li><span>تحسّن في إشراقة البشرة</span><b>+٤٢٪</b></li>
+        <li><span>شعرن بأن البشرة أنعم</span><b>٨٩٪</b></li>
+      </ul>
+      <p class="fine">الصورة توضيحية. النتائج الفردية تختلف حسب نوع البشرة والالتزام بواقي الشمس.</p>
+    </div>
+  </div>
+</section>
+
+<section id="routine" class="wrap" style="padding-top:0">
+  <h2 class="h2">ثلاث خطوات <b>فقط</b></h2>
+  <p class="intro">صباحاً ومساءً، بعد الغسول وقبل المرطّب.</p>
+  <div class="routine">
+    <div class="step"><div class="when">الخطوة الأولى</div><h3>٣ قطرات</h3><p>على راحة اليد، ثم وزّعيها بلطف على الوجه والرقبة.</p></div>
+    <div class="step"><div class="when">الخطوة الثانية</div><h3>دقيقة انتظار</h3><p>اتركيه يُمتص تماماً قبل وضع المرطّب.</p></div>
+    <div class="step"><div class="when">الخطوة الثالثة</div><h3>واقي الشمس</h3><p>صباحاً، SPF 50 ضروري لحماية النتيجة من الرجوع.</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <div class="reviews">
+    <div class="rv"><p>«آثار الحبوب على خدي كانت معي من سنتين. بعد العبوة الثانية صرت أطلع بدون كونسيلر.»</p><small>لولوة · الدوحة · بشرة مختلطة</small></div>
+    <div class="rv"><p>«خفيف جداً ولا يلمع. بشرتي حساسة وما سبب لي أي احمرار.»</p><small>ريم · الوكرة</small></div>
+    <div class="rv"><p>«الفرق في الكلف بسيط لكنه موجود. محتاجة صبر.»</p><small>أسماء · الريان</small></div>
+  </div>
+</section>
+
+<section id="buy" class="wrap" style="padding-top:0">
+  <form class="buy" id="sform" novalidate>
+    <div>
+      <h2 class="h2" style="font-size:2.2rem">اختاري <b>الكمية</b></h2>
+      <p class="intro" style="margin-bottom:26px">العبوة الواحدة تكفي ٦ إلى ٨ أسابيع. التوصيل مجاني داخل قطر، والدفع عند الاستلام.</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q" data-price="185" data-label="عبوة واحدة"><span class="t"><b>عبوة واحدة</b><span>٣٠ ملّ · شهر ونصف</span></span><span class="p">١٨٥ ر.ق</span></label>
+        <label class="opt"><input type="radio" name="q" data-price="320" data-label="عبوتان" checked><span class="t"><b>عبوتان <span class="sub-badge">الدورة الكاملة</span></b><span>٨ أسابيع للنتيجة · وفّري ٥٠ ر.ق</span></span><span class="p">٣٢٠ ر.ق</span></label>
+        <label class="opt"><input type="radio" name="q" data-price="440" data-label="عبوتان + واقي شمس"><span class="t"><b>عبوتان + واقي شمس SPF50</b><span>الروتين الكامل · وفّري ٩٥ ر.ق</span></span><span class="p">٤٤٠ ر.ق</span></label>
+      </div>
+    </div>
+    <div>
+      <div id="sbody">
+        <div class="ff"><label for="sn">الاسم</label><input id="sn" autocomplete="name"><span class="err" data-for="sn"></span></div>
+        <div class="ff"><label for="sp">رقم الجوال</label><input id="sp" type="tel" inputmode="tel" placeholder="3xxx xxxx"><span class="err" data-for="sp"></span></div>
+        <div class="ff"><label for="sa">المنطقة</label><select id="sa"><option value="">اختاري</option><option>الدوحة</option><option>الريان</option><option>الوكرة</option><option>الخور</option><option>أم صلال</option><option>الشمال</option><option>الظعاين</option></select><span class="err" data-for="sa"></span></div>
+        <div class="ff"><label for="sz">رقم المبنى والشارع والمنطقة</label><input id="sz"></div>
+        <div class="tot"><span>الإجمالي</span><b id="stot">٣٢٠ ر.ق</b></div>
+        <button class="solid" type="submit" style="width:100%">تأكيد الطلب</button>
+      </div>
+      <div class="thanks" id="sthanks" hidden><h3>شكراً لكِ</h3><p id="smsg" style="color:var(--mist)"></p></div>
+    </div>
+  </form>
+</section>
+
+<section id="faq" class="wrap faq" style="padding-top:0">
+  <h2 class="h2">أسئلة <b>شائعة</b></h2>
+  <details><summary>هل يناسب البشرة الحساسة؟</summary><p>نعم، خالٍ من العطور والكحول. ننصح بتجربته على جزء صغير خلف الأذن لمدة ٢٤ ساعة أولاً.</p></details>
+  <details><summary>هل يمكن استخدامه أثناء الحمل؟</summary><p>المكوّنات تعتبر آمنة عموماً، لكن استشيري طبيبتك قبل إضافة أي منتج جديد خلال الحمل والرضاعة.</p></details>
+  <details><summary>هل أستخدمه مع الريتينول؟</summary><p>نعم. ضعي صفاء صباحاً والريتينول مساءً، أو صفاء أولاً ثم الريتينول في المساء نفسه.</p></details>
+  <details><summary>ماذا لو لم ألاحظ فرقاً؟</summary><p>إن أكملتِ ٨ أسابيع ولم تلاحظي فرقاً، نعيد لكِ المبلغ كاملاً.</p></details>
+</section>
+</main>
+<footer class="wrap">© صفاء · صفحة نموذجية: العلامة والأسعار والدراسة والآراء محتوى تجريبي.</footer>
+<div class="mbar"><span class="price" id="mtot" style="font-size:1.3rem">٣٢٠ ر.ق</span><a class="solid" href="#buy">اطلبي الآن</a></div>
+<script>
+(function(){
+  const ar = n => n.toLocaleString('ar-EG');
+  const ba = document.getElementById('ba'), r = document.getElementById('baRange');
+  r.addEventListener('input', () => ba.style.setProperty('--cut', r.value + '%'));
+  const f = document.getElementById('sform');
+  const sel = () => f.querySelector('input[name=q]:checked');
+  function calc(){ const p = +sel().dataset.price; document.getElementById('stot').textContent = document.getElementById('mtot').textContent = ar(p) + ' ر.ق'; return p; }
+  f.querySelectorAll('input[name=q]').forEach(i => i.addEventListener('change', calc)); calc();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('sn').length < 2) errs.sn = 'الاسم مطلوب';
+    if (!/^(\+?974)?[3567]\d{7}$/.test(v('sp').replace(/[\s-]/g,''))) errs.sp = 'رقم قطري من ٨ أرقام يبدأ بـ 3 أو 5 أو 6 أو 7';
+    if (!v('sa')) errs.sa = 'اختاري المنطقة';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const p = calc();
+    document.getElementById('sbody').hidden = true; document.getElementById('sthanks').hidden = false;
+    document.getElementById('smsg').textContent = 'طلبك (' + sel().dataset.label + ') بقيمة ' + ar(p) + ' ر.ق مسجّل. ستصلك رسالة على ' + v('sp') + ' بموعد التوصيل إلى ' + v('sa') + '.';
+  });
+})();
+</script>
+</body>
+</html>

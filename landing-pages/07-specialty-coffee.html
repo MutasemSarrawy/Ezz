@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>محمصة ٣٧</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Rubik:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: Swiss industrial print — a visible 12-col grid of hairlines, oversized numerals, the roast sheet itself is the product page */
+:root{
+  --paper:#ecebe4; --ink:#111110; --red:#e01b0c; --grey:#6d6c66; --rule:#111110;
+  --f-display:"Reem Kufi","Rubik",sans-serif; --f-body:"Rubik",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.65}
+.wrap{max-width:1280px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-size:.8rem;letter-spacing:.04em;text-transform:uppercase}
+.mast{display:grid;grid-template-columns:repeat(12,1fr);border-bottom:3px solid var(--rule);padding-block:14px;align-items:end}
+.mast .name{grid-column:span 4;font:900 1.3rem var(--f-body)}
+.mast .meta{grid-column:span 5;display:flex;gap:22px;color:var(--grey)}
+.mast .act{grid-column:span 3;justify-self:end}
+.btn{display:inline-flex;align-items:center;gap:12px;font:700 1rem var(--f-body);background:var(--ink);color:var(--paper);padding:14px 22px;border:0;cursor:pointer;text-decoration:none;transition:background .15s}
+.btn:hover{background:var(--red)}
+.btn::after{content:"←";font-family:var(--f-mono)}
+.btn.red{background:var(--red)}
+.btn.red:hover{background:var(--ink)}
+
+.hero{display:grid;grid-template-columns:repeat(12,1fr);border-bottom:1px solid var(--rule);min-height:0}
+.hero .num{grid-column:1/8;font:700 clamp(10rem,32vw,26rem)/.8 var(--f-display);letter-spacing:-.04em;padding-block:30px 0;color:var(--ink);position:relative;overflow:hidden}
+.hero .num span{color:var(--red)}
+.hero .copy{grid-column:8/13;border-inline-start:1px solid var(--rule);padding:30px 0 30px 0;padding-inline-start:24px;display:flex;flex-direction:column;justify-content:space-between;gap:30px}
+.hero h1{font:900 clamp(2rem,4vw,3.2rem)/1.15 var(--f-body);margin:0;text-wrap:balance}
+.hero p{margin:0;font-size:1.08rem;max-width:40ch}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;border-top:1px solid var(--rule);padding-top:14px}
+.kv dt{color:var(--grey)}
+.kv dd{margin:0;font-weight:500}
+
+.bar{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:3px solid var(--rule)}
+.bar div{padding:16px 0;padding-inline-start:16px;border-inline-start:1px solid var(--rule)}
+.bar div:first-child{border-inline-start:0;padding-inline-start:0}
+.bar b{display:block;font:700 2rem var(--f-display)}
+
+section{border-bottom:3px solid var(--rule);padding-block:0}
+.sec-head{display:grid;grid-template-columns:repeat(12,1fr);padding-block:26px;border-bottom:1px solid var(--rule)}
+.sec-head .idx{grid-column:span 2;color:var(--red)}
+.sec-head h2{grid-column:span 10;font:900 clamp(2rem,5vw,3.6rem)/1.1 var(--f-body);margin:0;text-wrap:balance}
+
+.beans{display:grid;grid-template-columns:repeat(3,1fr)}
+.bean{padding:26px 22px 30px;border-inline-start:1px solid var(--rule);display:flex;flex-direction:column;gap:14px;cursor:pointer;position:relative;transition:background .2s}
+.bean:first-child{border-inline-start:0;padding-inline-start:0}
+.bean:hover{background:#e3e2da}
+.bean input{position:absolute;opacity:0}
+.bean:has(input:checked){background:var(--ink);color:var(--paper)}
+.bean:has(input:checked) .grey{color:#a9a8a0}
+.bean:has(input:focus-visible){outline:3px solid var(--red);outline-offset:-3px}
+.bean .cc{display:flex;justify-content:space-between;align-items:start}
+.bean h3{font:700 2.2rem/1.1 var(--f-display);margin:0}
+.grey{color:var(--grey)}
+.notes{display:flex;flex-wrap:wrap;gap:6px}
+.notes span{border:1px solid currentColor;padding:0 10px;font-size:.9rem}
+.spec{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:.82rem}
+.spec td{padding:6px 0;border-top:1px solid currentColor;opacity:.9}
+.spec td:last-child{text-align:left}
+.bean .pr{font:700 1.8rem var(--f-display);margin-top:auto}
+.bean .pr small{font:500 .9rem var(--f-body)}
+.roast{display:flex;gap:3px;margin-top:4px}
+.roast i{flex:1;height:10px;border:1px solid currentColor}
+.roast i.on{background:var(--red);border-color:var(--red)}
+
+.cfg{display:grid;grid-template-columns:repeat(12,1fr)}
+.cfg .left{grid-column:1/7;padding:26px 0;padding-inline-end:24px}
+.cfg .right{grid-column:7/13;border-inline-start:1px solid var(--rule);padding:26px 0;padding-inline-start:24px}
+.group{margin-bottom:24px}
+.group .mono{display:block;margin-bottom:8px;color:var(--grey)}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--rule)}
+.seg label{flex:1 1 auto;position:relative}
+.seg input{position:absolute;opacity:0}
+.seg span{display:block;text-align:center;padding:12px 10px;border-inline-start:1px solid var(--rule);cursor:pointer;font-weight:500;white-space:nowrap}
+.seg label:first-child span{border-inline-start:0}
+.seg input:checked+span{background:var(--ink);color:var(--paper)}
+.seg input:focus-visible+span{outline:3px solid var(--red);outline-offset:-3px}
+.receipt{font-family:var(--f-mono);font-size:.9rem}
+.receipt .ln{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--grey)}
+.receipt .ln.t{border-bottom:3px solid var(--ink);font-weight:600;font-size:1.1rem}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);margin-top:20px}
+.fields .f{border-bottom:1px solid var(--rule);border-inline-start:1px solid var(--rule);padding:8px 12px}
+.fields .f:nth-child(odd){border-inline-start:0}
+.fields .full{grid-column:1/-1;border-inline-start:0}
+.fields label{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--grey);text-transform:uppercase}
+.fields input,.fields select{width:100%;font:500 1rem var(--f-body);border:0;background:transparent;color:var(--ink);padding:4px 0}
+.fields input:focus,.fields select:focus{outline:none}
+.fields .f:focus-within{background:#fff}
+.err{display:block;color:var(--red);font-size:.8rem;min-height:1em}
+.okk{border:3px solid var(--ink);padding:30px;margin-top:10px}
+.okk b{font:700 3rem var(--f-display);color:var(--red);display:block}
+
+.brew{display:grid;grid-template-columns:repeat(4,1fr)}
+.brew div{padding:24px 18px 30px;border-inline-start:1px solid var(--rule)}
+.brew div:first-child{border-inline-start:0;padding-inline-start:0}
+.brew b{font:700 3.4rem/1 var(--f-display);display:block}
+.brew h3{margin:12px 0 4px;font-size:1.1rem}
+.brew p{margin:0;color:var(--grey);font-size:.95rem}
+
+.press{display:grid;grid-template-columns:repeat(12,1fr)}
+.press blockquote{grid-column:1/9;margin:0;padding:34px 0;padding-inline-end:24px;font:700 clamp(1.5rem,3vw,2.4rem)/1.35 var(--f-body)}
+.press blockquote::before{content:"«";color:var(--red)}
+.press blockquote::after{content:"»";color:var(--red)}
+.press aside{grid-column:9/13;border-inline-start:1px solid var(--rule);padding:34px 0;padding-inline-start:24px;display:grid;gap:16px;align-content:start}
+.press aside p{margin:0;font-size:.98rem}
+.press aside small{color:var(--grey)}
+
+.faq{display:grid;grid-template-columns:repeat(2,1fr)}
+.faq details{padding:20px 0;border-bottom:1px solid var(--rule)}
+.faq details:nth-child(odd){padding-inline-end:24px}
+.faq details:nth-child(even){border-inline-start:1px solid var(--rule);padding-inline-start:24px}
+.faq summary{cursor:pointer;font-weight:700;font-size:1.08rem}
+.faq p{margin:.5em 0 0;color:var(--grey)}
+footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-block:20px 110px;color:var(--grey)}
+.mbar{position:fixed;inset:auto 0 0;z-index:30;display:none;justify-content:space-between;align-items:center;background:var(--paper);border-top:3px solid var(--ink);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:900px){
+  .mast .meta{display:none}.mast .name{grid-column:span 8}.mast .act{grid-column:span 4}
+  .hero .num,.hero .copy{grid-column:1/-1}
+  .hero .copy{border-inline-start:0;border-top:1px solid var(--rule);padding-inline-start:0}
+  .beans,.brew{grid-template-columns:1fr}
+  .bean,.brew div{border-inline-start:0;border-top:1px solid var(--rule);padding-inline:0}
+  .bean{padding-inline:14px}
+  .bean:first-child{padding-inline:14px}
+  .cfg .left,.cfg .right,.press blockquote,.press aside{grid-column:1/-1;padding-inline:0;border-inline-start:0}
+  .cfg .right,.press aside{border-top:1px solid var(--rule)}
+  .bar{grid-template-columns:1fr 1fr}
+  .bar div:nth-child(3){border-inline-start:0;padding-inline-start:0}
+  .bar div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .faq{grid-template-columns:1fr}
+  .faq details:nth-child(even){border-inline-start:0;padding-inline-start:0}
+  .sec-head .idx{grid-column:span 12}.sec-head h2{grid-column:span 12}
+  .mbar{display:flex}
+}
+@media (max-width:520px){.fields{grid-template-columns:1fr}.fields .f{border-inline-start:0}.mast .act .btn{padding:10px 14px}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="mast">
+    <div class="name">محمصة ٣٧</div>
+    <div class="meta mono"><span>الدفعة ٤١٢</span><span>حُمّصت: ١٨ أكتوبر ٢٠٢٦</span><span>الخبر · السعودية</span></div>
+    <div class="act"><a class="btn" href="#order">اطلب</a></div>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="hero">
+  <div class="num" aria-hidden="true">٣٧<span>.</span></div>
+  <div class="copy">
+    <span class="mono" style="color:var(--red)">قهوة مختصة · تحميص أسبوعي</span>
+    <h1>نحمّص يوم الأحد. تصلك يوم الثلاثاء.</h1>
+    <p>محاصيل مختارة من إثيوبيا وكولومبيا وجبال جازان، تُحمّص بدفعات من ١٢ كيلو فقط وتُشحن خلال ٤٨ ساعة من خروجها من المحمصة.</p>
+    <dl class="kv">
+      <dt>السعر</dt><dd>من ٦٥ ر.س / ٢٥٠ غ</dd>
+      <dt>الشحن</dt><dd>مجاني فوق ١٥٠ ر.س</dd>
+      <dt>الدفع</dt><dd>عند الاستلام أو مدى</dd>
+    </dl>
+    <a class="btn red" href="#order">اختر محصولك</a>
+  </div>
+</div>
+<div class="bar">
+  <div><b>٨٦٫٥</b><span class="mono grey">أعلى تقييم SCA</span></div>
+  <div><b>٤٨</b><span class="mono grey">ساعة من المحمصة</span></div>
+  <div><b>١٢</b><span class="mono grey">كغ لكل دفعة</span></div>
+  <div><b>٣</b><span class="mono grey">محاصيل هذا الشهر</span></div>
+</div>
+
+<section id="order">
+  <div class="sec-head"><span class="idx mono">٠١ / المحاصيل</span><h2>اختر محصول الشهر</h2></div>
+  <form id="cform" novalidate>
+  <div class="beans" role="radiogroup" aria-label="المحصول">
+    <label class="bean"><input type="radio" name="bean" value="إثيوبيا · قوجي" data-price="78" checked>
+      <div class="cc"><span class="mono grey">ETH-GUJI</span><span class="mono">SCA ٨٦٫٥</span></div>
+      <h3>إثيوبيا<br>قوجي</h3>
+      <div class="notes"><span>توت أزرق</span><span>ياسمين</span><span>شاي أسود</span></div>
+      <table class="spec"><tr><td>المعالجة</td><td>مجففة طبيعياً</td></tr><tr><td>الارتفاع</td><td>٢٬١٠٠ م</td></tr><tr><td>الصنف</td><td>Heirloom</td></tr></table>
+      <div><span class="mono grey">درجة التحميص</span><div class="roast"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div>
+      <div class="pr">٧٨ <small>ر.س / ٢٥٠ غ</small></div>
+    </label>
+    <label class="bean"><input type="radio" name="bean" value="كولومبيا · هويلا" data-price="65">
+      <div class="cc"><span class="mono grey">COL-HUILA</span><span class="mono">SCA ٨٥</span></div>
+      <h3>كولومبيا<br>هويلا</h3>
+      <div class="notes"><span>كراميل</span><span>تفاح أحمر</span><span>كاكاو</span></div>
+      <table class="spec"><tr><td>المعالجة</td><td>مغسولة</td></tr><tr><td>الارتفاع</td><td>١٬٨٠٠ م</td></tr><tr><td>الصنف</td><td>Caturra</td></tr></table>
+      <div><span class="mono grey">درجة التحميص</span><div class="roast"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <div class="pr">٦٥ <small>ر.س / ٢٥٠ غ</small></div>
+    </label>
+    <label class="bean"><input type="radio" name="bean" value="السعودية · جازان" data-price="120">
+      <div class="cc"><span class="mono grey">KSA-JAZAN</span><span class="mono">SCA ٨٦</span></div>
+      <h3>السعودية<br>الدائر · جازان</h3>
+      <div class="notes"><span>تمر</span><span>هيل</span><span>عسل</span></div>
+      <table class="spec"><tr><td>المعالجة</td><td>طبيعية</td></tr><tr><td>الارتفاع</td><td>١٬٦٠٠ م</td></tr><tr><td>الصنف</td><td>خولاني</td></tr></table>
+      <div><span class="mono grey">درجة التحميص</span><div class="roast"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div>
+      <div class="pr">١٢٠ <small>ر.س / ٢٥٠ غ</small></div>
+    </label>
+  </div>
+
+  <div class="sec-head"><span class="idx mono">٠٢ / الطلب</span><h2>الطحنة والكمية والتوصيل</h2></div>
+  <div class="cfg">
+    <div class="left">
+      <div class="group"><span class="mono">الطحنة</span>
+        <div class="seg">
+          <label><input type="radio" name="grind" value="حبوب كاملة" checked><span>حبوب كاملة</span></label>
+          <label><input type="radio" name="grind" value="إسبريسو"><span>إسبريسو</span></label>
+          <label><input type="radio" name="grind" value="V60"><span>V60</span></label>
+          <label><input type="radio" name="grind" value="فرنش برس"><span>فرنش برس</span></label>
+        </div>
+      </div>
+      <div class="group"><span class="mono">الوزن</span>
+        <div class="seg">
+          <label><input type="radio" name="w" value="٢٥٠ غ" data-mul="1" checked><span>٢٥٠ غ</span></label>
+          <label><input type="radio" name="w" value="٥٠٠ غ" data-mul="1.9"><span>٥٠٠ غ · −٥٪</span></label>
+          <label><input type="radio" name="w" value="١ كغ" data-mul="3.6"><span>١ كغ · −١٠٪</span></label>
+        </div>
+      </div>
+      <div class="group"><span class="mono">التكرار</span>
+        <div class="seg">
+          <label><input type="radio" name="freq" value="مرة واحدة" data-disc="0" checked><span>مرة واحدة</span></label>
+          <label><input type="radio" name="freq" value="اشتراك كل أسبوعين" data-disc=".15"><span>كل أسبوعين · −١٥٪</span></label>
+          <label><input type="radio" name="freq" value="اشتراك شهري" data-disc=".1"><span>شهرياً · −١٠٪</span></label>
+        </div>
+      </div>
+      <p class="grey" style="margin:0;font-size:.95rem">الاشتراك بدون التزام. أوقفه أو غيّر المحصول برسالة واتساب.</p>
+    </div>
+    <div class="right">
+      <div class="receipt" id="receipt">
+        <div class="ln"><span id="rBean">إثيوبيا · قوجي</span><span id="rBase">٧٨٫٠٠</span></div>
+        <div class="ln"><span id="rOpt">حبوب كاملة · ٢٥٠ غ</span><span id="rW">×١</span></div>
+        <div class="ln"><span id="rFreq">مرة واحدة</span><span id="rDisc">−٠٫٠٠</span></div>
+        <div class="ln"><span>الشحن</span><span id="rShip">٢٠٫٠٠</span></div>
+        <div class="ln t"><span>الإجمالي ر.س</span><span id="rTot">٩٨٫٠٠</span></div>
+      </div>
+      <div id="cbody">
+        <div class="fields">
+          <div class="f"><label for="cn">الاسم</label><input id="cn" autocomplete="name"><span class="err" data-for="cn"></span></div>
+          <div class="f"><label for="cp">الجوال</label><input id="cp" type="tel" inputmode="tel" placeholder="05xxxxxxxx"><span class="err" data-for="cp"></span></div>
+          <div class="f"><label for="cc">المدينة</label><select id="cc"><option value="">—</option><option>الرياض</option><option>جدة</option><option>الخبر</option><option>الدمام</option><option>مكة المكرمة</option><option>المدينة المنورة</option><option>أبها</option><option>أخرى</option></select><span class="err" data-for="cc"></span></div>
+          <div class="f"><label for="cpay">الدفع</label><select id="cpay"><option>نقداً عند الاستلام</option><option>مدى عند الاستلام</option></select></div>
+          <div class="f full"><label for="ca">العنوان الوطني</label><input id="ca" placeholder="مثال: RRRD2929"></div>
+        </div>
+        <button class="btn red" type="submit" style="width:100%;justify-content:space-between;margin-top:16px;padding:18px 22px">أرسل الطلب</button>
+      </div>
+      <div class="okk" id="cok" hidden><span class="mono grey">تأكيد</span><b>استلمنا طلبك.</b><p id="cmsg" style="margin:0"></p></div>
+    </div>
+  </div>
+  </form>
+</section>
+
+<section>
+  <div class="sec-head"><span class="idx mono">٠٣ / التحضير</span><h2>وصفة V60 التي نشربها في المحمصة</h2></div>
+  <div class="brew">
+    <div><b>١٥ غ</b><h3>القهوة</h3><p>طحنة متوسطة ناعمة، بقوام السكر الخشن.</p></div>
+    <div><b>٢٥٠ مل</b><h3>الماء</h3><p>بحرارة ٩٣ درجة، أي بعد ٣٠ ثانية من الغليان.</p></div>
+    <div><b>٠:٤٥</b><h3>التفتّح</h3><p>صبّ ٤٠ مل وانتظر حتى يخرج الغاز.</p></div>
+    <div><b>٢:٤٥</b><h3>الزمن الكلي</h3><p>صبّ الباقي على ثلاث دفعات بحركة دائرية.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="press">
+    <blockquote>أفضل إثيوبي شربته في الخليج هذه السنة. الحموضة نظيفة والحلاوة تبقى بعد ما تبرد.</blockquote>
+    <aside>
+      <div><p>«الاشتراك مريح جداً، كل أسبوعين يوصل بدون ما أفكر.»</p><small>تركي · الرياض</small></div>
+      <div><p>«جازان الدائر عندهم يشبه قهوة جدي، بس أنظف.»</p><small>منى · أبها</small></div>
+      <div><p>«التغليف بصمام وتاريخ التحميص مكتوب. احترافية.»</p><small>باريستا · جدة</small></div>
+    </aside>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="idx mono">٠٤ / أسئلة</span><h2>قبل أن تطلب</h2></div>
+  <div class="faq">
+    <details><summary>كم تبقى القهوة طازجة؟</summary><p>أفضل نكهة بين اليوم ٥ و٣٠ بعد التحميص. الكيس فيه صمام أحادي الاتجاه وسحّاب.</p></details>
+    <details><summary>لا أملك مطحنة، ماذا أختار؟</summary><p>اختر طحنة أداتك. نطحن قبل الشحن مباشرة.</p></details>
+    <details><summary>هل يمكن إيقاف الاشتراك؟</summary><p>في أي وقت، برسالة واتساب قبل موعد التحميص التالي بيومين.</p></details>
+    <details><summary>متى تصل الشحنة؟</summary><p>الشرقية والرياض خلال يوم، وباقي المدن خلال يومين إلى ثلاثة بعد التحميص.</p></details>
+  </div>
+</section>
+</main>
+<footer class="wrap mono"><span>© محمصة ٣٧ · الخبر</span><span>صفحة نموذجية: العلامة والأسعار والتقييمات والآراء محتوى تجريبي</span></footer>
+<div class="mbar"><span class="mono">الإجمالي <b id="mTot" style="font:700 1.4rem var(--f-display)">٩٨</b> ر.س</span><a class="btn red" href="#order">اطلب</a></div>
+<script>
+(function(){
+  const fmt = n => n.toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const f = document.getElementById('cform');
+  const q = n => f.querySelector('input[name=' + n + ']:checked');
+  function calc(){
+    const bean = q('bean'), w = q('w'), fr = q('freq'), g = q('grind');
+    const base = +bean.dataset.price, mul = +w.dataset.mul;
+    const sub = base * mul, disc = sub * +fr.dataset.disc, after = sub - disc;
+    const ship = after >= 150 ? 0 : 20, tot = after + ship;
+    document.getElementById('rBean').textContent = bean.value;
+    document.getElementById('rBase').textContent = fmt(base);
+    document.getElementById('rOpt').textContent = g.value + ' · ' + w.value;
+    document.getElementById('rW').textContent = '×' + mul.toLocaleString('ar-EG');
+    document.getElementById('rFreq').textContent = fr.value;
+    document.getElementById('rDisc').textContent = '−' + fmt(disc);
+    document.getElementById('rShip').textContent = ship ? fmt(ship) : 'مجاني';
+    document.getElementById('rTot').textContent = fmt(tot);
+    document.getElementById('mTot').textContent = Math.round(tot).toLocaleString('ar-EG');
+    return tot;
+  }
+  f.addEventListener('change', calc); calc();
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim(); const errs = {};
+    if (v('cn').length < 2) errs.cn = 'مطلوب';
+    if (!/^05\d{8}$/.test(v('cp').replace(/\s/g,''))) errs.cp = '05 + ٨ أرقام';
+    if (!v('cc')) errs.cc = 'مطلوب';
+    f.querySelectorAll('.err').forEach(el => el.textContent = errs[el.dataset.for] || '');
+    if (Object.keys(errs).length) return document.getElementById(Object.keys(errs)[0]).focus();
+    const t = calc();
+    document.getElementById('cbody').hidden = true; document.getElementById('cok').hidden = false;
+    document.getElementById('cmsg').textContent = q('bean').value + '، ' + q('grind').value + '، ' + q('w').value + ' (' + q('freq').value + '). الإجمالي ' + fmt(t) + ' ر.س. يدخل طلبك دفعة التحميص القادمة، وسنرسل رقم التتبع إلى ' + v('cp') + '.';
+  });
+})();
+</script>
+</body>
+</html>
