@@ -1,0 +1,38 @@
+<%- include('_head') %>
+<header class="admin-header"><div><p class="eyebrow">Protection</p><h1 class="serif-lg">Security</h1></div></header>
+<section class="card">
+  <div class="card-head">
+    <h2>Your active sessions</h2>
+    <% if (sessions.length > 1) { %>
+      <form method="post" action="<%= adminPath %>/account/sessions/revoke-others" data-confirm="Sign out all other sessions?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-ghost btn-small" type="submit">Sign out other sessions</button>
+      </form>
+    <% } %>
+  </div>
+  <ul class="rows">
+    <% sessions.forEach((s) => { %>
+      <li><span><strong><%= s.ip || 'unknown IP' %></strong><% if (s.current) { %> <span class="badge badge-accepted">this device</span><% } %><br><span class="small muted"><%= s.user_agent %></span></span><span class="small muted nowrap">Active <%= fmtDate(s.last_seen) %></span></li>
+    <% }) %>
+  </ul>
+</section>
+<section class="card">
+  <h2>Activity log</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>When</th><th>Event</th><th>Detail</th><th>Admin</th><th>IP</th></tr></thead>
+      <tbody>
+        <% events.forEach((e) => { %>
+          <tr class="<%= /failed|lock/.test(e.action) ? 'warn' : '' %>">
+            <td class="small nowrap"><%= fmtDate(e.created_at) %></td>
+            <td class="mono small"><%= e.action %></td>
+            <td class="small"><%= e.detail %></td>
+            <td class="small"><%= e.email || '—' %></td>
+            <td class="small mono"><%= e.ip %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('_foot') %>

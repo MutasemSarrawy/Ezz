@@ -1,0 +1,32 @@
+<%- include('partials/head') %>
+<section class="page-hero">
+  <div class="wrap narrow reveal">
+    <p class="eyebrow">Free sources</p>
+    <h1 class="display">The best free AI material, <em>hand-picked.</em></h1>
+    <p class="lead muted">Courses, videos and guides we trust. No sign-up, no paywall — just good material to start with.</p>
+  </div>
+</section>
+<section class="section section-tight">
+  <div class="wrap">
+    <% if (categories.length > 1) { %>
+      <div class="filters" role="group" aria-label="Filter by category" data-filters>
+        <button type="button" class="chip" aria-pressed="true" data-filter="all">All</button>
+        <% categories.forEach((c) => { %><button type="button" class="chip" aria-pressed="false" data-filter="<%= c %>"><%= c %></button><% }) %>
+      </div>
+    <% } %>
+    <% if (!resources.length) { %>
+      <p class="muted">New resources are coming soon.</p>
+    <% } %>
+    <ul class="resource-grid">
+      <% resources.forEach((r) => { %>
+        <li class="resource-card reveal" data-category="<%= r.category %>">
+          <div class="resource-meta"><span class="tag tag-soft"><%= r.kind %></span><span class="mono muted"><%= r.category %></span></div>
+          <h2><%= r.title %></h2>
+          <p class="muted"><%= r.description %></p>
+          <a class="link-arrow" href="<%= r.url %>" target="_blank" rel="noopener noreferrer nofollow">Open resource<span class="sr-only"> (opens in a new tab)</span></a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+</section>
+<%- include('partials/foot') %>

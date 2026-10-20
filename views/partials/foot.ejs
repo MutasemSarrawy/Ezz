@@ -1,0 +1,55 @@
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">S</span><span class="brand-name">Sarrawy <em>Academy</em></span></a>
+        <p class="muted footer-note">Practical, honest AI education.</p>
+      </div>
+      <nav aria-label="Footer" class="footer-links">
+        <a href="/about">About</a>
+        <a href="/course">The AI Master</a>
+        <a href="/resources">Free sources</a>
+        <a href="/contact">Contact</a>
+      </nav>
+      <div class="footer-contact">
+        <span class="eyebrow">Write to us</span>
+        <a href="mailto:<%= contactEmail %>"><%= contactEmail %></a>
+      </div>
+    </div>
+    <div class="wrap footer-base">
+      <span>&copy; <%= year %> Sarrawy Academy</span>
+    </div>
+  </footer>
+
+  <div class="chat" data-chat>
+    <button class="chat-launcher" type="button" aria-expanded="false" aria-controls="chat-panel" data-chat-toggle>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" transform="translate(0 1)"/></svg>
+      <span class="chat-launcher-label">Ask us</span>
+    </button>
+    <section id="chat-panel" class="chat-panel" role="dialog" aria-label="Chat with Sarrawy Academy" hidden>
+      <header class="chat-head">
+        <div>
+          <strong>Sarrawy assistant</strong>
+          <span class="muted">Questions about courses, pricing and enrollment</span>
+        </div>
+        <button type="button" class="chat-close" aria-label="Close chat" data-chat-toggle>&times;</button>
+      </header>
+      <div class="chat-log" aria-live="polite" data-chat-log>
+        <div class="chat-msg bot">Hi! Ask me anything about The AI Master course, enrollment or our free resources.</div>
+      </div>
+      <div class="chat-suggest" data-chat-suggest>
+        <button type="button">How long is the course?</button>
+        <button type="button">How do I enroll?</button>
+        <button type="button">How much does it cost?</button>
+      </div>
+      <form class="chat-form" data-chat-form>
+        <label class="sr-only" for="chat-input">Your message</label>
+        <input id="chat-input" name="message" maxlength="500" autocomplete="off" placeholder="Type your question…" required>
+        <button class="btn btn-small" type="submit">Send</button>
+      </form>
+    </section>
+  </div>
+
+  <script src="/static/js/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<%- include('_head') %>
+<header class="admin-header">
+  <div><p class="eyebrow">Content</p><h1 class="serif-lg">Free sources</h1></div>
+  <a class="btn" href="<%= adminPath %>/resources/new">Add source</a>
+</header>
+<section class="card">
+  <% if (!resources.length) { %><p class="muted">No sources yet.</p><% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Type</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>
+        <% resources.forEach((r) => { %>
+          <tr>
+            <td class="mono small"><%= r.position %></td>
+            <td><strong><%= r.title %></strong><br><a class="small muted" href="<%= r.url %>" target="_blank" rel="noopener noreferrer"><%= r.url %></a></td>
+            <td class="small"><%= r.category %></td>
+            <td class="small"><%= r.kind %></td>
+            <td><span class="badge <%= r.published ? 'badge-accepted' : 'badge-declined' %>"><%= r.published ? 'Published' : 'Hidden' %></span></td>
+            <td class="actions-cell nowrap">
+              <a class="btn-link" href="<%= adminPath %>/resources/<%= r.id %>/edit">Edit</a>
+              <form method="post" action="<%= adminPath %>/resources/<%= r.id %>/delete" data-confirm="Delete this source?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn-link danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+<%- include('_foot') %>

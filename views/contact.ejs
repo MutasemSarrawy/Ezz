@@ -1,0 +1,43 @@
+<%- include('partials/head') %>
+<section class="page-hero">
+  <div class="wrap narrow reveal">
+    <p class="eyebrow">Contact us</p>
+    <h1 class="display">Let’s <em>talk.</em></h1>
+    <p class="lead muted">Questions about the course, partnerships or anything else — we read every message and reply within two working days.</p>
+  </div>
+</section>
+<section class="section section-tight">
+  <div class="wrap form-layout">
+    <div class="contact-side reveal">
+      <div class="contact-block">
+        <span class="eyebrow">Email</span>
+        <a class="contact-email" href="mailto:<%= contactEmail %>"><%= contactEmail %></a>
+      </div>
+      <div class="contact-block">
+        <span class="eyebrow">Quick answers</span>
+        <p class="muted">Our assistant can answer common questions about the course, pricing and enrollment right away.</p>
+        <button type="button" class="btn btn-ghost" data-chat-open>Open the chat</button>
+      </div>
+    </div>
+    <% if (sent) { %>
+      <div class="notice notice-success reveal" role="status">
+        <strong>Message sent.</strong>
+        <p>Thank you for reaching out. We’ll reply to your email soon.</p>
+        <p><a href="/contact">Send another message</a></p>
+      </div>
+    <% } else { %>
+      <form class="card form reveal" method="post" action="/contact" novalidate>
+        <%- include('partials/spam-guard') %>
+        <% if (Object.keys(errors).length) { %><p class="notice notice-error" role="alert">Please fix the highlighted fields.</p><% } %>
+        <div class="field-row">
+          <%- include('partials/field', { name: 'name', label: 'Name', max: 100, required: true, autocomplete: 'name' }) %>
+          <%- include('partials/field', { name: 'email', label: 'Email', type: 'email', max: 200, required: true, autocomplete: 'email' }) %>
+        </div>
+        <%- include('partials/field', { name: 'subject', label: 'Subject', max: 150, required: true }) %>
+        <%- include('partials/field', { name: 'message', label: 'Message', type: 'textarea', max: 5000, rows: 6, required: true }) %>
+        <button class="btn" type="submit">Send message</button>
+      </form>
+    <% } %>
+  </div>
+</section>
+<%- include('partials/foot') %>

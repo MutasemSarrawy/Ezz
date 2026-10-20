@@ -1,0 +1,27 @@
+<%- include('_head') %>
+<header class="admin-header"><div><p class="eyebrow">Inbox</p><h1 class="serif-lg">Messages</h1></div></header>
+<section class="card">
+  <% if (!messages.length) { %><p class="muted">No messages yet. Submissions from the contact form will appear here.</p><% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>From</th><th>Subject</th><th>Received</th><th><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>
+        <% messages.forEach((m) => { %>
+          <tr class="<%= m.is_read ? '' : 'unread' %>">
+            <td><strong><%= m.name %></strong><br><span class="muted small"><%= m.email %></span></td>
+            <td><a href="<%= adminPath %>/messages/<%= m.id %>"><% if (!m.is_read) { %><span class="pip" title="Unread"></span><% } %><%= m.subject %></a></td>
+            <td class="small muted nowrap"><%= fmtDate(m.created_at) %></td>
+            <td class="actions-cell">
+              <form method="post" action="<%= adminPath %>/messages/<%= m.id %>/delete" data-confirm="Delete this message permanently?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn-link danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+<%- include('_foot') %>

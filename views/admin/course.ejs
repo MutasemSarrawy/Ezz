@@ -1,0 +1,65 @@
+<%- include('_head') %>
+<header class="admin-header">
+  <div><p class="eyebrow">Content</p><h1 class="serif-lg">Course: <%= course.title %></h1></div>
+  <a class="btn btn-ghost" href="/course" target="_blank" rel="noopener">View page</a>
+</header>
+<% if (saved) { %><p class="notice notice-success" role="status">Course details saved.</p><% } %>
+<form class="card form" method="post" action="<%= adminPath %>/course" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% if (Object.keys(errors).length) { %><p class="notice notice-error" role="alert">Please fix the highlighted fields.</p><% } %>
+  <h2>Details</h2>
+  <div class="field-row">
+    <%- include('../partials/field', { values: course, name: 'title', label: 'Title', max: 80, required: true }) %>
+    <%- include('../partials/field', { values: course, name: 'price_label', label: 'Price (as shown)', max: 80, required: true }) %>
+  </div>
+  <%- include('../partials/field', { values: course, name: 'tagline', label: 'Tagline', max: 160, required: true }) %>
+  <%- include('../partials/field', { values: course, name: 'summary', label: 'Summary', type: 'textarea', rows: 4, max: 1200, required: true }) %>
+  <div class="field-row three">
+    <%- include('../partials/field', { values: course, name: 'duration', label: 'Duration', max: 60, required: true }) %>
+    <%- include('../partials/field', { values: course, name: 'format', label: 'Format', max: 80, required: true }) %>
+    <%- include('../partials/field', { values: course, name: 'level', label: 'Level', max: 60, required: true }) %>
+  </div>
+  <div class="field checkbox-field">
+    <label><input type="checkbox" name="enrollment_open" value="1"<% if (course.enrollment_open) { %> checked<% } %>> Enrollment is open (show the application form)</label>
+  </div>
+  <button class="btn" type="submit">Save details</button>
+</form>
+
+<section class="card" id="modules">
+  <h2>Modules</h2>
+  <ol class="module-admin">
+    <% modules.forEach((m) => { %>
+      <li>
+        <form method="post" action="<%= adminPath %>/course/modules/<%= m.id %>" class="module-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="sr-only" for="mp-<%= m.id %>">Order</label>
+          <input id="mp-<%= m.id %>" class="order-input" name="position" type="number" min="0" max="999" value="<%= m.position %>">
+          <div class="module-fields">
+            <label class="sr-only" for="mt-<%= m.id %>">Title</label>
+            <input id="mt-<%= m.id %>" name="title" value="<%= m.title %>" maxlength="100" required>
+            <label class="sr-only" for="md-<%= m.id %>">Description</label>
+            <textarea id="md-<%= m.id %>" name="description" rows="2" maxlength="500" required><%= m.description %></textarea>
+          </div>
+          <button class="btn btn-small" type="submit">Save</button>
+        </form>
+        <form method="post" action="<%= adminPath %>/course/modules/<%= m.id %>/delete" data-confirm="Delete this module?">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn-link danger" type="submit">Delete</button>
+        </form>
+      </li>
+    <% }) %>
+  </ol>
+  <form method="post" action="<%= adminPath %>/course/modules" class="module-form module-new">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="sr-only" for="mp-new">Order</label>
+    <input id="mp-new" class="order-input" name="position" type="number" min="0" max="999" placeholder="#">
+    <div class="module-fields">
+      <label class="sr-only" for="mt-new">New module title</label>
+      <input id="mt-new" name="title" maxlength="100" placeholder="New module title" required>
+      <label class="sr-only" for="md-new">New module description</label>
+      <textarea id="md-new" name="description" rows="2" maxlength="500" placeholder="What students will learn" required></textarea>
+    </div>
+    <button class="btn btn-small" type="submit">Add module</button>
+  </form>
+</section>
+<%- include('_foot') %>

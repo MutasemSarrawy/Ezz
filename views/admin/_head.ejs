@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %> — Admin · Sarrawy Academy</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/static/css/site.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body class="admin-body">
+<% if (locals.admin) { %>
+  <div class="admin-shell">
+    <aside class="admin-side">
+      <a class="brand" href="<%= adminPath %>"><span class="brand-mark" aria-hidden="true">S</span><span class="brand-name">Sarrawy <em>Admin</em></span></a>
+      <nav class="admin-nav" aria-label="Admin">
+        <% const items = [['dashboard', '', 'Dashboard'], ['messages', '/messages', 'Messages'], ['enrollments', '/enrollments', 'Enrollments'], ['course', '/course', 'Course'], ['resources', '/resources', 'Free sources'], ['chats', '/chats', 'Chat assistant'], ['security', '/security', 'Security'], ['account', '/account', 'Account']]; %>
+        <% items.forEach(([key, href, label]) => { %>
+          <a href="<%= adminPath + href %>"<% if (section === key) { %> aria-current="page"<% } %>><%= label %></a>
+        <% }) %>
+      </nav>
+      <div class="admin-side-foot">
+        <span class="muted small">Signed in as<br><strong><%= admin.name %></strong></span>
+        <form method="post" action="<%= adminPath %>/logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-ghost btn-small" type="submit">Sign out</button>
+        </form>
+        <a class="small" href="/" target="_blank" rel="noopener">View site</a>
+      </div>
+    </aside>
+    <main class="admin-main" id="main">
+<% } else { %>
+  <main class="admin-login" id="main">
+<% } %>

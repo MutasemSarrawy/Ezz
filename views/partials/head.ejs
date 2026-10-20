@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title ? title + ' — Sarrawy Academy' : 'Sarrawy Academy — Practical AI education' %></title>
+  <meta name="description" content="Sarrawy Academy teaches practical, honest AI skills. Join The AI Master course or start with our free sources.">
+  <meta name="csrf-token" content="<%= locals.csrfToken || '' %>">
+  <meta name="theme-color" content="#F4EDE3">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="/" aria-label="Sarrawy Academy home">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span class="brand-name">Sarrawy <em>Academy</em></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="sr-only">Menu</span><span class="bar"></span><span class="bar"></span>
+      </button>
+      <nav id="site-nav" class="site-nav" aria-label="Main">
+        <% const links = [['/about', 'About'], ['/course', 'The AI Master'], ['/resources', 'Free sources'], ['/contact', 'Contact']]; %>
+        <% links.forEach(([href, label]) => { %>
+          <a href="<%= href %>"<% if (path === href) { %> aria-current="page"<% } %>><%= label %></a>
+        <% }) %>
+        <a class="btn btn-small" href="/course#apply">Apply now</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">

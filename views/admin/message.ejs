@@ -1,0 +1,24 @@
+<%- include('_head') %>
+<header class="admin-header">
+  <div><p class="eyebrow"><a href="<%= adminPath %>/messages">Messages</a></p><h1 class="serif-lg"><%= message.subject %></h1></div>
+</header>
+<article class="card">
+  <dl class="meta-list">
+    <div><dt>From</dt><dd><%= message.name %></dd></div>
+    <div><dt>Email</dt><dd><a href="mailto:<%= message.email %>"><%= message.email %></a></dd></div>
+    <div><dt>Received</dt><dd><%= fmtDate(message.created_at) %></dd></div>
+  </dl>
+  <div class="message-body"><%= message.body %></div>
+  <div class="actions">
+    <a class="btn" href="mailto:<%= message.email %>?subject=<%= encodeURIComponent('Re: ' + message.subject) %>">Reply by email</a>
+    <form method="post" action="<%= adminPath %>/messages/<%= message.id %>/unread">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-ghost" type="submit">Mark as unread</button>
+    </form>
+    <form method="post" action="<%= adminPath %>/messages/<%= message.id %>/delete" data-confirm="Delete this message permanently?">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-ghost danger" type="submit">Delete</button>
+    </form>
+  </div>
+</article>
+<%- include('_foot') %>

@@ -1,0 +1,26 @@
+<%- include('_head') %>
+<header class="admin-header">
+  <div><p class="eyebrow"><a href="<%= adminPath %>/resources">Free sources</a></p><h1 class="serif-lg"><%= title %></h1></div>
+</header>
+<form class="card form form-narrow" method="post" action="<%= adminPath %>/resources<%= resource.id ? '/' + resource.id : '' %>" novalidate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% if (Object.keys(errors).length) { %><p class="notice notice-error" role="alert">Please fix the highlighted fields.</p><% } %>
+  <%- include('../partials/field', { values: resource, name: 'title', label: 'Title', max: 120, required: true }) %>
+  <%- include('../partials/field', { values: resource, name: 'description', label: 'Short description', type: 'textarea', rows: 3, max: 400, required: true }) %>
+  <%- include('../partials/field', { values: resource, name: 'url', label: 'Link (https://…)', type: 'url', max: 500, required: true }) %>
+  <div class="field-row">
+    <%- include('../partials/field', { values: resource, name: 'category', label: 'Category', max: 40, required: true }) %>
+    <%- include('../partials/field', { values: resource, name: 'kind', label: 'Type', type: 'select', options: kinds, required: true }) %>
+  </div>
+  <div class="field-row">
+    <%- include('../partials/field', { values: { position: resource.position == null ? '' : String(resource.position) }, name: 'position', label: 'Display order', type: 'number', max: 5 }) %>
+    <div class="field checkbox-field">
+      <label><input type="checkbox" name="published" value="1"<% if (resource.published) { %> checked<% } %>> Published on the site</label>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="submit">Save</button>
+    <a class="btn btn-ghost" href="<%= adminPath %>/resources">Cancel</a>
+  </div>
+</form>
+<%- include('_foot') %>

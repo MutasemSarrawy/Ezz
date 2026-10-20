@@ -1,0 +1,41 @@
+<%- include('_head') %>
+<header class="admin-header">
+  <div><p class="eyebrow">The AI Master</p><h1 class="serif-lg">Enrollments</h1></div>
+  <% if (enrollments.length) { %><a class="btn btn-ghost" href="<%= adminPath %>/enrollments.csv">Export CSV</a><% } %>
+</header>
+<section class="card">
+  <% if (!enrollments.length) { %><p class="muted">No applications yet. Submissions from the course page will appear here.</p><% } else { %>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Applicant</th><th>Experience</th><th>Goals</th><th>Applied</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>
+        <% enrollments.forEach((e) => { %>
+          <tr>
+            <td><strong><%= e.name %></strong><br><a class="small" href="mailto:<%= e.email %>"><%= e.email %></a><% if (e.phone) { %><br><span class="small muted"><%= e.phone %></span><% } %></td>
+            <td class="small"><%= e.level %></td>
+            <td class="small goals"><%= e.goals || '—' %></td>
+            <td class="small muted nowrap"><%= fmtDate(e.created_at) %></td>
+            <td>
+              <form method="post" action="<%= adminPath %>/enrollments/<%= e.id %>/status" class="inline-form" data-autosubmit>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <label class="sr-only" for="status-<%= e.id %>">Status</label>
+                <select id="status-<%= e.id %>" name="status">
+                  <% statuses.forEach((s) => { %><option value="<%= s %>"<% if (s === e.status) { %> selected<% } %>><%= s %></option><% }) %>
+                </select>
+                <noscript><button class="btn-link" type="submit">Save</button></noscript>
+              </form>
+            </td>
+            <td class="actions-cell">
+              <form method="post" action="<%= adminPath %>/enrollments/<%= e.id %>/delete" data-confirm="Delete this application permanently?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn-link danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+<%- include('_foot') %>

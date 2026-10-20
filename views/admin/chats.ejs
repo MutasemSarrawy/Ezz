@@ -1,0 +1,17 @@
+<%- include('_head') %>
+<header class="admin-header"><div><p class="eyebrow">Insights</p><h1 class="serif-lg">Chat assistant</h1></div></header>
+<p class="muted">The last 300 questions visitors asked the website assistant (kept for 90 days). Use them to spot what people want to know.</p>
+<section class="card">
+  <% if (!chats.length) { %><p class="muted">No conversations yet.</p><% } else { %>
+  <ul class="chat-history">
+    <% chats.forEach((c) => { %>
+      <li>
+        <p class="q"><strong><%= c.question %></strong></p>
+        <p class="a muted"><%= c.answer %></p>
+        <span class="small muted"><%= fmtDate(c.created_at) %> · <%= c.source === 'claude' ? 'AI answer' : 'FAQ answer' %></span>
+      </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</section>
+<%- include('_foot') %>

@@ -1,0 +1,93 @@
+<%- include('partials/head') %>
+<section class="page-hero">
+  <div class="wrap course-hero">
+    <div class="reveal">
+      <p class="eyebrow">Course 01 · <%= course.level %></p>
+      <h1 class="display"><%= course.title %></h1>
+      <p class="lead"><%= course.tagline %></p>
+      <p class="muted prose"><%= course.summary %></p>
+      <div class="actions">
+        <a class="btn" href="#apply"><%= course.enrollment_open ? 'Apply now' : 'Join the waitlist' %></a>
+        <a class="btn btn-ghost" href="#modules">See the curriculum</a>
+      </div>
+    </div>
+    <dl class="fact-card reveal">
+      <div><dt>Duration</dt><dd><%= course.duration %></dd></div>
+      <div><dt>Format</dt><dd><%= course.format %></dd></div>
+      <div><dt>Level</dt><dd><%= course.level %></dd></div>
+      <div><dt>Investment</dt><dd><%= course.price_label %></dd></div>
+      <div><dt>Enrollment</dt><dd><span class="status <%= course.enrollment_open ? 'status-open' : '' %>"><%= course.enrollment_open ? 'Open' : 'Closed' %></span></dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="section" id="modules">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Curriculum</p>
+      <h2 class="display-md"><%= modules.length %> modules, one clear path.</h2>
+    </div>
+    <ol class="modules">
+      <% modules.forEach((m, i) => { %>
+        <li class="module reveal">
+          <span class="module-num mono"><%= String(i + 1).padStart(2, '0') %></span>
+          <div>
+            <h3><%= m.title %></h3>
+            <p class="muted"><%= m.description %></p>
+          </div>
+        </li>
+      <% }) %>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="wrap split split-top">
+    <div class="reveal">
+      <p class="eyebrow">Who it’s for</p>
+      <h2 class="display-md">Built for curious, practical people.</h2>
+    </div>
+    <ul class="checklist reveal">
+      <li>Professionals who want to work faster and smarter with AI tools.</li>
+      <li>Students and graduates preparing for an AI-shaped job market.</li>
+      <li>Founders and creators who want to build AI into their products.</li>
+      <li>Anyone who wants to understand AI without the hype.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="apply">
+  <div class="wrap form-layout">
+    <div class="reveal">
+      <p class="eyebrow"><%= course.enrollment_open ? 'Apply' : 'Waitlist' %></p>
+      <h2 class="display-md"><%= course.enrollment_open ? 'Reserve your place.' : 'Enrollment is closed for now.' %></h2>
+      <p class="muted"><%= course.enrollment_open
+        ? 'Tell us a little about yourself. We review every application and reply within two working days with next steps and pricing.'
+        : 'We’ll open the next intake soon. Send us a message and we’ll let you know first.' %></p>
+    </div>
+    <% if (sent) { %>
+      <div class="notice notice-success reveal" role="status">
+        <strong>Application received.</strong>
+        <p>Thank you! We’ll be in touch by email within two working days.</p>
+      </div>
+    <% } else if (course.enrollment_open) { %>
+      <form class="card form reveal" method="post" action="/course/apply#apply" novalidate>
+        <%- include('partials/spam-guard') %>
+        <% if (Object.keys(errors).length) { %><p class="notice notice-error" role="alert">Please fix the highlighted fields.</p><% } %>
+        <div class="field-row">
+          <%- include('partials/field', { name: 'name', label: 'Full name', max: 100, required: true, autocomplete: 'name' }) %>
+          <%- include('partials/field', { name: 'email', label: 'Email', type: 'email', max: 200, required: true, autocomplete: 'email' }) %>
+        </div>
+        <div class="field-row">
+          <%- include('partials/field', { name: 'phone', label: 'Phone / WhatsApp', type: 'tel', max: 30, autocomplete: 'tel' }) %>
+          <%- include('partials/field', { name: 'level', label: 'Experience with AI', type: 'select', options: levels, required: true }) %>
+        </div>
+        <%- include('partials/field', { name: 'goals', label: 'What do you want to achieve?', type: 'textarea', max: 2000, rows: 4 }) %>
+        <button class="btn" type="submit">Send application</button>
+      </form>
+    <% } else { %>
+      <div class="card reveal"><a class="btn" href="/contact">Contact us</a></div>
+    <% } %>
+  </div>
+</section>
+<%- include('partials/foot') %>

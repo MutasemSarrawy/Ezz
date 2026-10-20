@@ -1,0 +1,16 @@
+<%# Renders a labelled input/textarea/select with an inline error. %>
+<% const v = values[name] || ''; const err = errors[name]; const id = 'f-' + name; %>
+<div class="field<%= err ? ' has-error' : '' %>">
+  <label for="<%= id %>"><%= label %><% if (!locals.required) { %> <span class="muted">(optional)</span><% } %></label>
+  <% if (locals.type === 'textarea') { %>
+    <textarea id="<%= id %>" name="<%= name %>" rows="<%= locals.rows || 5 %>" maxlength="<%= max %>"<% if (locals.required) { %> required<% } %><% if (err) { %> aria-invalid="true" aria-describedby="<%= id %>-err"<% } %>><%= v %></textarea>
+  <% } else if (locals.type === 'select') { %>
+    <select id="<%= id %>" name="<%= name %>"<% if (locals.required) { %> required<% } %><% if (err) { %> aria-invalid="true" aria-describedby="<%= id %>-err"<% } %>>
+      <option value="">Choose one…</option>
+      <% options.forEach((o) => { %><option value="<%= o %>"<% if (o === v) { %> selected<% } %>><%= o %></option><% }) %>
+    </select>
+  <% } else { %>
+    <input id="<%= id %>" name="<%= name %>" type="<%= locals.type || 'text' %>" value="<%= v %>" maxlength="<%= max %>" autocomplete="<%= locals.autocomplete || 'off' %>"<% if (locals.required) { %> required<% } %><% if (err) { %> aria-invalid="true" aria-describedby="<%= id %>-err"<% } %>>
+  <% } %>
+  <% if (err) { %><p class="field-error" id="<%= id %>-err"><%= err %></p><% } %>
+</div>
